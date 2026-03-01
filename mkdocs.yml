@@ -1,10 +1,10 @@
 site_name: norma-ntc
 site_description: Python library for structural verification according to NTC 2018
 site_author: Raffaele Sestito
-site_url: https://PLACEHOLDER.github.io/pyntc/
+site_url: https://rafse.github.io/norma-ntc/
 
-repo_name: PLACEHOLDER/pyntc
-repo_url: https://github.com/PLACEHOLDER/pyntc
+repo_name: rafse/norma-ntc
+repo_url: https://github.com/rafse/norma-ntc
 
 theme:
   name: material

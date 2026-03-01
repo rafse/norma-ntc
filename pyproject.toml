@@ -23,6 +23,11 @@ dependencies = [
     "numpy>=1.24",
 ]
 
+[project.urls]
+Homepage = "https://github.com/rafse/norma-ntc"
+Repository = "https://github.com/rafse/norma-ntc"
+Issues = "https://github.com/rafse/norma-ntc/issues"
+
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
