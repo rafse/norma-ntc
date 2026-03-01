@@ -1,0 +1,643 @@
+"""Test per steel — NTC18 §4.2."""
+
+import math
+
+import pytest
+from numpy.testing import assert_allclose
+
+from pyntc.checks.steel import (
+    bolt_shear_resistance,
+    bolt_shear_tension_interaction,
+    bolt_tension_resistance,
+    steel_bending_resistance,
+    steel_bending_shear_reduction,
+    steel_biaxial_check,
+    steel_buckling_imperfection,
+    steel_buckling_reduction,
+    steel_buckling_resistance,
+    steel_compression_resistance,
+    steel_grade_properties,
+    steel_lt_buckling_reduction,
+    steel_lt_buckling_resistance,
+    steel_NM_resistance_y,
+    steel_NM_resistance_z,
+    steel_shear_resistance,
+    steel_tension_resistance,
+    weld_fillet_resistance,
+)
+from pyntc.core.reference import get_ntc_ref
+
+
+# ── Tab.4.2.I — Proprieta' acciaio laminato ─────────────────────────────────
+
+
+class TestSteelGradeProperties:
+    """NTC18 §4.2.1.1, Tab. 4.2.I — Acciaio laminato."""
+
+    def test_s235_thin(self):
+        """S235, t <= 40 mm: f_yk=235, f_tk=360 N/mm^2."""
+        f_yk, f_tk = steel_grade_properties("S235", thickness=20.0)
+        assert_allclose(f_yk, 235.0, rtol=1e-3)
+        assert_allclose(f_tk, 360.0, rtol=1e-3)
+
+    def test_s275_thin(self):
+        """S275, t <= 40 mm: f_yk=275, f_tk=430 N/mm^2."""
+        f_yk, f_tk = steel_grade_properties("S275", thickness=10.0)
+        assert_allclose(f_yk, 275.0, rtol=1e-3)
+        assert_allclose(f_tk, 430.0, rtol=1e-3)
+
+    def test_s355_thin(self):
+        """S355, t <= 40 mm: f_yk=355, f_tk=510 N/mm^2."""
+        f_yk, f_tk = steel_grade_properties("S355", thickness=30.0)
+        assert_allclose(f_yk, 355.0, rtol=1e-3)
+        assert_allclose(f_tk, 510.0, rtol=1e-3)
+
+    def test_s355_thick(self):
+        """S355, 40 < t <= 80 mm: f_yk=335, f_tk=470 N/mm^2."""
+        f_yk, f_tk = steel_grade_properties("S355", thickness=60.0)
+        assert_allclose(f_yk, 335.0, rtol=1e-3)
+        assert_allclose(f_tk, 470.0, rtol=1e-3)
+
+    def test_s460_thin(self):
+        """S460, t <= 40 mm: f_yk=460, f_tk=540 N/mm^2."""
+        f_yk, f_tk = steel_grade_properties("S460", thickness=25.0)
+        assert_allclose(f_yk, 460.0, rtol=1e-3)
+        assert_allclose(f_tk, 540.0, rtol=1e-3)
+
+    def test_s460_thick(self):
+        """S460, 40 < t <= 80 mm: f_yk=430, f_tk=540 N/mm^2."""
+        f_yk, f_tk = steel_grade_properties("S460", thickness=50.0)
+        assert_allclose(f_yk, 430.0, rtol=1e-3)
+        assert_allclose(f_tk, 540.0, rtol=1e-3)
+
+    def test_invalid_grade_raises(self):
+        with pytest.raises(ValueError, match="grade"):
+            steel_grade_properties("S500", thickness=20.0)
+
+    def test_thickness_over_80_raises(self):
+        with pytest.raises(ValueError, match="thickness"):
+            steel_grade_properties("S235", thickness=100.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_grade_properties)
+        assert ref is not None
+        assert ref.article == "4.2.1.1"
+
+
+# ── [4.2.6-4.2.7] — Resistenza a trazione ───────────────────────────────────
+
+
+class TestSteelTensionResistance:
+    """NTC18 §4.2.4.1.2.1, Formule [4.2.6-4.2.7]."""
+
+    def test_plastic_only(self):
+        """N_pl,Rd = A * f_yk / gamma_M0 = 5000 * 235 / 1.05 = 1119048 N."""
+        N_pl, N_u = steel_tension_resistance(
+            A=5000.0, f_yk=235.0, gamma_M0=1.05
+        )
+        assert_allclose(N_pl, 5000.0 * 235.0 / 1.05, rtol=1e-3)
+        assert N_u is None
+
+    def test_with_net_section(self):
+        """N_u,Rd = 0.9 * A_net * f_tk / gamma_M2."""
+        N_pl, N_u = steel_tension_resistance(
+            A=5000.0, f_yk=235.0, gamma_M0=1.05,
+            A_net=4200.0, f_tk=360.0, gamma_M2=1.25,
+        )
+        expected_N_pl = 5000.0 * 235.0 / 1.05
+        expected_N_u = 0.9 * 4200.0 * 360.0 / 1.25
+        assert_allclose(N_pl, expected_N_pl, rtol=1e-3)
+        assert_allclose(N_u, expected_N_u, rtol=1e-3)
+
+    def test_hierarchy_check(self):
+        """Verifica che N_pl,Rd e N_u,Rd siano confrontabili per gerarchia [4.2.8]."""
+        N_pl, N_u = steel_tension_resistance(
+            A=5000.0, f_yk=235.0, gamma_M0=1.05,
+            A_net=4500.0, f_tk=360.0, gamma_M2=1.25,
+        )
+        # Gerarchia: N_pl,Rd <= N_u,Rd per duttilita'
+        assert N_pl <= N_u
+
+    def test_negative_area_raises(self):
+        with pytest.raises(ValueError):
+            steel_tension_resistance(A=-1.0, f_yk=235.0, gamma_M0=1.05)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_tension_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.1"
+
+
+# ── [4.2.10] — Resistenza a compressione ────────────────────────────────────
+
+
+class TestSteelCompressionResistance:
+    """NTC18 §4.2.4.1.2.2, Formula [4.2.10]."""
+
+    def test_basic(self):
+        """N_c,Rd = A * f_yk / gamma_M0 = 5000 * 355 / 1.05."""
+        result = steel_compression_resistance(A=5000.0, f_yk=355.0, gamma_M0=1.05)
+        assert_allclose(result, 5000.0 * 355.0 / 1.05, rtol=1e-3)
+
+    def test_s235(self):
+        """N_c,Rd con S235."""
+        result = steel_compression_resistance(A=3000.0, f_yk=235.0, gamma_M0=1.05)
+        assert_allclose(result, 3000.0 * 235.0 / 1.05, rtol=1e-3)
+
+    def test_zero_area_raises(self):
+        with pytest.raises(ValueError):
+            steel_compression_resistance(A=0.0, f_yk=235.0, gamma_M0=1.05)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_compression_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.2"
+
+
+# ── [4.2.12-4.2.14] — Resistenza a flessione ───────────────────────────────
+
+
+class TestSteelBendingResistance:
+    """NTC18 §4.2.4.1.2.3, Formule [4.2.12-4.2.14]."""
+
+    def test_class_1_2(self):
+        """M_c,Rd = W_pl * f_yk / gamma_M0."""
+        result = steel_bending_resistance(W=500e3, f_yk=355.0, gamma_M0=1.05)
+        assert_allclose(result, 500e3 * 355.0 / 1.05, rtol=1e-3)
+
+    def test_class_3_elastic(self):
+        """W_el < W_pl: ancora M = W * f_yk / gamma_M0."""
+        result = steel_bending_resistance(W=400e3, f_yk=275.0, gamma_M0=1.05)
+        assert_allclose(result, 400e3 * 275.0 / 1.05, rtol=1e-3)
+
+    def test_s460(self):
+        """Grado S460."""
+        result = steel_bending_resistance(W=600e3, f_yk=460.0, gamma_M0=1.05)
+        assert_allclose(result, 600e3 * 460.0 / 1.05, rtol=1e-3)
+
+    def test_zero_W_raises(self):
+        with pytest.raises(ValueError):
+            steel_bending_resistance(W=0.0, f_yk=355.0, gamma_M0=1.05)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_bending_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.3"
+
+
+# ── [4.2.17] — Resistenza a taglio ──────────────────────────────────────────
+
+
+class TestSteelShearResistance:
+    """NTC18 §4.2.4.1.2.4, Formula [4.2.17]."""
+
+    def test_basic(self):
+        """V_c,Rd = A_v * f_yk / (sqrt(3) * gamma_M0)."""
+        result = steel_shear_resistance(A_v=3000.0, f_yk=355.0, gamma_M0=1.05)
+        expected = 3000.0 * 355.0 / (math.sqrt(3) * 1.05)
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_s235(self):
+        """S235: V_c,Rd = 2000 * 235 / (sqrt(3) * 1.05)."""
+        result = steel_shear_resistance(A_v=2000.0, f_yk=235.0, gamma_M0=1.05)
+        expected = 2000.0 * 235.0 / (math.sqrt(3) * 1.05)
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_zero_Av_raises(self):
+        with pytest.raises(ValueError):
+            steel_shear_resistance(A_v=0.0, f_yk=355.0, gamma_M0=1.05)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_shear_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.4"
+
+
+# ── [4.2.30-4.2.31] — Riduzione flessione per taglio ────────────────────────
+
+
+class TestSteelBendingShearReduction:
+    """NTC18 §4.2.4.1.2.6, Formule [4.2.30-4.2.31]."""
+
+    def test_low_shear_no_reduction(self):
+        """V_Ed <= 0.5 * V_c,Rd: rho = 0."""
+        rho = steel_bending_shear_reduction(V_Ed=100.0, V_c_Rd=400.0)
+        assert_allclose(rho, 0.0, atol=1e-10)
+
+    def test_exactly_half(self):
+        """V_Ed = 0.5 * V_c,Rd: rho = 0 (boundary)."""
+        rho = steel_bending_shear_reduction(V_Ed=200.0, V_c_Rd=400.0)
+        assert_allclose(rho, 0.0, atol=1e-10)
+
+    def test_high_shear(self):
+        """V_Ed = 300, V_c,Rd = 400: rho = (2*300/400 - 1)^2 = 0.25."""
+        rho = steel_bending_shear_reduction(V_Ed=300.0, V_c_Rd=400.0)
+        expected = (2.0 * 300.0 / 400.0 - 1.0) ** 2
+        assert_allclose(rho, expected, rtol=1e-3)
+
+    def test_full_shear(self):
+        """V_Ed = V_c,Rd: rho = (2 - 1)^2 = 1.0."""
+        rho = steel_bending_shear_reduction(V_Ed=400.0, V_c_Rd=400.0)
+        assert_allclose(rho, 1.0, rtol=1e-3)
+
+    def test_zero_Vcrd_raises(self):
+        with pytest.raises(ValueError):
+            steel_bending_shear_reduction(V_Ed=100.0, V_c_Rd=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_bending_shear_reduction)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.6"
+
+
+# ── [4.2.33] — Presso/tenso-flessione nel piano dell'anima ──────────────────
+
+
+class TestSteelNMResistanceY:
+    """NTC18 §4.2.4.1.2.7, Formula [4.2.33]."""
+
+    def test_basic(self):
+        """M_N,y,Rd = M_pl,y,Rd * (1-n)/(1-0.5*a)."""
+        # n=0.3, a=0.4, M_pl=500 kNm
+        result = steel_NM_resistance_y(n=0.3, a=0.4, M_pl_y_Rd=500.0)
+        expected = 500.0 * (1.0 - 0.3) / (1.0 - 0.5 * 0.4)
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_no_axial(self):
+        """n=0: M_N,y,Rd = M_pl,y,Rd."""
+        result = steel_NM_resistance_y(n=0.0, a=0.4, M_pl_y_Rd=500.0)
+        assert_allclose(result, 500.0, rtol=1e-3)
+
+    def test_capped_at_Mpl(self):
+        """Risultato limitato a M_pl,y,Rd."""
+        # Per n piccolo e a grande il risultato potrebbe superare M_pl
+        result = steel_NM_resistance_y(n=0.05, a=0.5, M_pl_y_Rd=500.0)
+        assert result <= 500.0 + 1e-6  # ≤ M_pl,y,Rd
+
+    def test_negative_n_raises(self):
+        with pytest.raises(ValueError):
+            steel_NM_resistance_y(n=-0.1, a=0.4, M_pl_y_Rd=500.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_NM_resistance_y)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.7"
+
+
+# ── [4.2.34-4.2.35] — Presso/tenso-flessione nel piano delle ali ────────────
+
+
+class TestSteelNMResistanceZ:
+    """NTC18 §4.2.4.1.2.7, Formule [4.2.34-4.2.35]."""
+
+    def test_n_le_a(self):
+        """n <= a: M_N,z,Rd = M_pl,z,Rd."""
+        result = steel_NM_resistance_z(n=0.3, a=0.4, M_pl_z_Rd=200.0)
+        assert_allclose(result, 200.0, rtol=1e-3)
+
+    def test_n_gt_a(self):
+        """n > a: M_N,z,Rd = M_pl,z,Rd * [1 - ((n-a)/(1-a))^2]."""
+        result = steel_NM_resistance_z(n=0.6, a=0.4, M_pl_z_Rd=200.0)
+        expected = 200.0 * (1.0 - ((0.6 - 0.4) / (1.0 - 0.4)) ** 2)
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_n_equals_a(self):
+        """n = a: boundary, M_N,z,Rd = M_pl,z,Rd."""
+        result = steel_NM_resistance_z(n=0.4, a=0.4, M_pl_z_Rd=200.0)
+        assert_allclose(result, 200.0, rtol=1e-3)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_NM_resistance_z)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.7"
+
+
+# ── [4.2.38-4.2.39] — Presso/tenso-flessione biassiale ──────────────────────
+
+
+class TestSteelBiaxialCheck:
+    """NTC18 §4.2.4.1.28, Formule [4.2.38-4.2.39]."""
+
+    def test_n_ge_02_passes(self):
+        """n >= 0.2: (My/MNy)^2 + (Mz/MNz)^(5n) <= 1."""
+        # n=0.3: (100/400)^2 + (50/200)^(1.5) = 0.0625 + 0.3536 = 0.416
+        passes, utilization = steel_biaxial_check(
+            M_y_Ed=100.0, M_z_Ed=50.0,
+            M_N_y_Rd=400.0, M_N_z_Rd=200.0, n=0.3,
+        )
+        assert passes is True
+        assert utilization < 1.0
+
+    def test_n_ge_02_fails(self):
+        """n >= 0.2: rapporto > 1 => non passa."""
+        passes, utilization = steel_biaxial_check(
+            M_y_Ed=350.0, M_z_Ed=180.0,
+            M_N_y_Rd=400.0, M_N_z_Rd=200.0, n=0.3,
+        )
+        assert passes is False
+        assert utilization > 1.0
+
+    def test_n_lt_02_linear(self):
+        """n < 0.2: My/MNy + Mz/MNz <= 1 (interazione lineare)."""
+        passes, utilization = steel_biaxial_check(
+            M_y_Ed=100.0, M_z_Ed=50.0,
+            M_N_y_Rd=400.0, M_N_z_Rd=200.0, n=0.1,
+        )
+        expected = 100.0 / 400.0 + 50.0 / 200.0  # 0.5
+        assert passes is True
+        assert_allclose(utilization, expected, rtol=1e-3)
+
+    def test_n_lt_02_fails(self):
+        """n < 0.2: interazione lineare > 1."""
+        passes, utilization = steel_biaxial_check(
+            M_y_Ed=300.0, M_z_Ed=150.0,
+            M_N_y_Rd=400.0, M_N_z_Rd=200.0, n=0.1,
+        )
+        assert passes is False
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_biaxial_check)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.28"
+
+
+# ── Tab.4.2.VIII — Fattori di imperfezione ───────────────────────────────────
+
+
+class TestSteelBucklingImperfection:
+    """NTC18 §4.2.4.1.3.1, Tab. 4.2.VIII."""
+
+    def test_curve_a0(self):
+        assert_allclose(steel_buckling_imperfection("a0"), 0.13, rtol=1e-3)
+
+    def test_curve_a(self):
+        assert_allclose(steel_buckling_imperfection("a"), 0.21, rtol=1e-3)
+
+    def test_curve_b(self):
+        assert_allclose(steel_buckling_imperfection("b"), 0.34, rtol=1e-3)
+
+    def test_curve_c(self):
+        assert_allclose(steel_buckling_imperfection("c"), 0.49, rtol=1e-3)
+
+    def test_curve_d(self):
+        assert_allclose(steel_buckling_imperfection("d"), 0.76, rtol=1e-3)
+
+    def test_invalid_curve_raises(self):
+        with pytest.raises(ValueError, match="curve"):
+            steel_buckling_imperfection("e")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_buckling_imperfection)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.3.1"
+
+
+# ── [4.2.44] — Coefficiente di riduzione instabilita' ───────────────────────
+
+
+class TestSteelBucklingReduction:
+    """NTC18 §4.2.4.1.3.1, Formula [4.2.44]."""
+
+    def test_low_lambda_no_buckling(self):
+        """lambda_bar <= 0.2: chi = 1.0 (instabilita' trascurabile)."""
+        chi = steel_buckling_reduction(lambda_bar=0.15, alpha=0.21)
+        assert_allclose(chi, 1.0, rtol=1e-3)
+
+    def test_lambda_1_curve_a(self):
+        """lambda_bar = 1.0, curva a (alpha=0.21)."""
+        alpha = 0.21
+        lam = 1.0
+        Phi = 0.5 * (1 + alpha * (lam - 0.2) + lam ** 2)
+        expected = 1.0 / (Phi + math.sqrt(Phi ** 2 - lam ** 2))
+        chi = steel_buckling_reduction(lambda_bar=1.0, alpha=0.21)
+        assert_allclose(chi, expected, rtol=1e-3)
+
+    def test_lambda_2_curve_c(self):
+        """lambda_bar = 2.0, curva c (alpha=0.49): chi << 1."""
+        chi = steel_buckling_reduction(lambda_bar=2.0, alpha=0.49)
+        assert chi < 0.3
+
+    def test_chi_le_1(self):
+        """chi non supera mai 1.0."""
+        chi = steel_buckling_reduction(lambda_bar=0.1, alpha=0.13)
+        assert chi <= 1.0 + 1e-10
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_buckling_reduction)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.3.1"
+
+
+# ── [4.2.42] — Resistenza instabilita' aste compresse ───────────────────────
+
+
+class TestSteelBucklingResistance:
+    """NTC18 §4.2.4.1.3.1, Formula [4.2.42]."""
+
+    def test_basic(self):
+        """N_b,Rd = chi * A * f_yk / gamma_M1."""
+        result = steel_buckling_resistance(
+            chi=0.8, A=5000.0, f_yk=355.0, gamma_M1=1.05
+        )
+        assert_allclose(result, 0.8 * 5000.0 * 355.0 / 1.05, rtol=1e-3)
+
+    def test_chi_one(self):
+        """chi = 1 (nessuna riduzione)."""
+        result = steel_buckling_resistance(
+            chi=1.0, A=3000.0, f_yk=235.0, gamma_M1=1.05
+        )
+        expected = 3000.0 * 235.0 / 1.05
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_buckling_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.3.1"
+
+
+# ── [4.2.50] — Coefficiente riduzione instabilita' flesso-torsionale ────────
+
+
+class TestSteelLTBucklingReduction:
+    """NTC18 §4.2.4.1.3.2, Formula [4.2.50]."""
+
+    def test_low_lambda(self):
+        """lambda_LT_bar <= 0.2: chi_LT = 1.0."""
+        chi_LT = steel_lt_buckling_reduction(lambda_LT_bar=0.15, alpha_LT=0.34)
+        assert_allclose(chi_LT, 1.0, rtol=1e-3)
+
+    def test_lambda_1_curve_b(self):
+        """lambda_LT_bar = 1.0, curva b (alpha=0.34)."""
+        alpha = 0.34
+        lam = 1.0
+        Phi = 0.5 * (1 + alpha * (lam - 0.2) + lam ** 2)
+        expected = 1.0 / (Phi + math.sqrt(Phi ** 2 - lam ** 2))
+        chi_LT = steel_lt_buckling_reduction(lambda_LT_bar=1.0, alpha_LT=0.34)
+        assert_allclose(chi_LT, expected, rtol=1e-3)
+
+    def test_high_lambda(self):
+        """lambda_LT elevato: chi_LT molto basso."""
+        chi_LT = steel_lt_buckling_reduction(lambda_LT_bar=2.5, alpha_LT=0.49)
+        assert chi_LT < 0.2
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_lt_buckling_reduction)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.3.2"
+
+
+# ── [4.2.49] — Resistenza instabilita' flesso-torsionale ────────────────────
+
+
+class TestSteelLTBucklingResistance:
+    """NTC18 §4.2.4.1.3.2, Formula [4.2.49]."""
+
+    def test_basic(self):
+        """M_b,Rd = chi_LT * W_y * f_yk / gamma_M1."""
+        result = steel_lt_buckling_resistance(
+            chi_LT=0.7, W_y=500e3, f_yk=355.0, gamma_M1=1.05
+        )
+        assert_allclose(result, 0.7 * 500e3 * 355.0 / 1.05, rtol=1e-3)
+
+    def test_chi_one(self):
+        """chi_LT = 1: nessuna riduzione."""
+        result = steel_lt_buckling_resistance(
+            chi_LT=1.0, W_y=400e3, f_yk=275.0, gamma_M1=1.05
+        )
+        assert_allclose(result, 400e3 * 275.0 / 1.05, rtol=1e-3)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_lt_buckling_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.3.2"
+
+
+# ── [4.2.63-4.2.66] — Resistenza a taglio bulloni ───────────────────────────
+
+
+class TestBoltShearResistance:
+    """NTC18 §4.2.8.1.1, Formule [4.2.63-4.2.66]."""
+
+    def test_class_88(self):
+        """Classe 8.8: F_v,Rd = 0.6 * f_ub * A_s / gamma_M2."""
+        result = bolt_shear_resistance(
+            f_ub=800.0, A_s=245.0, bolt_class="8.8", gamma_M2=1.25
+        )
+        assert_allclose(result, 0.6 * 800.0 * 245.0 / 1.25, rtol=1e-3)
+
+    def test_class_109(self):
+        """Classe 10.9: F_v,Rd = 0.5 * f_ub * A_s / gamma_M2."""
+        result = bolt_shear_resistance(
+            f_ub=1000.0, A_s=245.0, bolt_class="10.9", gamma_M2=1.25
+        )
+        assert_allclose(result, 0.5 * 1000.0 * 245.0 / 1.25, rtol=1e-3)
+
+    def test_class_46(self):
+        """Classe 4.6: F_v,Rd = 0.6 * f_ub * A_s / gamma_M2."""
+        result = bolt_shear_resistance(
+            f_ub=400.0, A_s=157.0, bolt_class="4.6", gamma_M2=1.25
+        )
+        assert_allclose(result, 0.6 * 400.0 * 157.0 / 1.25, rtol=1e-3)
+
+    def test_invalid_class_raises(self):
+        with pytest.raises(ValueError, match="bolt_class"):
+            bolt_shear_resistance(f_ub=800.0, A_s=245.0, bolt_class="12.9", gamma_M2=1.25)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bolt_shear_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.1"
+
+
+# ── [4.2.68] — Resistenza a trazione bulloni ────────────────────────────────
+
+
+class TestBoltTensionResistance:
+    """NTC18 §4.2.8.1.1, Formula [4.2.68]."""
+
+    def test_basic(self):
+        """F_t,Rd = 0.9 * f_ub * A_s / gamma_M2."""
+        result = bolt_tension_resistance(
+            f_ub=800.0, A_s=245.0, gamma_M2=1.25
+        )
+        assert_allclose(result, 0.9 * 800.0 * 245.0 / 1.25, rtol=1e-3)
+
+    def test_class_109(self):
+        """Bullone 10.9, M20 (A_s=245)."""
+        result = bolt_tension_resistance(
+            f_ub=1000.0, A_s=245.0, gamma_M2=1.25
+        )
+        assert_allclose(result, 0.9 * 1000.0 * 245.0 / 1.25, rtol=1e-3)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bolt_tension_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.1"
+
+
+# ── [4.2.71] — Interazione taglio + trazione bulloni ────────────────────────
+
+
+class TestBoltShearTensionInteraction:
+    """NTC18 §4.2.8.1.1, Formula [4.2.71]."""
+
+    def test_passes(self):
+        """F_v/F_vRd + F_t/F_tRd = 0.4 + 0.3 = 0.7 <= 1: passa."""
+        passes, util = bolt_shear_tension_interaction(
+            F_v_Ed=40.0, F_t_Ed=30.0, F_v_Rd=100.0, F_t_Rd=100.0
+        )
+        assert passes is True
+        assert_allclose(util, 0.7, rtol=1e-3)
+
+    def test_fails(self):
+        """F_v/F_vRd + F_t/F_tRd > 1: non passa."""
+        passes, util = bolt_shear_tension_interaction(
+            F_v_Ed=60.0, F_t_Ed=50.0, F_v_Rd=100.0, F_t_Rd=100.0
+        )
+        assert passes is False
+        assert util > 1.0
+
+    def test_pure_shear(self):
+        """Solo taglio: F_t_Ed = 0."""
+        passes, util = bolt_shear_tension_interaction(
+            F_v_Ed=80.0, F_t_Ed=0.0, F_v_Rd=100.0, F_t_Rd=100.0
+        )
+        assert passes is True
+        assert_allclose(util, 0.8, rtol=1e-3)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bolt_shear_tension_interaction)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.1"
+
+
+# ── [4.2.81-4.2.83] — Resistenza saldature a cordoni d'angolo ───────────────
+
+
+class TestWeldFilletResistance:
+    """NTC18 §4.2.8.2.4, Formule [4.2.81-4.2.83]."""
+
+    def test_s235(self):
+        """S235: beta_w=0.80, F_w,Rd = a * f_tk / (sqrt(3) * beta_w * gamma_M2)."""
+        result = weld_fillet_resistance(
+            a=5.0, f_tk=360.0, beta_w=0.80, gamma_M2=1.25
+        )
+        expected = 5.0 * 360.0 / (math.sqrt(3) * 0.80 * 1.25)
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_s355(self):
+        """S355: beta_w=0.90."""
+        result = weld_fillet_resistance(
+            a=6.0, f_tk=510.0, beta_w=0.90, gamma_M2=1.25
+        )
+        expected = 6.0 * 510.0 / (math.sqrt(3) * 0.90 * 1.25)
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_zero_throat_raises(self):
+        with pytest.raises(ValueError):
+            weld_fillet_resistance(a=0.0, f_tk=360.0, beta_w=0.80, gamma_M2=1.25)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(weld_fillet_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.2.4"

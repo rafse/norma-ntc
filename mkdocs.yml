@@ -1,0 +1,78 @@
+site_name: norma-ntc
+site_description: Python library for structural verification according to NTC 2018
+site_author: Raffaele Sestito
+site_url: https://PLACEHOLDER.github.io/pyntc/
+
+repo_name: PLACEHOLDER/pyntc
+repo_url: https://github.com/PLACEHOLDER/pyntc
+
+theme:
+  name: material
+  language: it
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Passa alla modalità scura
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Passa alla modalità chiara
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+
+plugins:
+  - search:
+      lang: it
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Azioni (Cap. 2-3):
+    - Carichi: actions/loads.md
+    - Vento: actions/wind.md
+    - Neve: actions/snow.md
+    - Sismica: actions/seismic.md
+    - Temperatura: actions/temperature.md
+    - Incendio: actions/fire.md
+    - Combinazioni: actions/combinations.md
+  - Verifiche (Cap. 4-8):
+    - Cemento armato: checks/concrete.md
+    - Acciaio: checks/steel.md
+    - Composito: checks/composite.md
+    - Legno: checks/timber.md
+    - Muratura: checks/masonry.md
+    - Ponti: checks/bridges.md
+    - Geotecnica: checks/geotechnical.md
+    - Progettazione sismica: checks/seismic_design.md
+    - Edifici esistenti: checks/existing_buildings.md
+  - Esempi:
+    - Calcolo carichi e combinazioni: examples/carichi_combinazioni.md
+  - Tracciabilità normativa: traceability.md

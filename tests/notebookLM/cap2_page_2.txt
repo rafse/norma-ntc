@@ -1,0 +1,391 @@
+[
+    {
+        "bbox": [
+            64,
+            79,
+            123,
+            94
+        ],
+        "category": "Page-header",
+        "text": "20-2-2018"
+    },
+    {
+        "bbox": [
+            252,
+            79,
+            571,
+            95
+        ],
+        "category": "Page-header",
+        "text": "Supplemento ordinario n. 8 alla GAZZETTA UFFICIALE"
+    },
+    {
+        "bbox": [
+            648,
+            79,
+            759,
+            95
+        ],
+        "category": "Page-header",
+        "text": "Serie generale - n. 42"
+    },
+    {
+        "bbox": [
+            108,
+            129,
+            616,
+            143
+        ],
+        "category": "List-item",
+        "text": "b) spostamenti e deformazioni che possano limitare l'uso della costruzione, la sua efficienza e il suo aspetto;"
+    },
+    {
+        "bbox": [
+            108,
+            144,
+            711,
+            172
+        ],
+        "category": "List-item",
+        "text": "c) spostamenti e deformazioni che possano compromettere l'efficienza e l'aspetto di elementi non strutturali, impianti, macchinari;"
+    },
+    {
+        "bbox": [
+            108,
+            174,
+            416,
+            188
+        ],
+        "category": "List-item",
+        "text": "d) vibrazioni che possano compromettere l'uso della costruzione;"
+    },
+    {
+        "bbox": [
+            108,
+            189,
+            395,
+            202
+        ],
+        "category": "List-item",
+        "text": "e) danni per fatica che possano compromettere la durabilità;"
+    },
+    {
+        "bbox": [
+            108,
+            204,
+            711,
+            231
+        ],
+        "category": "List-item",
+        "text": "f) corrosione e/o degrado dei materiali in funzione del tempo e dell'ambiente di esposizione che possano compromettere la durabilità."
+    },
+    {
+        "bbox": [
+            108,
+            234,
+            711,
+            262
+        ],
+        "category": "Text",
+        "text": "Altri stati limite sono considerati in relazione alle specificità delle singole opere; in presenza di azioni sismiche, gli Stati Limite di Esercizio comprendono gli Stati Limite di Operatività (SLO) e gli Stati Limite di Danno (SLD), come precisato nel § 3.2.1."
+    },
+    {
+        "bbox": [
+            108,
+            282,
+            292,
+            294
+        ],
+        "category": "Section-header",
+        "text": "### 2.2.3. SICUREZZA ANTINCENDIO"
+    },
+    {
+        "bbox": [
+            108,
+            299,
+            711,
+            327
+        ],
+        "category": "Text",
+        "text": "Quando necessario, i rischi derivanti dagli incendi devono essere limitati progettando e realizzando le costruzioni in modo tale da garantire la resistenza e la stabilità degli elementi portanti, nonché da limitare la propagazione del fuoco e dei fumi."
+    },
+    {
+        "bbox": [
+            108,
+            347,
+            234,
+            360
+        ],
+        "category": "Section-header",
+        "text": "### 2.2.4. DURABILITA'"
+    },
+    {
+        "bbox": [
+            108,
+            364,
+            711,
+            405
+        ],
+        "category": "Text",
+        "text": "Un adeguato livello di durabilità può essere garantito progettando la costruzione, e la specifica manutenzione, in modo tale che il degrado della struttura, che si dovesse verificare durante la sua vita nominale di progetto, non riduca le prestazioni della costruzione al di sotto del livello previsto."
+    },
+    {
+        "bbox": [
+            108,
+            409,
+            711,
+            437
+        ],
+        "category": "Text",
+        "text": "Tale requisito può essere soddisfatto attraverso l'adozione di appropriati provvedimenti stabiliti tenendo conto delle previste condizioni ambientali e di manutenzione ed in base alle peculiarità del singolo progetto, tra cui:"
+    },
+    {
+        "bbox": [
+            108,
+            441,
+            268,
+            454
+        ],
+        "category": "List-item",
+        "text": "a) selta opportuna dei materiali;"
+    },
+    {
+        "bbox": [
+            108,
+            456,
+            334,
+            470
+        ],
+        "category": "List-item",
+        "text": "b) dimensionamento opportuno delle strutture;"
+    },
+    {
+        "bbox": [
+            108,
+            471,
+            313,
+            485
+        ],
+        "category": "List-item",
+        "text": "c) selta opportuna dei dettagli strutturivi;"
+    },
+    {
+        "bbox": [
+            108,
+            487,
+            654,
+            500
+        ],
+        "category": "List-item",
+        "text": "d) adozione di tipologie costruttive e strutturali che consentano, ove possibile, l'ispezionabilità delle parti strutturali;"
+    },
+    {
+        "bbox": [
+            108,
+            503,
+            711,
+            530
+        ],
+        "category": "List-item",
+        "text": "e) pianificazione di misure di protezione e manutenzione; oppure, quando queste non siano previste o possibili, progettazione rivolta a garantire che il deterioramento della costruzione o dei materiali che la compongono non ne causi il collasso;"
+    },
+    {
+        "bbox": [
+            108,
+            532,
+            711,
+            560
+        ],
+        "category": "List-item",
+        "text": "f) impiego di prodotti e componenti chiaramente identificati in termini di caratteristiche meccanico-fisico-chimiche, indispensabili alla valutazione della sicurezza, e dotati di idonea qualificazione, così come specificato al Capitolo 11;"
+    },
+    {
+        "bbox": [
+            108,
+            562,
+            711,
+            588
+        ],
+        "category": "List-item",
+        "text": "g) applicazione di sostanze o ricoprimenti protettivi dei materiali, soprattutto nei punti non più visibili o difficilmente ispezionabili ad opera completa;"
+    },
+    {
+        "bbox": [
+            108,
+            590,
+            671,
+            604
+        ],
+        "category": "List-item",
+        "text": "h) adozione di sistemi di controllo, passivi o attivi, adatti alle azioni e ai fenomeni ai quali l'opera può essere sottoposta."
+    },
+    {
+        "bbox": [
+            108,
+            606,
+            699,
+            633
+        ],
+        "category": "Text",
+        "text": "Le condizioni ambientali devono essere identificate in fase di progetto in modo da valutarne la rilevanza nei confronti della durabilità."
+    },
+    {
+        "bbox": [
+            108,
+            651,
+            236,
+            664
+        ],
+        "category": "Section-header",
+        "text": "### 2.2.5. ROBUSTEZZA"
+    },
+    {
+        "bbox": [
+            108,
+            673,
+            711,
+            705
+        ],
+        "category": "Text",
+        "text": "Un adeguato livello di robustezza, in relazione all'uso previsto della costruzione ed alle conseguenze di un suo eventuale collasso, può essere garantito facendo ricorso ad una o più tra le seguenti strategie di progettazione:"
+    },
+    {
+        "bbox": [
+            108,
+            708,
+            711,
+            735
+        ],
+        "category": "List-item",
+        "text": "a) progettazione della struttura in grado di resistere ad azioni eccezionali di carattere convenzionale, combinando valori nominali delle azioni eccezionali alle altre azioni esplicite di progetto;"
+    },
+    {
+        "bbox": [
+            108,
+            737,
+            711,
+            764
+        ],
+        "category": "List-item",
+        "text": "b) prevenzione degli effetti indotti dalle azioni eccezionali alle quali la struttura può essere soggetta o riduzione della loro intensità;"
+    },
+    {
+        "bbox": [
+            108,
+            767,
+            565,
+            780
+        ],
+        "category": "List-item",
+        "text": "c) adozione di una forma e tipologia strutturale poco sensibile alle azioni eccezionali considerate;"
+    },
+    {
+        "bbox": [
+            108,
+            782,
+            711,
+            809
+        ],
+        "category": "List-item",
+        "text": "d) adozione di una forma e tipologia strutturale tale da tollerare il danneggiamento localizzato causato da un'azione di carattere eccezionale;"
+    },
+    {
+        "bbox": [
+            108,
+            811,
+            500,
+            824
+        ],
+        "category": "List-item",
+        "text": "e) realizzazione di strutture quanto più ridondanti, resistenti e/o duttili è possibile;"
+    },
+    {
+        "bbox": [
+            108,
+            826,
+            671,
+            840
+        ],
+        "category": "List-item",
+        "text": "f) adozione di sistemi di controllo, passivi o attivi, adatti alle azioni e ai fenomeni ai quali l'opera può essere sottoposta."
+    },
+    {
+        "bbox": [
+            108,
+            858,
+            224,
+            871
+        ],
+        "category": "Section-header",
+        "text": "### 2.2.6. VERIFICHE"
+    },
+    {
+        "bbox": [
+            108,
+            875,
+            680,
+            889
+        ],
+        "category": "Text",
+        "text": "Le opere strutturali devono essere verificate, salvo diversa indicazione riportata nelle specifiche parti delle presenti norme:"
+    },
+    {
+        "bbox": [
+            108,
+            892,
+            355,
+            906
+        ],
+        "category": "List-item",
+        "text": "a) per gli stati limite ultimi che possono presentarsi;"
+    },
+    {
+        "bbox": [
+            108,
+            908,
+            462,
+            922
+        ],
+        "category": "List-item",
+        "text": "b) per gli stati limite di esercizio definiti in relazione alle prestazioni attesse;"
+    },
+    {
+        "bbox": [
+            108,
+            925,
+            669,
+            939
+        ],
+        "category": "List-item",
+        "text": "c) quando necessario, nei confronti degli effetti derivanti dalle azioni termiche connesse con lo sviluppo di un incendio."
+    },
+    {
+        "bbox": [
+            108,
+            943,
+            711,
+            1012
+        ],
+        "category": "Text",
+        "text": "Le verifiche delle opere strutturali devono essere contenute nei documenti di progetto, con riferimento alle prescritte caratteristiche meccaniche dei materiali e alla caratterizzazione geotecnica del terreno, dedotta – ove specificato dalle presenti norme – in base a specifiche indagini. Laddove necessario, la struttura deve essere verificata nelle fasi intermedie, tenuto conto del processo costruttivo previsto; le verifiche per queste situazioni transitorie sono generalmente condotte nei confronti dei soli stati limite ultimi."
+    },
+    {
+        "bbox": [
+            382,
+            1062,
+            436,
+            1076
+        ],
+        "category": "Page-footer",
+        "text": "— 35 —"
+    },
+    {
+        "bbox": [
+            445,
+            1059,
+            764,
+            1139
+        ],
+        "category": "Picture"
+    }
+]

@@ -1,0 +1,435 @@
+"""Test per masonry — NTC18 §4.5."""
+
+import math
+
+import pytest
+from numpy.testing import assert_allclose
+
+from pyntc.checks.masonry import (
+    masonry_design_compressive_strength,
+    masonry_design_shear_strength,
+    masonry_eccentricity_coefficient,
+    masonry_effective_height,
+    masonry_lateral_restraint_factor,
+    masonry_partial_safety_factor,
+    masonry_reduced_strength,
+    masonry_reduction_factor,
+    masonry_simplified_check,
+    masonry_slenderness,
+)
+from pyntc.core.reference import get_ntc_ref
+
+
+# ── Tab.4.5.II — Coefficienti parziali gamma_M ──────────────────────────────
+
+
+class TestMasonryPartialSafetyFactor:
+    """NTC18 §4.5.6.1, Tab. 4.5.II."""
+
+    def test_cat_I_guaranteed_class_1(self):
+        """Cat.I, malta a prestazione garantita, classe 1: gamma_M = 2.0."""
+        result = masonry_partial_safety_factor(
+            element_category=1, mortar_type="guaranteed", execution_class=1
+        )
+        assert_allclose(result, 2.0, rtol=1e-3)
+
+    def test_cat_I_guaranteed_class_2(self):
+        """Cat.I, malta a prestazione garantita, classe 2: gamma_M = 2.5."""
+        result = masonry_partial_safety_factor(
+            element_category=1, mortar_type="guaranteed", execution_class=2
+        )
+        assert_allclose(result, 2.5, rtol=1e-3)
+
+    def test_cat_I_prescribed_class_1(self):
+        """Cat.I, malta a composizione prescritta, classe 1: gamma_M = 2.2."""
+        result = masonry_partial_safety_factor(
+            element_category=1, mortar_type="prescribed", execution_class=1
+        )
+        assert_allclose(result, 2.2, rtol=1e-3)
+
+    def test_cat_I_prescribed_class_2(self):
+        """Cat.I, malta a composizione prescritta, classe 2: gamma_M = 2.7."""
+        result = masonry_partial_safety_factor(
+            element_category=1, mortar_type="prescribed", execution_class=2
+        )
+        assert_allclose(result, 2.7, rtol=1e-3)
+
+    def test_cat_II_class_1(self):
+        """Cat.II, qualsiasi malta, classe 1: gamma_M = 2.5."""
+        result = masonry_partial_safety_factor(
+            element_category=2, mortar_type="guaranteed", execution_class=1
+        )
+        assert_allclose(result, 2.5, rtol=1e-3)
+
+    def test_cat_II_class_2(self):
+        """Cat.II, qualsiasi malta, classe 2: gamma_M = 3.0."""
+        result = masonry_partial_safety_factor(
+            element_category=2, mortar_type="prescribed", execution_class=2
+        )
+        assert_allclose(result, 3.0, rtol=1e-3)
+
+    def test_invalid_category_raises(self):
+        with pytest.raises(ValueError, match="element_category"):
+            masonry_partial_safety_factor(
+                element_category=3, mortar_type="guaranteed", execution_class=1
+            )
+
+    def test_invalid_mortar_raises(self):
+        with pytest.raises(ValueError, match="mortar_type"):
+            masonry_partial_safety_factor(
+                element_category=1, mortar_type="unknown", execution_class=1
+            )
+
+    def test_invalid_class_raises(self):
+        with pytest.raises(ValueError, match="execution_class"):
+            masonry_partial_safety_factor(
+                element_category=1, mortar_type="guaranteed", execution_class=3
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_partial_safety_factor)
+        assert ref is not None
+        assert ref.article == "4.5.6.1"
+
+
+# ── [4.5.2] — Resistenza di progetto a compressione ─────────────────────────
+
+
+class TestMasonryDesignCompressiveStrength:
+    """NTC18 §4.5.6.1, Formula [4.5.2]."""
+
+    def test_basic(self):
+        """f_d = f_k / gamma_M = 5.0 / 2.5 = 2.0 MPa."""
+        result = masonry_design_compressive_strength(f_k=5.0, gamma_M=2.5)
+        assert_allclose(result, 2.0, rtol=1e-3)
+
+    def test_high_strength(self):
+        """f_d = 10.0 / 2.0 = 5.0 MPa."""
+        result = masonry_design_compressive_strength(f_k=10.0, gamma_M=2.0)
+        assert_allclose(result, 5.0, rtol=1e-3)
+
+    def test_zero_fk_raises(self):
+        with pytest.raises(ValueError):
+            masonry_design_compressive_strength(f_k=0.0, gamma_M=2.5)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_design_compressive_strength)
+        assert ref is not None
+        assert ref.article == "4.5.6.1"
+
+
+# ── [4.5.3] — Resistenza di progetto a taglio ───────────────────────────────
+
+
+class TestMasonryDesignShearStrength:
+    """NTC18 §4.5.6.1, Formula [4.5.3]."""
+
+    def test_basic(self):
+        """f_vd = f_vk / gamma_M = 0.3 / 2.5 = 0.12 MPa."""
+        result = masonry_design_shear_strength(f_vk=0.3, gamma_M=2.5)
+        assert_allclose(result, 0.12, rtol=1e-3)
+
+    def test_with_compression(self):
+        """f_vd = 0.5 / 2.0 = 0.25 MPa."""
+        result = masonry_design_shear_strength(f_vk=0.5, gamma_M=2.0)
+        assert_allclose(result, 0.25, rtol=1e-3)
+
+    def test_zero_fvk_raises(self):
+        with pytest.raises(ValueError):
+            masonry_design_shear_strength(f_vk=0.0, gamma_M=2.5)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_design_shear_strength)
+        assert ref is not None
+        assert ref.article == "4.5.6.1"
+
+
+# ── [4.5.1] — Snellezza convenzionale ───────────────────────────────────────
+
+
+class TestMasonrySlenderness:
+    """NTC18 §4.5.4, Formula [4.5.1]."""
+
+    def test_basic(self):
+        """lambda = h_0 / t = 3000 / 300 = 10."""
+        result = masonry_slenderness(h_0=3000.0, t=300.0)
+        assert_allclose(result, 10.0, rtol=1e-3)
+
+    def test_max_lambda(self):
+        """lambda = 20 esatto: ammesso."""
+        result = masonry_slenderness(h_0=4000.0, t=200.0)
+        assert_allclose(result, 20.0, rtol=1e-3)
+
+    def test_exceeds_20_raises(self):
+        """lambda > 20: non ammesso da §4.5.4."""
+        with pytest.raises(ValueError, match="20"):
+            masonry_slenderness(h_0=4200.0, t=200.0)
+
+    def test_zero_thickness_raises(self):
+        with pytest.raises(ValueError):
+            masonry_slenderness(h_0=3000.0, t=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_slenderness)
+        assert ref is not None
+        assert ref.article == "4.5.4"
+
+
+# ── Tab.4.5.IV — Fattore laterale di vincolo ────────────────────────────────
+
+
+class TestMasonryLateralRestraintFactor:
+    """NTC18 §4.5.6.2, Tab. 4.5.IV."""
+
+    def test_low_ratio(self):
+        """h/a <= 0.5: rho = 1."""
+        result = masonry_lateral_restraint_factor(h=3000.0, a=8000.0)
+        assert_allclose(result, 1.0, rtol=1e-3)
+
+    def test_boundary_05(self):
+        """h/a = 0.5: rho = 1."""
+        result = masonry_lateral_restraint_factor(h=3000.0, a=6000.0)
+        assert_allclose(result, 1.0, rtol=1e-3)
+
+    def test_mid_range(self):
+        """h/a = 0.75: rho = 3/2 - 0.75 = 0.75."""
+        result = masonry_lateral_restraint_factor(h=3000.0, a=4000.0)
+        assert_allclose(result, 0.75, rtol=1e-3)
+
+    def test_boundary_10(self):
+        """h/a = 1.0: rho = 3/2 - 1.0 = 0.5."""
+        result = masonry_lateral_restraint_factor(h=3000.0, a=3000.0)
+        assert_allclose(result, 0.5, rtol=1e-3)
+
+    def test_high_ratio(self):
+        """h/a = 2.0: rho = 1/(1+4) = 0.2."""
+        result = masonry_lateral_restraint_factor(h=6000.0, a=3000.0)
+        assert_allclose(result, 0.2, rtol=1e-3)
+
+    def test_zero_spacing_raises(self):
+        with pytest.raises(ValueError):
+            masonry_lateral_restraint_factor(h=3000.0, a=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_lateral_restraint_factor)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+
+
+# ── [4.5.5] — Lunghezza libera d'inflessione ────────────────────────────────
+
+
+class TestMasonryEffectiveHeight:
+    """NTC18 §4.5.6.2, Formula [4.5.5]."""
+
+    def test_isolated_wall(self):
+        """Muro isolato: rho=1, h_0 = 1 * 3000 = 3000 mm."""
+        result = masonry_effective_height(rho=1.0, h=3000.0)
+        assert_allclose(result, 3000.0, rtol=1e-3)
+
+    def test_restrained_wall(self):
+        """rho = 0.75, h = 3000: h_0 = 2250 mm."""
+        result = masonry_effective_height(rho=0.75, h=3000.0)
+        assert_allclose(result, 2250.0, rtol=1e-3)
+
+    def test_zero_rho_raises(self):
+        with pytest.raises(ValueError):
+            masonry_effective_height(rho=0.0, h=3000.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_effective_height)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+
+
+# ── [4.5.6] — Coefficiente di eccentricita' ─────────────────────────────────
+
+
+class TestMasonryEccentricityCoefficient:
+    """NTC18 §4.5.6.2, Formula [4.5.6]."""
+
+    def test_zero_eccentricity(self):
+        """e = 0: m = 0."""
+        result = masonry_eccentricity_coefficient(e=0.0, t=300.0)
+        assert_allclose(result, 0.0, atol=1e-10)
+
+    def test_basic(self):
+        """e = 25 mm, t = 300 mm: m = 6*25/300 = 0.5."""
+        result = masonry_eccentricity_coefficient(e=25.0, t=300.0)
+        assert_allclose(result, 0.5, rtol=1e-3)
+
+    def test_high_eccentricity(self):
+        """e = 50 mm, t = 300 mm: m = 6*50/300 = 1.0."""
+        result = masonry_eccentricity_coefficient(e=50.0, t=300.0)
+        assert_allclose(result, 1.0, rtol=1e-3)
+
+    def test_zero_thickness_raises(self):
+        with pytest.raises(ValueError):
+            masonry_eccentricity_coefficient(e=25.0, t=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_eccentricity_coefficient)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+
+
+# ── Tab.4.5.III — Coefficiente di riduzione Phi ─────────────────────────────
+
+
+class TestMasonryReductionFactor:
+    """NTC18 §4.5.6.2, Tab. 4.5.III."""
+
+    def test_lambda_0_m_0(self):
+        """lambda=0, m=0: Phi = 1.00."""
+        result = masonry_reduction_factor(lambda_=0.0, m=0.0)
+        assert_allclose(result, 1.00, rtol=1e-3)
+
+    def test_lambda_0_m_1(self):
+        """lambda=0, m=1.0: Phi = 0.59."""
+        result = masonry_reduction_factor(lambda_=0.0, m=1.0)
+        assert_allclose(result, 0.59, rtol=1e-3)
+
+    def test_lambda_10_m_0(self):
+        """lambda=10, m=0: Phi = 0.86."""
+        result = masonry_reduction_factor(lambda_=10.0, m=0.0)
+        assert_allclose(result, 0.86, rtol=1e-3)
+
+    def test_lambda_10_m_2(self):
+        """lambda=10, m=2.0: Phi = 0.16."""
+        result = masonry_reduction_factor(lambda_=10.0, m=2.0)
+        assert_allclose(result, 0.16, rtol=1e-3)
+
+    def test_lambda_20_m_0(self):
+        """lambda=20, m=0: Phi = 0.53."""
+        result = masonry_reduction_factor(lambda_=20.0, m=0.0)
+        assert_allclose(result, 0.53, rtol=1e-3)
+
+    def test_lambda_20_m_1(self):
+        """lambda=20, m=1.0: Phi = 0.23."""
+        result = masonry_reduction_factor(lambda_=20.0, m=1.0)
+        assert_allclose(result, 0.23, rtol=1e-3)
+
+    def test_interpolated(self):
+        """lambda=7.5, m=0.25: interpolazione bilineare."""
+        # lambda tra 5 e 10, m tra 0 e 0.5
+        # Phi(5,0)=0.97, Phi(5,0.5)=0.71, Phi(10,0)=0.86, Phi(10,0.5)=0.61
+        # Interpolazione bilineare: media dei quattro angoli ponderata
+        # t_lam = (7.5-5)/(10-5) = 0.5
+        # t_m   = (0.25-0)/(0.5-0) = 0.5
+        # Phi = (1-0.5)*(1-0.5)*0.97 + 0.5*(1-0.5)*0.86 + (1-0.5)*0.5*0.71 + 0.5*0.5*0.61
+        #     = 0.25*0.97 + 0.25*0.86 + 0.25*0.71 + 0.25*0.61 = 0.7875
+        result = masonry_reduction_factor(lambda_=7.5, m=0.25)
+        assert_allclose(result, 0.7875, rtol=1e-2)
+
+    def test_lambda_20_m_15_raises(self):
+        """lambda=20, m=1.5: fuori dal dominio Tab.4.5.III."""
+        with pytest.raises(ValueError, match="dominio"):
+            masonry_reduction_factor(lambda_=20.0, m=1.5)
+
+    def test_lambda_15_m_2_raises(self):
+        """lambda=15, m=2.0: fuori dal dominio Tab.4.5.III."""
+        with pytest.raises(ValueError, match="dominio"):
+            masonry_reduction_factor(lambda_=15.0, m=2.0)
+
+    def test_negative_lambda_raises(self):
+        with pytest.raises(ValueError):
+            masonry_reduction_factor(lambda_=-1.0, m=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_reduction_factor)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+
+
+# ── [4.5.4] — Resistenza ridotta ────────────────────────────────────────────
+
+
+class TestMasonryReducedStrength:
+    """NTC18 §4.5.6.2, Formula [4.5.4]."""
+
+    def test_no_reduction(self):
+        """Phi = 1.0: f_d_rid = f_d."""
+        result = masonry_reduced_strength(Phi=1.0, f_d=2.0)
+        assert_allclose(result, 2.0, rtol=1e-3)
+
+    def test_reduced(self):
+        """Phi = 0.59, f_d = 2.0: f_d_rid = 1.18 MPa."""
+        result = masonry_reduced_strength(Phi=0.59, f_d=2.0)
+        assert_allclose(result, 1.18, rtol=1e-3)
+
+    def test_heavily_reduced(self):
+        """Phi = 0.23, f_d = 5.0: f_d_rid = 1.15 MPa."""
+        result = masonry_reduced_strength(Phi=0.23, f_d=5.0)
+        assert_allclose(result, 1.15, rtol=1e-3)
+
+    def test_zero_Phi_raises(self):
+        with pytest.raises(ValueError):
+            masonry_reduced_strength(Phi=0.0, f_d=2.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_reduced_strength)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+
+
+# ── [4.5.12] — Verifica semplificata ────────────────────────────────────────
+
+
+class TestMasonrySimplifiedCheck:
+    """NTC18 §4.5.6.4, Formula [4.5.12]."""
+
+    def test_passes(self):
+        """sigma = 500/(0.65*0.3) = 2564 kN/m^2 = 2.56 MPa; f_d = 5/2.5 = 2.0 => fail."""
+        # N=500 kN, A=0.3 m^2, f_k=5 MPa, gamma_M=2.5
+        passes, sigma = masonry_simplified_check(
+            N=500.0, A=0.3, f_k=5.0, gamma_M=2.5
+        )
+        # sigma = 500/(0.65*0.3) = 2564.1 kN/m^2 (= 2.564 MPa in consistent units)
+        # But units depend on usage — let's keep it in consistent units
+        expected_sigma = 500.0 / (0.65 * 0.3)
+        assert_allclose(sigma, expected_sigma, rtol=1e-3)
+
+    def test_low_load_passes(self):
+        """Carico basso: verifica passa."""
+        passes, sigma = masonry_simplified_check(
+            N=100.0, A=0.5, f_k=5.0, gamma_M=2.5
+        )
+        # sigma = 100/(0.65*0.5) = 307.7
+        # f_d = 5.0/2.5 = 2.0
+        # Per passare: sigma <= f_d => 307.7 <= 2.0 in stesse unita'?
+        # No — le unita' devono essere coerenti. In pratica:
+        # N [kN], A [m^2] => sigma [kN/m^2]; f_k [MPa] = [N/mm^2] = [kN/m^2 * 1e-3]
+        # Convenzionalmente in questa formula tutto e' nello stesso sistema.
+        # f_k = 5.0, gamma_M = 2.5 => f_d = 2.0
+        # sigma = 100/(0.65*0.5) = 307.7
+        # 307.7 <= 2.0? No. Ma se le unita' sono tutte [MPa]:
+        # N [N], A [mm^2]: sigma = 100e3/(0.65*500e3) = 0.307 MPa <= 2.0 => passa!
+        # La funzione lavora in unita' coerenti, passate dall'utente.
+        passes, sigma = masonry_simplified_check(
+            N=100e3, A=500e3, f_k=5.0, gamma_M=2.5
+        )
+        expected_sigma = 100e3 / (0.65 * 500e3)
+        expected_f_d = 5.0 / 2.5
+        assert passes is True
+        assert_allclose(sigma, expected_sigma, rtol=1e-3)
+        assert sigma <= expected_f_d
+
+    def test_high_load_fails(self):
+        """Carico alto: verifica non passa."""
+        # N=800e3 N, A=200e3 mm^2, f_k=3.0 MPa, gamma_M=2.5
+        passes, sigma = masonry_simplified_check(
+            N=800e3, A=200e3, f_k=3.0, gamma_M=2.5
+        )
+        expected_sigma = 800e3 / (0.65 * 200e3)  # 6.15 MPa
+        expected_f_d = 3.0 / 2.5  # 1.2 MPa
+        assert passes is False
+        assert sigma > expected_f_d
+
+    def test_zero_area_raises(self):
+        with pytest.raises(ValueError):
+            masonry_simplified_check(N=100.0, A=0.0, f_k=5.0, gamma_M=2.5)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_simplified_check)
+        assert ref is not None
+        assert ref.article == "4.5.6.4"

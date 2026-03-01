@@ -1,0 +1,777 @@
+"""Costruzioni di acciaio — NTC18 §4.2.
+
+Proprieta' materiali, resistenza sezioni, instabilita',
+collegamenti bullonati e saldati.
+
+Unita':
+- Tensioni/Resistenze: [N/mm^2] = [MPa]
+- Forze: [N]
+- Aree: [mm^2]
+- Moduli di resistenza: [mm^3]
+- Coefficienti: [-]
+"""
+
+from __future__ import annotations
+
+import math
+
+from pyntc.core.reference import ntc_ref
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.1.1 — PROPRIETA' MATERIALI (Tab. 4.2.I)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Tab.4.2.I — Acciaio per costruzioni metalliche (EN 10025-2 / EN 10025-3)
+# Formato: grade -> [(t_max, f_yk, f_tk), ...]
+_STEEL_GRADES: dict[str, list[tuple[float, float, float]]] = {
+    "S235": [(40.0, 235.0, 360.0), (80.0, 215.0, 360.0)],
+    "S275": [(40.0, 275.0, 430.0), (80.0, 255.0, 410.0)],
+    "S355": [(40.0, 355.0, 510.0), (80.0, 335.0, 470.0)],
+    "S420": [(40.0, 420.0, 520.0), (80.0, 390.0, 520.0)],
+    "S450": [(40.0, 450.0, 550.0), (80.0, 430.0, 550.0)],
+    "S460": [(40.0, 460.0, 540.0), (80.0, 430.0, 540.0)],
+}
+
+
+@ntc_ref(article="4.2.1.1", table="Tab.4.2.I")
+def steel_grade_properties(
+    grade: str, thickness: float
+) -> tuple[float, float]:
+    """Proprieta' acciaio da Tab. 4.2.I [N/mm^2].
+
+    NTC18 §4.2.1.1, Tab. 4.2.I — Tensione di snervamento f_yk e
+    tensione di rottura f_tk per laminati a caldo (EN 10025).
+
+    Parameters
+    ----------
+    grade : str
+        Grado dell'acciaio: "S235", "S275", "S355", "S420", "S450", "S460".
+    thickness : float
+        Spessore nominale dell'elemento [mm]. Deve essere 0 < t <= 80 mm.
+
+    Returns
+    -------
+    tuple[float, float]
+        (f_yk, f_tk): tensione di snervamento e di rottura [N/mm^2].
+    """
+    key = grade.upper()
+    if key not in _STEEL_GRADES:
+        raise ValueError(
+            f"grade deve essere S235, S275, S355, S420, S450 o S460, "
+            f"ricevuto: '{grade}'"
+        )
+    if thickness <= 0 or thickness > 80.0:
+        raise ValueError(
+            f"thickness deve essere 0 < t <= 80 mm, ricevuto: {thickness}"
+        )
+    for t_max, f_yk, f_tk in _STEEL_GRADES[key]:
+        if thickness <= t_max:
+            return f_yk, f_tk
+    # Fallback (non raggiungibile per thickness <= 80)
+    raise ValueError(f"thickness fuori range: {thickness}")  # pragma: no cover
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.2 — RESISTENZA DELLE SEZIONI
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.2.4.1.2.1", formula="4.2.6")
+def steel_tension_resistance(
+    A: float,
+    f_yk: float,
+    gamma_M0: float,
+    *,
+    A_net: float | None = None,
+    f_tk: float | None = None,
+    gamma_M2: float | None = None,
+) -> tuple[float, float | None]:
+    """Resistenza a trazione della sezione [N].
+
+    NTC18 §4.2.4.1.2.1 — Formule [4.2.6] e [4.2.7]:
+        N_pl,Rd = A * f_yk / gamma_M0       (plasticizzazione lorda)
+        N_u,Rd  = 0.9 * A_net * f_tk / gamma_M2  (rottura sezione netta)
+
+    Parameters
+    ----------
+    A : float
+        Area lorda della sezione [mm^2].
+    f_yk : float
+        Tensione di snervamento [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-].
+    A_net : float or None
+        Area netta della sezione (fori bulloni) [mm^2].
+    f_tk : float or None
+        Tensione di rottura [N/mm^2]. Richiesto se A_net fornito.
+    gamma_M2 : float or None
+        Coefficiente parziale gamma_M2 [-]. Richiesto se A_net fornito.
+
+    Returns
+    -------
+    tuple[float, float | None]
+        (N_pl_Rd, N_u_Rd): resistenza plastica e a rottura [N].
+        N_u_Rd e' None se A_net non e' fornito.
+    """
+    if A <= 0:
+        raise ValueError("A deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+
+    N_pl_Rd = A * f_yk / gamma_M0
+
+    if A_net is not None:
+        if f_tk is None or gamma_M2 is None:
+            raise ValueError(
+                "f_tk e gamma_M2 sono richiesti quando si fornisce A_net"
+            )
+        if A_net <= 0:
+            raise ValueError("A_net deve essere > 0")
+        N_u_Rd = 0.9 * A_net * f_tk / gamma_M2
+        return N_pl_Rd, N_u_Rd
+
+    return N_pl_Rd, None
+
+
+@ntc_ref(article="4.2.4.1.2.2", formula="4.2.10")
+def steel_compression_resistance(
+    A: float, f_yk: float, gamma_M0: float
+) -> float:
+    """Resistenza a compressione della sezione [N].
+
+    NTC18 §4.2.4.1.2.2, Formula [4.2.10]:
+        N_c,Rd = A * f_yk / gamma_M0
+
+    Parameters
+    ----------
+    A : float
+        Area della sezione [mm^2].
+    f_yk : float
+        Tensione di snervamento [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-].
+
+    Returns
+    -------
+    float
+        N_c,Rd: resistenza a compressione [N].
+    """
+    if A <= 0:
+        raise ValueError("A deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    return A * f_yk / gamma_M0
+
+
+@ntc_ref(article="4.2.4.1.2.3", formula="4.2.12")
+def steel_bending_resistance(
+    W: float, f_yk: float, gamma_M0: float
+) -> float:
+    """Resistenza a flessione della sezione [N*mm].
+
+    NTC18 §4.2.4.1.2.3, Formula [4.2.12]:
+        M_c,Rd = W * f_yk / gamma_M0
+
+    Per sezioni di classe 1 e 2: W = W_pl (modulo plastico).
+    Per sezioni di classe 3: W = W_el (modulo elastico).
+
+    Parameters
+    ----------
+    W : float
+        Modulo di resistenza (plastico o elastico) [mm^3].
+    f_yk : float
+        Tensione di snervamento [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-].
+
+    Returns
+    -------
+    float
+        M_c,Rd: resistenza a flessione [N*mm].
+    """
+    if W <= 0:
+        raise ValueError("W deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    return W * f_yk / gamma_M0
+
+
+@ntc_ref(article="4.2.4.1.2.4", formula="4.2.17")
+def steel_shear_resistance(
+    A_v: float, f_yk: float, gamma_M0: float
+) -> float:
+    """Resistenza a taglio della sezione [N].
+
+    NTC18 §4.2.4.1.2.4, Formula [4.2.17]:
+        V_c,Rd = A_v * f_yk / (sqrt(3) * gamma_M0)
+
+    Parameters
+    ----------
+    A_v : float
+        Area resistente a taglio [mm^2].
+    f_yk : float
+        Tensione di snervamento [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-].
+
+    Returns
+    -------
+    float
+        V_c,Rd: resistenza a taglio [N].
+    """
+    if A_v <= 0:
+        raise ValueError("A_v deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    return A_v * f_yk / (math.sqrt(3) * gamma_M0)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.2.6 — RIDUZIONE PER TAGLIO CONCOMITANTE
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.2.4.1.2.6", formula="4.2.31")
+def steel_bending_shear_reduction(
+    V_Ed: float, V_c_Rd: float
+) -> float:
+    """Fattore di riduzione rho per flessione in presenza di taglio [-].
+
+    NTC18 §4.2.4.1.2.6, Formula [4.2.31]:
+        Se V_Ed <= 0.5 * V_c,Rd: rho = 0 (nessuna riduzione)
+        Se V_Ed > 0.5 * V_c,Rd:  rho = (2 * V_Ed / V_c,Rd - 1)^2
+
+    Parameters
+    ----------
+    V_Ed : float
+        Taglio di progetto [N].
+    V_c_Rd : float
+        Resistenza a taglio della sezione [N].
+
+    Returns
+    -------
+    float
+        Fattore di riduzione rho [-], 0 <= rho <= 1.
+    """
+    if V_c_Rd <= 0:
+        raise ValueError("V_c_Rd deve essere > 0")
+    if V_Ed < 0:
+        raise ValueError("V_Ed deve essere >= 0")
+
+    if V_Ed <= 0.5 * V_c_Rd:
+        return 0.0
+
+    return (2.0 * V_Ed / V_c_Rd - 1.0) ** 2
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.2.7 — PRESSO/TENSO-FLESSIONE
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.2.4.1.2.7", formula="4.2.33")
+def steel_NM_resistance_y(
+    n: float, a: float, M_pl_y_Rd: float
+) -> float:
+    """Resistenza a flessione ridotta per sforzo assiale — asse forte [N*mm].
+
+    NTC18 §4.2.4.1.2.7, Formula [4.2.33]:
+        M_N,y,Rd = M_pl,y,Rd * (1 - n) / (1 - 0.5 * a)
+    con M_N,y,Rd <= M_pl,y,Rd.
+
+    Parameters
+    ----------
+    n : float
+        Rapporto N_Ed / N_pl,Rd [-].
+    a : float
+        Rapporto (A - 2*b*t_f) / A [-] (area anima / area totale).
+    M_pl_y_Rd : float
+        Resistenza plastica a flessione M_pl,y,Rd [N*mm].
+
+    Returns
+    -------
+    float
+        M_N,y,Rd: resistenza a flessione ridotta [N*mm].
+    """
+    if n < 0 or n > 1:
+        raise ValueError("n deve essere 0 <= n <= 1")
+    if a < 0 or a > 1:
+        raise ValueError("a deve essere 0 <= a <= 1")
+    if M_pl_y_Rd <= 0:
+        raise ValueError("M_pl_y_Rd deve essere > 0")
+
+    M_N_y_Rd = M_pl_y_Rd * (1.0 - n) / (1.0 - 0.5 * a)
+    return min(M_N_y_Rd, M_pl_y_Rd)
+
+
+@ntc_ref(article="4.2.4.1.2.7", formula="4.2.34")
+def steel_NM_resistance_z(
+    n: float, a: float, M_pl_z_Rd: float
+) -> float:
+    """Resistenza a flessione ridotta per sforzo assiale — asse debole [N*mm].
+
+    NTC18 §4.2.4.1.2.7, Formule [4.2.34-4.2.35]:
+        Se n <= a: M_N,z,Rd = M_pl,z,Rd
+        Se n > a:  M_N,z,Rd = M_pl,z,Rd * [1 - ((n - a) / (1 - a))^2]
+
+    Parameters
+    ----------
+    n : float
+        Rapporto N_Ed / N_pl,Rd [-].
+    a : float
+        Rapporto (A - 2*b*t_f) / A [-] (area anima / area totale).
+    M_pl_z_Rd : float
+        Resistenza plastica a flessione M_pl,z,Rd [N*mm].
+
+    Returns
+    -------
+    float
+        M_N,z,Rd: resistenza a flessione ridotta [N*mm].
+    """
+    if n < 0 or n > 1:
+        raise ValueError("n deve essere 0 <= n <= 1")
+    if a < 0 or a > 1:
+        raise ValueError("a deve essere 0 <= a <= 1")
+    if M_pl_z_Rd <= 0:
+        raise ValueError("M_pl_z_Rd deve essere > 0")
+
+    if n <= a:
+        return M_pl_z_Rd
+
+    return M_pl_z_Rd * (1.0 - ((n - a) / (1.0 - a)) ** 2)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.28 — PRESSO/TENSO-FLESSIONE BIASSIALE
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.2.4.1.28", formula="4.2.38")
+def steel_biaxial_check(
+    M_y_Ed: float,
+    M_z_Ed: float,
+    M_N_y_Rd: float,
+    M_N_z_Rd: float,
+    n: float,
+) -> tuple[bool, float]:
+    """Verifica presso/tenso-flessione biassiale [-].
+
+    NTC18 §4.2.4.1.28, Formule [4.2.38-4.2.39]:
+        Se n >= 0.2: (M_y_Ed / M_N,y,Rd)^2 + (M_z_Ed / M_N,z,Rd)^(5n) <= 1
+        Se n < 0.2:  M_y_Ed / M_N,y,Rd + M_z_Ed / M_N,z,Rd <= 1
+
+    Parameters
+    ----------
+    M_y_Ed : float
+        Momento flettente di progetto asse forte [N*mm].
+    M_z_Ed : float
+        Momento flettente di progetto asse debole [N*mm].
+    M_N_y_Rd : float
+        Resistenza ridotta a flessione asse forte [N*mm].
+    M_N_z_Rd : float
+        Resistenza ridotta a flessione asse debole [N*mm].
+    n : float
+        Rapporto N_Ed / N_pl,Rd [-].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_superata, utilization):
+        - verifica_superata: True se il rapporto <= 1
+        - utilization: valore del rapporto di interazione [-]
+    """
+    if M_N_y_Rd <= 0:
+        raise ValueError("M_N_y_Rd deve essere > 0")
+    if M_N_z_Rd <= 0:
+        raise ValueError("M_N_z_Rd deve essere > 0")
+    if n < 0:
+        raise ValueError("n deve essere >= 0")
+
+    ratio_y = abs(M_y_Ed) / M_N_y_Rd
+    ratio_z = abs(M_z_Ed) / M_N_z_Rd
+
+    if n >= 0.2:
+        # [4.2.38]: esponente alpha=2 per y, beta=5*n per z
+        utilization = ratio_y ** 2 + ratio_z ** (5.0 * n)
+    else:
+        # [4.2.39]: interazione lineare
+        utilization = ratio_y + ratio_z
+
+    return utilization <= 1.0, utilization
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.3.1 — INSTABILITA' ASTE COMPRESSE
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Tab.4.2.VIII — Fattori di imperfezione per curve di instabilita'
+_IMPERFECTION_FACTORS: dict[str, float] = {
+    "a0": 0.13,
+    "a": 0.21,
+    "b": 0.34,
+    "c": 0.49,
+    "d": 0.76,
+}
+
+
+@ntc_ref(article="4.2.4.1.3.1", table="Tab.4.2.VIII")
+def steel_buckling_imperfection(curve: str) -> float:
+    """Fattore di imperfezione alpha da Tab. 4.2.VIII [-].
+
+    NTC18 §4.2.4.1.3.1, Tab. 4.2.VIII:
+        a0 → 0.13, a → 0.21, b → 0.34, c → 0.49, d → 0.76
+
+    Parameters
+    ----------
+    curve : str
+        Curva di instabilita': "a0", "a", "b", "c" o "d".
+
+    Returns
+    -------
+    float
+        Fattore di imperfezione alpha [-].
+    """
+    key = curve.lower()
+    if key not in _IMPERFECTION_FACTORS:
+        raise ValueError(
+            f"curve deve essere 'a0', 'a', 'b', 'c' o 'd', "
+            f"ricevuto: '{curve}'"
+        )
+    return _IMPERFECTION_FACTORS[key]
+
+
+@ntc_ref(article="4.2.4.1.3.1", formula="4.2.44")
+def steel_buckling_reduction(
+    lambda_bar: float, alpha: float
+) -> float:
+    """Coefficiente di riduzione per instabilita' chi [-].
+
+    NTC18 §4.2.4.1.3.1, Formula [4.2.44]:
+        Phi = 0.5 * [1 + alpha * (lambda_bar - 0.2) + lambda_bar^2]
+        chi = 1 / (Phi + sqrt(Phi^2 - lambda_bar^2))
+    con chi <= 1.0.
+
+    Per lambda_bar <= 0.2 si assume chi = 1.0 (instabilita' trascurabile).
+
+    Parameters
+    ----------
+    lambda_bar : float
+        Snellezza adimensionale [-].
+    alpha : float
+        Fattore di imperfezione [-] (da Tab. 4.2.VIII).
+
+    Returns
+    -------
+    float
+        Coefficiente di riduzione chi [-], 0 < chi <= 1.
+    """
+    if lambda_bar < 0:
+        raise ValueError("lambda_bar deve essere >= 0")
+    if alpha < 0:
+        raise ValueError("alpha deve essere >= 0")
+
+    if lambda_bar <= 0.2:
+        return 1.0
+
+    Phi = 0.5 * (1.0 + alpha * (lambda_bar - 0.2) + lambda_bar ** 2)
+    chi = 1.0 / (Phi + math.sqrt(Phi ** 2 - lambda_bar ** 2))
+    return min(chi, 1.0)
+
+
+@ntc_ref(article="4.2.4.1.3.1", formula="4.2.42")
+def steel_buckling_resistance(
+    chi: float, A: float, f_yk: float, gamma_M1: float
+) -> float:
+    """Resistenza ad instabilita' per aste compresse [N].
+
+    NTC18 §4.2.4.1.3.1, Formula [4.2.42]:
+        N_b,Rd = chi * A * f_yk / gamma_M1
+
+    Parameters
+    ----------
+    chi : float
+        Coefficiente di riduzione per instabilita' [-].
+    A : float
+        Area della sezione [mm^2].
+    f_yk : float
+        Tensione di snervamento [N/mm^2].
+    gamma_M1 : float
+        Coefficiente parziale gamma_M1 [-].
+
+    Returns
+    -------
+    float
+        N_b,Rd: resistenza ad instabilita' [N].
+    """
+    if chi <= 0 or chi > 1:
+        raise ValueError("chi deve essere 0 < chi <= 1")
+    if A <= 0:
+        raise ValueError("A deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M1 <= 0:
+        raise ValueError("gamma_M1 deve essere > 0")
+    return chi * A * f_yk / gamma_M1
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.3.2 — INSTABILITA' FLESSO-TORSIONALE
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.2.4.1.3.2", formula="4.2.50")
+def steel_lt_buckling_reduction(
+    lambda_LT_bar: float, alpha_LT: float
+) -> float:
+    """Coefficiente di riduzione per instabilita' flesso-torsionale chi_LT [-].
+
+    NTC18 §4.2.4.1.3.2, Formula [4.2.50] (metodo generale):
+        Phi_LT = 0.5 * [1 + alpha_LT * (lambda_LT_bar - 0.2) + lambda_LT_bar^2]
+        chi_LT = 1 / (Phi_LT + sqrt(Phi_LT^2 - lambda_LT_bar^2))
+    con chi_LT <= 1.0.
+
+    Per lambda_LT_bar <= 0.2 si assume chi_LT = 1.0.
+
+    Parameters
+    ----------
+    lambda_LT_bar : float
+        Snellezza adimensionale flesso-torsionale [-].
+    alpha_LT : float
+        Fattore di imperfezione flesso-torsionale [-].
+
+    Returns
+    -------
+    float
+        Coefficiente di riduzione chi_LT [-], 0 < chi_LT <= 1.
+    """
+    if lambda_LT_bar < 0:
+        raise ValueError("lambda_LT_bar deve essere >= 0")
+    if alpha_LT < 0:
+        raise ValueError("alpha_LT deve essere >= 0")
+
+    if lambda_LT_bar <= 0.2:
+        return 1.0
+
+    Phi_LT = 0.5 * (1.0 + alpha_LT * (lambda_LT_bar - 0.2) + lambda_LT_bar ** 2)
+    chi_LT = 1.0 / (Phi_LT + math.sqrt(Phi_LT ** 2 - lambda_LT_bar ** 2))
+    return min(chi_LT, 1.0)
+
+
+@ntc_ref(article="4.2.4.1.3.2", formula="4.2.49")
+def steel_lt_buckling_resistance(
+    chi_LT: float, W_y: float, f_yk: float, gamma_M1: float
+) -> float:
+    """Resistenza ad instabilita' flesso-torsionale [N*mm].
+
+    NTC18 §4.2.4.1.3.2, Formula [4.2.49]:
+        M_b,Rd = chi_LT * W_y * f_yk / gamma_M1
+
+    Parameters
+    ----------
+    chi_LT : float
+        Coefficiente di riduzione flesso-torsionale [-].
+    W_y : float
+        Modulo di resistenza rispetto all'asse forte [mm^3].
+    f_yk : float
+        Tensione di snervamento [N/mm^2].
+    gamma_M1 : float
+        Coefficiente parziale gamma_M1 [-].
+
+    Returns
+    -------
+    float
+        M_b,Rd: resistenza ad instabilita' flesso-torsionale [N*mm].
+    """
+    if chi_LT <= 0 or chi_LT > 1:
+        raise ValueError("chi_LT deve essere 0 < chi_LT <= 1")
+    if W_y <= 0:
+        raise ValueError("W_y deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M1 <= 0:
+        raise ValueError("gamma_M1 deve essere > 0")
+    return chi_LT * W_y * f_yk / gamma_M1
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.8.1.1 — COLLEGAMENTI BULLONATI
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Coefficienti alfa_v per classi bulloni (Tab. 4.2.XII / §4.2.8.1.1)
+_BOLT_SHEAR_COEFFICIENTS: dict[str, float] = {
+    "4.6": 0.6,
+    "5.6": 0.6,
+    "5.8": 0.5,
+    "6.8": 0.5,
+    "8.8": 0.6,
+    "10.9": 0.5,
+}
+
+
+@ntc_ref(article="4.2.8.1.1", formula="4.2.63")
+def bolt_shear_resistance(
+    f_ub: float, A_s: float, bolt_class: str, gamma_M2: float
+) -> float:
+    """Resistenza a taglio di un bullone [N].
+
+    NTC18 §4.2.8.1.1, Formula [4.2.63]:
+        F_v,Rd = alpha_v * f_ub * A_s / gamma_M2
+
+    dove alpha_v = 0.6 per classi 4.6, 5.6, 8.8
+                 = 0.5 per classi 5.8, 6.8, 10.9
+
+    Parameters
+    ----------
+    f_ub : float
+        Tensione di rottura del bullone [N/mm^2].
+    A_s : float
+        Area resistente a trazione del bullone [mm^2].
+    bolt_class : str
+        Classe del bullone: "4.6", "5.6", "5.8", "6.8", "8.8", "10.9".
+    gamma_M2 : float
+        Coefficiente parziale gamma_M2 [-].
+
+    Returns
+    -------
+    float
+        F_v,Rd: resistenza a taglio [N].
+    """
+    if bolt_class not in _BOLT_SHEAR_COEFFICIENTS:
+        raise ValueError(
+            f"bolt_class deve essere 4.6, 5.6, 5.8, 6.8, 8.8 o 10.9, "
+            f"ricevuto: '{bolt_class}'"
+        )
+    if f_ub <= 0:
+        raise ValueError("f_ub deve essere > 0")
+    if A_s <= 0:
+        raise ValueError("A_s deve essere > 0")
+    if gamma_M2 <= 0:
+        raise ValueError("gamma_M2 deve essere > 0")
+
+    alpha_v = _BOLT_SHEAR_COEFFICIENTS[bolt_class]
+    return alpha_v * f_ub * A_s / gamma_M2
+
+
+@ntc_ref(article="4.2.8.1.1", formula="4.2.68")
+def bolt_tension_resistance(
+    f_ub: float, A_s: float, gamma_M2: float
+) -> float:
+    """Resistenza a trazione di un bullone [N].
+
+    NTC18 §4.2.8.1.1, Formula [4.2.68]:
+        F_t,Rd = 0.9 * f_ub * A_s / gamma_M2
+
+    Parameters
+    ----------
+    f_ub : float
+        Tensione di rottura del bullone [N/mm^2].
+    A_s : float
+        Area resistente a trazione del bullone [mm^2].
+    gamma_M2 : float
+        Coefficiente parziale gamma_M2 [-].
+
+    Returns
+    -------
+    float
+        F_t,Rd: resistenza a trazione [N].
+    """
+    if f_ub <= 0:
+        raise ValueError("f_ub deve essere > 0")
+    if A_s <= 0:
+        raise ValueError("A_s deve essere > 0")
+    if gamma_M2 <= 0:
+        raise ValueError("gamma_M2 deve essere > 0")
+    return 0.9 * f_ub * A_s / gamma_M2
+
+
+@ntc_ref(article="4.2.8.1.1", formula="4.2.71")
+def bolt_shear_tension_interaction(
+    F_v_Ed: float, F_t_Ed: float, F_v_Rd: float, F_t_Rd: float
+) -> tuple[bool, float]:
+    """Verifica interazione taglio + trazione bullone [-].
+
+    NTC18 §4.2.8.1.1, Formula [4.2.71]:
+        F_v,Ed / F_v,Rd + F_t,Ed / F_t,Rd <= 1.0
+
+    Parameters
+    ----------
+    F_v_Ed : float
+        Taglio di progetto sul bullone [N].
+    F_t_Ed : float
+        Trazione di progetto sul bullone [N].
+    F_v_Rd : float
+        Resistenza a taglio del bullone [N].
+    F_t_Rd : float
+        Resistenza a trazione del bullone [N].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_superata, utilization):
+        - verifica_superata: True se rapporto <= 1
+        - utilization: valore del rapporto di interazione [-]
+    """
+    if F_v_Rd <= 0:
+        raise ValueError("F_v_Rd deve essere > 0")
+    if F_t_Rd <= 0:
+        raise ValueError("F_t_Rd deve essere > 0")
+    if F_v_Ed < 0:
+        raise ValueError("F_v_Ed deve essere >= 0")
+    if F_t_Ed < 0:
+        raise ValueError("F_t_Ed deve essere >= 0")
+
+    utilization = F_v_Ed / F_v_Rd + F_t_Ed / F_t_Rd
+    return utilization <= 1.0, utilization
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.8.2.4 — SALDATURE A CORDONI D'ANGOLO
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.2.8.2.4", formula="4.2.83")
+def weld_fillet_resistance(
+    a: float, f_tk: float, beta_w: float, gamma_M2: float
+) -> float:
+    """Resistenza per unita' di lunghezza di cordone d'angolo [N/mm].
+
+    NTC18 §4.2.8.2.4, Formula [4.2.83]:
+        F_w,Rd = a * f_tk / (sqrt(3) * beta_w * gamma_M2)
+
+    Fattore di correlazione beta_w (Tab. 4.2.XIII):
+        S235 → 0.80, S275 → 0.85, S355 → 0.90, S420/S460 → 1.00
+
+    Parameters
+    ----------
+    a : float
+        Altezza di gola del cordone [mm].
+    f_tk : float
+        Tensione di rottura dell'acciaio base [N/mm^2].
+    beta_w : float
+        Fattore di correlazione [-] (da Tab. 4.2.XIII).
+    gamma_M2 : float
+        Coefficiente parziale gamma_M2 [-].
+
+    Returns
+    -------
+    float
+        F_w,Rd: resistenza per unita' di lunghezza [N/mm].
+    """
+    if a <= 0:
+        raise ValueError("a deve essere > 0")
+    if f_tk <= 0:
+        raise ValueError("f_tk deve essere > 0")
+    if beta_w <= 0:
+        raise ValueError("beta_w deve essere > 0")
+    if gamma_M2 <= 0:
+        raise ValueError("gamma_M2 deve essere > 0")
+    return a * f_tk / (math.sqrt(3) * beta_w * gamma_M2)
