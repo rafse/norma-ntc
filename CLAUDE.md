@@ -21,6 +21,14 @@ Architettura definita in ADR-001.
 7. Use AskUserQuestion if you need to clarify the approach
 8. In caso di dubbi su valori OCR o interpretazione della norma, puoi procedere con la tua interpretazione ma DEVI documentare il dubbio in `DUBBI_NTC18.md` (sezione, valore dubbio, motivazione, stato)
 
+## Esempi Jupyter Notebook
+- Ogni esempio in `examples/` DEVE seguire approccio TDD:
+  1. Definire i **valori attesi** (es. da calcolo manuale o norma) come commenti o variabili `expected_*` PRIMA del calcolo
+  2. Chiamare le funzioni pyntc e confrontare il risultato con il valore atteso
+  3. Ogni cella di verifica deve concludersi con un assert esplicito: `assert math.isclose(result, expected, rel_tol=1e-3)`
+  4. L'esempio deve essere eseguibile da cima a fondo senza errori (`Run All`)
+- Il notebook funge da **test di integrazione documentato**: se i valori cambiano, il notebook fallisce
+
 ## Comandi
 - `pytest -v` — esegui tutti i test
 - `pytest --cov=pyntc` — coverage
