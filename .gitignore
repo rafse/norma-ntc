@@ -45,6 +45,9 @@ $RECYCLE.BIN/
 .AppleDouble
 .LSOverride
 
+# Dati OCR NTC18 (privati, non distribuiti)
+ntc18_data/
+
 # Vault Obsidian (generato da script, non versionare)
 ntc18-vault/
 
@@ -56,6 +59,12 @@ ntc18-vault/
 *.pem
 *.key
 
+# Documenti privati
+docs/PRD-chatntc.md
+docs/risposta chatntc.md
+docs/risposta claude.md
+docs/valutazione SAAS ntc18.md
+
 # File locali non versionati
 blog_draft.md
 diagramma_automatizzato.html
@@ -63,3 +72,4 @@ diagramma_merged.svg
 diagramma_vettoriale.svg
 test_3.1.py
 test_vento.py
+.agents/

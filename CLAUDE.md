@@ -9,7 +9,7 @@ Architettura definita in ADR-001.
 - `src/pyntc/checks/` — Verifiche a valle del solutore (c.a., acciaio, muratura, geotecnica)
 - `src/pyntc/core/` — Decoratore `@ntc_ref()` e costanti SI
 - `tests/` — Test pytest (TDD: test PRIMA dell'implementazione)
-- `ntc18_data/` — JSON strutturati del testo NTC18 parsato con dots.ocr
+- `ntc18_data/` — (privato, non nel repo) JSON strutturati del testo NTC18 parsato con dots.ocr
 
 ## Regole di sviluppo
 1. Ogni funzione pubblica DEVE avere `@ntc_ref(article=..., table=..., formula=...)`
