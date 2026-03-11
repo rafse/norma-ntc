@@ -18,14 +18,14 @@
         <link rel="prev" href="../timber/">
       
       
-        <link rel="next" href="../bridges/">
+        <link rel="next" href="../geotechnical/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -252,7 +252,7 @@
           
   
   
-  Azioni (Cap. 2-3)
+  Azioni (Cap. 2-5)
 
         </a>
       </li>
@@ -423,7 +423,7 @@
   <span class="md-ellipsis">
     
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
     
@@ -439,7 +439,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
           </label>
@@ -628,6 +628,34 @@
     
   
     Combinazioni
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/bridges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ponti
   
 
     
@@ -1316,34 +1344,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../bridges/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ponti
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -2102,7 +2102,7 @@ gamma_M : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-76"> 76</a></span>
 <span class="normal"><a href="#__codelineno-0-77"> 77</a></span>
 <span class="normal"><a href="#__codelineno-0-78"> 78</a></span>
@@ -2128,8 +2128,8 @@ gamma_M : float
 <span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
 <span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
 <span class="normal"><a href="#__codelineno-0-100">100</a></span>
-<span class="normal"><a href="#__codelineno-0-101">101</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.2&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="k">def</span> <span class="nf">masonry_design_compressive_strength</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-101">101</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.2&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;f_d = \frac</span><span class="si">{f_k}</span><span class="s2">{\gamma_M}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_design_compressive_strength</span><span class="p">(</span>
 <a id="__codelineno-0-78" name="__codelineno-0-78"></a>    <span class="n">f_k</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gamma_M</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resistenza di progetto a compressione della muratura [N/mm^2].</span>
@@ -2185,7 +2185,7 @@ gamma_M : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-104">104</a></span>
 <span class="normal"><a href="#__codelineno-0-105">105</a></span>
 <span class="normal"><a href="#__codelineno-0-106">106</a></span>
@@ -2211,8 +2211,8 @@ gamma_M : float
 <span class="normal"><a href="#__codelineno-0-126">126</a></span>
 <span class="normal"><a href="#__codelineno-0-127">127</a></span>
 <span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="k">def</span> <span class="nf">masonry_design_shear_strength</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-129">129</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;f_</span><span class="si">{vd}</span><span class="s2"> = \frac{f_</span><span class="si">{vk}</span><span class="s2">}{\gamma_M}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_design_shear_strength</span><span class="p">(</span>
 <a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="n">f_vk</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gamma_M</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resistenza di progetto a taglio della muratura [N/mm^2].</span>
@@ -2268,7 +2268,7 @@ t : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-241">241</a></span>
 <span class="normal"><a href="#__codelineno-0-242">242</a></span>
 <span class="normal"><a href="#__codelineno-0-243">243</a></span>
@@ -2292,8 +2292,8 @@ t : float
 <span class="normal"><a href="#__codelineno-0-261">261</a></span>
 <span class="normal"><a href="#__codelineno-0-262">262</a></span>
 <span class="normal"><a href="#__codelineno-0-263">263</a></span>
-<span class="normal"><a href="#__codelineno-0-264">264</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.6&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="k">def</span> <span class="nf">masonry_eccentricity_coefficient</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.6&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;m = \frac{6\,e}</span><span class="si">{t}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_eccentricity_coefficient</span><span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficiente di eccentricita&#39; m [-].</span>
 <a id="__codelineno-0-244" name="__codelineno-0-244"></a>
 <a id="__codelineno-0-245" name="__codelineno-0-245"></a><span class="sd">    NTC18 §4.5.6.2, Formula [4.5.6]:</span>
@@ -2348,7 +2348,7 @@ h : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-213">213</a></span>
 <span class="normal"><a href="#__codelineno-0-214">214</a></span>
 <span class="normal"><a href="#__codelineno-0-215">215</a></span>
@@ -2374,8 +2374,8 @@ h : float
 <span class="normal"><a href="#__codelineno-0-235">235</a></span>
 <span class="normal"><a href="#__codelineno-0-236">236</a></span>
 <span class="normal"><a href="#__codelineno-0-237">237</a></span>
-<span class="normal"><a href="#__codelineno-0-238">238</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.5&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="k">def</span> <span class="nf">masonry_effective_height</span><span class="p">(</span><span class="n">rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.5&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;h_0 = \rho \cdot h&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-214" name="__codelineno-0-214"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_effective_height</span><span class="p">(</span><span class="n">rho</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Lunghezza libera d&#39;inflessione della parete [mm].</span>
 <a id="__codelineno-0-216" name="__codelineno-0-216"></a>
 <a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="sd">    NTC18 §4.5.6.2, Formula [4.5.5]:</span>
@@ -2433,7 +2433,7 @@ a : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-177">177</a></span>
 <span class="normal"><a href="#__codelineno-0-178">178</a></span>
 <span class="normal"><a href="#__codelineno-0-179">179</a></span>
@@ -2467,8 +2467,8 @@ a : float
 <span class="normal"><a href="#__codelineno-0-207">207</a></span>
 <span class="normal"><a href="#__codelineno-0-208">208</a></span>
 <span class="normal"><a href="#__codelineno-0-209">209</a></span>
-<span class="normal"><a href="#__codelineno-0-210">210</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.5.IV&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="k">def</span> <span class="nf">masonry_lateral_restraint_factor</span><span class="p">(</span><span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-210">210</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-177" name="__codelineno-0-177"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.5.IV&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\rho = \begin</span><span class="si">{cases}</span><span class="s2"> 1 &amp; h/a \le 0{,}5 </span><span class="se">\\</span><span class="s2"> \frac</span><span class="si">{3}{2}</span><span class="s2"> - \frac</span><span class="si">{h}{a}</span><span class="s2"> &amp; 0{,}5 &lt; h/a \le 1 </span><span class="se">\\</span><span class="s2"> \frac</span><span class="si">{1}</span><span class="s2">{1+(h/a)^2} &amp; h/a &gt; 1 \end</span><span class="si">{cases}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-178" name="__codelineno-0-178"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_lateral_restraint_factor</span><span class="p">(</span><span class="n">h</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-179" name="__codelineno-0-179"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fattore laterale di vincolo rho (= q in [4.5.5]) [-].</span>
 <a id="__codelineno-0-180" name="__codelineno-0-180"></a>
 <a id="__codelineno-0-181" name="__codelineno-0-181"></a><span class="sd">    NTC18 §4.5.6.2, Tab. 4.5.IV:</span>
@@ -2537,7 +2537,7 @@ execution_class : int
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
 <span class="normal"><a href="#__codelineno-0-34">34</a></span>
 <span class="normal"><a href="#__codelineno-0-35">35</a></span>
@@ -2578,8 +2578,8 @@ execution_class : int
 <span class="normal"><a href="#__codelineno-0-70">70</a></span>
 <span class="normal"><a href="#__codelineno-0-71">71</a></span>
 <span class="normal"><a href="#__codelineno-0-72">72</a></span>
-<span class="normal"><a href="#__codelineno-0-73">73</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.5.II&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="k">def</span> <span class="nf">masonry_partial_safety_factor</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-73">73</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.5.II&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\text{Tab.\,4.5.II}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_partial_safety_factor</span><span class="p">(</span>
 <a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">element_category</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mortar_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">execution_class</span><span class="p">:</span> <span class="nb">int</span>
 <a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficiente parziale di sicurezza gamma_M per muratura [-].</span>
@@ -2650,7 +2650,7 @@ f_d : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-391">391</a></span>
 <span class="normal"><a href="#__codelineno-0-392">392</a></span>
 <span class="normal"><a href="#__codelineno-0-393">393</a></span>
@@ -2674,8 +2674,8 @@ f_d : float
 <span class="normal"><a href="#__codelineno-0-411">411</a></span>
 <span class="normal"><a href="#__codelineno-0-412">412</a></span>
 <span class="normal"><a href="#__codelineno-0-413">413</a></span>
-<span class="normal"><a href="#__codelineno-0-414">414</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-391" name="__codelineno-0-391"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.4&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="k">def</span> <span class="nf">masonry_reduced_strength</span><span class="p">(</span><span class="n">Phi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">f_d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-414">414</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-391" name="__codelineno-0-391"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.4&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;f_{d,\text</span><span class="si">{rid}</span><span class="s2">} = \Phi \cdot f_d&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_reduced_strength</span><span class="p">(</span><span class="n">Phi</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">f_d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-393" name="__codelineno-0-393"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resistenza unitaria di progetto ridotta [N/mm^2].</span>
 <a id="__codelineno-0-394" name="__codelineno-0-394"></a>
 <a id="__codelineno-0-395" name="__codelineno-0-395"></a><span class="sd">    NTC18 §4.5.6.2, Formula [4.5.4]:</span>
@@ -2730,7 +2730,7 @@ m : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-289">289</a></span>
 <span class="normal"><a href="#__codelineno-0-290">290</a></span>
 <span class="normal"><a href="#__codelineno-0-291">291</a></span>
@@ -2825,8 +2825,8 @@ m : float
 <span class="normal"><a href="#__codelineno-0-380">380</a></span>
 <span class="normal"><a href="#__codelineno-0-381">381</a></span>
 <span class="normal"><a href="#__codelineno-0-382">382</a></span>
-<span class="normal"><a href="#__codelineno-0-383">383</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-289" name="__codelineno-0-289"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.5.III&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-290" name="__codelineno-0-290"></a><span class="k">def</span> <span class="nf">masonry_reduction_factor</span><span class="p">(</span><span class="n">lambda_</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-383">383</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-289" name="__codelineno-0-289"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.2&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.5.III&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\Phi = f(\lambda,\,m) \quad \text{Tab.\,4.5.III}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-290" name="__codelineno-0-290"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_reduction_factor</span><span class="p">(</span><span class="n">lambda_</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-291" name="__codelineno-0-291"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficiente di riduzione Phi della resistenza [-].</span>
 <a id="__codelineno-0-292" name="__codelineno-0-292"></a>
 <a id="__codelineno-0-293" name="__codelineno-0-293"></a><span class="sd">    NTC18 §4.5.6.2, Tab. 4.5.III — Interpolazione bilineare sui valori</span>
@@ -2959,7 +2959,7 @@ gamma_M : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-422">422</a></span>
 <span class="normal"><a href="#__codelineno-0-423">423</a></span>
 <span class="normal"><a href="#__codelineno-0-424">424</a></span>
@@ -3001,8 +3001,8 @@ gamma_M : float
 <span class="normal"><a href="#__codelineno-0-460">460</a></span>
 <span class="normal"><a href="#__codelineno-0-461">461</a></span>
 <span class="normal"><a href="#__codelineno-0-462">462</a></span>
-<span class="normal"><a href="#__codelineno-0-463">463</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-422" name="__codelineno-0-422"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.4&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.12&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-423" name="__codelineno-0-423"></a><span class="k">def</span> <span class="nf">masonry_simplified_check</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-463">463</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-422" name="__codelineno-0-422"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.6.4&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.12&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\sigma = \frac</span><span class="si">{N}</span><span class="s2">{0{,}65\,A} \le \frac</span><span class="si">{f_k}</span><span class="s2">{\gamma_M}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-423" name="__codelineno-0-423"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_simplified_check</span><span class="p">(</span>
 <a id="__codelineno-0-424" name="__codelineno-0-424"></a>    <span class="n">N</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">A</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">f_k</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gamma_M</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-425" name="__codelineno-0-425"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-426" name="__codelineno-0-426"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica semplificata per edifici semplici [-].</span>
@@ -3075,7 +3075,7 @@ t : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\masonry.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/masonry.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-137">137</a></span>
 <span class="normal"><a href="#__codelineno-0-138">138</a></span>
 <span class="normal"><a href="#__codelineno-0-139">139</a></span>
@@ -3108,8 +3108,8 @@ t : float
 <span class="normal"><a href="#__codelineno-0-166">166</a></span>
 <span class="normal"><a href="#__codelineno-0-167">167</a></span>
 <span class="normal"><a href="#__codelineno-0-168">168</a></span>
-<span class="normal"><a href="#__codelineno-0-169">169</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.4&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.1&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="k">def</span> <span class="nf">masonry_slenderness</span><span class="p">(</span><span class="n">h_0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-169">169</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-137" name="__codelineno-0-137"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.5.4&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.5.1&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\lambda = \frac</span><span class="si">{h_0}{t}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-138" name="__codelineno-0-138"></a><span class="k">def</span><span class="w"> </span><span class="nf">masonry_slenderness</span><span class="p">(</span><span class="n">h_0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-139" name="__codelineno-0-139"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Snellezza convenzionale della parete [-].</span>
 <a id="__codelineno-0-140" name="__codelineno-0-140"></a>
 <a id="__codelineno-0-141" name="__codelineno-0-141"></a><span class="sd">    NTC18 §4.5.4, Formula [4.5.1]:</span>

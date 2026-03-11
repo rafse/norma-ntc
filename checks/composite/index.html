@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -252,7 +252,7 @@
           
   
   
-  Azioni (Cap. 2-3)
+  Azioni (Cap. 2-5)
 
         </a>
       </li>
@@ -423,7 +423,7 @@
   <span class="md-ellipsis">
     
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
     
@@ -439,7 +439,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
           </label>
@@ -628,6 +628,34 @@
     
   
     Combinazioni
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/bridges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ponti
   
 
     
@@ -1709,34 +1737,6 @@
     
   
     Muratura
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../bridges/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ponti
   
 
     
@@ -2900,7 +2900,7 @@ M_pl_Rd : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-825">825</a></span>
 <span class="normal"><a href="#__codelineno-0-826">826</a></span>
 <span class="normal"><a href="#__codelineno-0-827">827</a></span>
@@ -2925,8 +2925,8 @@ M_pl_Rd : float
 <span class="normal"><a href="#__codelineno-0-846">846</a></span>
 <span class="normal"><a href="#__codelineno-0-847">847</a></span>
 <span class="normal"><a href="#__codelineno-0-848">848</a></span>
-<span class="normal"><a href="#__codelineno-0-849">849</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-825" name="__codelineno-0-825"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.28&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-826" name="__codelineno-0-826"></a><span class="k">def</span> <span class="nf">composite_beam_shear_distribution</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-849">849</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-825" name="__codelineno-0-825"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.28&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;V_{a,Ed} = V_</span><span class="si">{Ed}</span><span class="s2">\,\frac{M_{pl,a,Rd}}{M_{pl,Rd}}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-826" name="__codelineno-0-826"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_beam_shear_distribution</span><span class="p">(</span>
 <a id="__codelineno-0-827" name="__codelineno-0-827"></a>    <span class="n">V_Ed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">M_pl_a_Rd</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">M_pl_Rd</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-828" name="__codelineno-0-828"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-829" name="__codelineno-0-829"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Distribuzione del taglio tra parte in acciaio e calcestruzzo.</span>
@@ -2979,7 +2979,7 @@ M_pl_Rd : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-865">865</a></span>
 <span class="normal"><a href="#__codelineno-0-866">866</a></span>
 <span class="normal"><a href="#__codelineno-0-867">867</a></span>
@@ -2999,8 +2999,8 @@ M_pl_Rd : float
 <span class="normal"><a href="#__codelineno-0-881">881</a></span>
 <span class="normal"><a href="#__codelineno-0-882">882</a></span>
 <span class="normal"><a href="#__codelineno-0-883">883</a></span>
-<span class="normal"><a href="#__codelineno-0-884">884</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-865" name="__codelineno-0-865"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.5.1&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-866" name="__codelineno-0-866"></a><span class="k">def</span> <span class="nf">composite_bond_stress_limit</span><span class="p">(</span><span class="n">section_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-884">884</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-865" name="__codelineno-0-865"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.5.1&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\tau_</span><span class="si">{Rd}</span><span class="s2"> \;\text{(§4.3.5.5.1)}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-866" name="__codelineno-0-866"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_bond_stress_limit</span><span class="p">(</span><span class="n">section_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-867" name="__codelineno-0-867"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Tensione tangenziale limite di aderenza all&#39;interfaccia [N/mm²].</span>
 <a id="__codelineno-0-868" name="__codelineno-0-868"></a>
 <a id="__codelineno-0-869" name="__codelineno-0-869"></a><span class="sd">    NTC18 §4.3.5.5.1.</span>
@@ -3053,7 +3053,7 @@ alpha_M : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-682">682</a></span>
 <span class="normal"><a href="#__codelineno-0-683">683</a></span>
 <span class="normal"><a href="#__codelineno-0-684">684</a></span>
@@ -3080,8 +3080,8 @@ alpha_M : float
 <span class="normal"><a href="#__codelineno-0-705">705</a></span>
 <span class="normal"><a href="#__codelineno-0-706">706</a></span>
 <span class="normal"><a href="#__codelineno-0-707">707</a></span>
-<span class="normal"><a href="#__codelineno-0-708">708</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-682" name="__codelineno-0-682"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.35&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-683" name="__codelineno-0-683"></a><span class="k">def</span> <span class="nf">composite_column_bending_check</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-708">708</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-682" name="__codelineno-0-682"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.35&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;M_</span><span class="si">{Ed}</span><span class="s2"> \le \alpha_M\,\mu_d\,M_{pl,Rd}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-683" name="__codelineno-0-683"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_bending_check</span><span class="p">(</span>
 <a id="__codelineno-0-684" name="__codelineno-0-684"></a>    <span class="n">M_Ed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">mu_d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">M_pl_Rd</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">alpha_M</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-685" name="__codelineno-0-685"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-686" name="__codelineno-0-686"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica a pressoflessione della colonna composta.</span>
@@ -3152,7 +3152,7 @@ alpha_M_z : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-766">766</a></span>
 <span class="normal"><a href="#__codelineno-0-767">767</a></span>
 <span class="normal"><a href="#__codelineno-0-768">768</a></span>
@@ -3204,8 +3204,8 @@ alpha_M_z : float
 <span class="normal"><a href="#__codelineno-0-814">814</a></span>
 <span class="normal"><a href="#__codelineno-0-815">815</a></span>
 <span class="normal"><a href="#__codelineno-0-816">816</a></span>
-<span class="normal"><a href="#__codelineno-0-817">817</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-766" name="__codelineno-0-766"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.27&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-767" name="__codelineno-0-767"></a><span class="k">def</span> <span class="nf">composite_column_biaxial_check</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-817">817</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-766" name="__codelineno-0-766"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.27&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\frac{M_{y,Ed}}{\mu_</span><span class="si">{dy}</span><span class="s2">\,M_{pl,y,Rd}} + \frac{M_{z,Ed}}{\mu_</span><span class="si">{dz}</span><span class="s2">\,M_{pl,z,Rd}} \le 1{,}0&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-767" name="__codelineno-0-767"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_biaxial_check</span><span class="p">(</span>
 <a id="__codelineno-0-768" name="__codelineno-0-768"></a>    <span class="n">M_y_Ed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-769" name="__codelineno-0-769"></a>    <span class="n">M_z_Ed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-770" name="__codelineno-0-770"></a>    <span class="n">mu_dy</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -3290,7 +3290,7 @@ rho_s : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-508">508</a></span>
 <span class="normal"><a href="#__codelineno-0-509">509</a></span>
 <span class="normal"><a href="#__codelineno-0-510">510</a></span>
@@ -3328,8 +3328,8 @@ rho_s : float
 <span class="normal"><a href="#__codelineno-0-542">542</a></span>
 <span class="normal"><a href="#__codelineno-0-543">543</a></span>
 <span class="normal"><a href="#__codelineno-0-544">544</a></span>
-<span class="normal"><a href="#__codelineno-0-545">545</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-508" name="__codelineno-0-508"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.3.III&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-509" name="__codelineno-0-509"></a><span class="k">def</span> <span class="nf">composite_column_buckling_curve</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-545">545</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-508" name="__codelineno-0-508"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.3.III&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\text{Tab.\,4.3.III}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-509" name="__codelineno-0-509"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_buckling_curve</span><span class="p">(</span>
 <a id="__codelineno-0-510" name="__codelineno-0-510"></a>    <span class="n">section_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rho_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
 <a id="__codelineno-0-511" name="__codelineno-0-511"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-512" name="__codelineno-0-512"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Curva di instabilita&#39; e fattore di imperfezione alpha [-].</span>
@@ -3400,7 +3400,7 @@ N_pl_Rd : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-553">553</a></span>
 <span class="normal"><a href="#__codelineno-0-554">554</a></span>
 <span class="normal"><a href="#__codelineno-0-555">555</a></span>
@@ -3428,8 +3428,8 @@ N_pl_Rd : float
 <span class="normal"><a href="#__codelineno-0-577">577</a></span>
 <span class="normal"><a href="#__codelineno-0-578">578</a></span>
 <span class="normal"><a href="#__codelineno-0-579">579</a></span>
-<span class="normal"><a href="#__codelineno-0-580">580</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-553" name="__codelineno-0-553"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.29&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-554" name="__codelineno-0-554"></a><span class="k">def</span> <span class="nf">composite_column_buckling_resistance</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-580">580</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-553" name="__codelineno-0-553"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.29&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\chi = \frac</span><span class="si">{1}</span><span class="s2">{\Phi + \sqrt{\Phi^2 - \bar{\lambda}^2}} \le 1{,}0, \quad N_{b,Rd} = \chi\,N_{pl,Rd}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-554" name="__codelineno-0-554"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_buckling_resistance</span><span class="p">(</span>
 <a id="__codelineno-0-555" name="__codelineno-0-555"></a>    <span class="n">lambda_bar</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">alpha</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N_pl_Rd</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-556" name="__codelineno-0-556"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-557" name="__codelineno-0-557"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resistenza di progetto all&#39;instabilita&#39; della colonna composta.</span>
@@ -3502,7 +3502,7 @@ N_Ed : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-407">407</a></span>
 <span class="normal"><a href="#__codelineno-0-408">408</a></span>
 <span class="normal"><a href="#__codelineno-0-409">409</a></span>
@@ -3552,8 +3552,8 @@ N_Ed : float
 <span class="normal"><a href="#__codelineno-0-453">453</a></span>
 <span class="normal"><a href="#__codelineno-0-454">454</a></span>
 <span class="normal"><a href="#__codelineno-0-455">455</a></span>
-<span class="normal"><a href="#__codelineno-0-456">456</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-407" name="__codelineno-0-407"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.16&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-408" name="__codelineno-0-408"></a><span class="k">def</span> <span class="nf">composite_column_effective_stiffness</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-456">456</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-407" name="__codelineno-0-407"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.16&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;(EI)_{\mathrm</span><span class="si">{eff}</span><span class="s2">} = E_a I_a + E_s I_s + 0{,}6\,E_{c,\mathrm</span><span class="si">{eff}</span><span class="s2">}\,I_c, \quad E_{c,\mathrm</span><span class="si">{eff}</span><span class="s2">} = \frac{E_</span><span class="si">{cm}</span><span class="s2">}{1 + \varphi_t\,N_{G,Ed}/N_</span><span class="si">{Ed}</span><span class="s2">}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-408" name="__codelineno-0-408"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_effective_stiffness</span><span class="p">(</span>
 <a id="__codelineno-0-409" name="__codelineno-0-409"></a>    <span class="n">E_a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-410" name="__codelineno-0-410"></a>    <span class="n">I_a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-411" name="__codelineno-0-411"></a>    <span class="n">E_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -3637,7 +3637,7 @@ f_y : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-635">635</a></span>
 <span class="normal"><a href="#__codelineno-0-636">636</a></span>
 <span class="normal"><a href="#__codelineno-0-637">637</a></span>
@@ -3677,8 +3677,8 @@ f_y : float
 <span class="normal"><a href="#__codelineno-0-671">671</a></span>
 <span class="normal"><a href="#__codelineno-0-672">672</a></span>
 <span class="normal"><a href="#__codelineno-0-673">673</a></span>
-<span class="normal"><a href="#__codelineno-0-674">674</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-635" name="__codelineno-0-635"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.31&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-636" name="__codelineno-0-636"></a><span class="k">def</span> <span class="nf">composite_column_local_buckling_check</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-674">674</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-635" name="__codelineno-0-635"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.31&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\frac</span><span class="si">{d}{t}</span><span class="s2"> \le 90\,\frac</span><span class="si">{235}{f_y}</span><span class="s2"> \;\text{(circ.)}, \quad \frac</span><span class="si">{d}{t}</span><span class="s2"> \le 52\sqrt{\frac</span><span class="si">{235}{f_y}</span><span class="s2">} \;\text{(rett.)}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-636" name="__codelineno-0-636"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_local_buckling_check</span><span class="p">(</span>
 <a id="__codelineno-0-637" name="__codelineno-0-637"></a>    <span class="n">section_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">d_or_b</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">f_y</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-638" name="__codelineno-0-638"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-639" name="__codelineno-0-639"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica di instabilita&#39; locale per colonne composte.</span>
@@ -3764,7 +3764,7 @@ filled : bool
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-279">279</a></span>
 <span class="normal"><a href="#__codelineno-0-280">280</a></span>
 <span class="normal"><a href="#__codelineno-0-281">281</a></span>
@@ -3813,8 +3813,8 @@ filled : bool
 <span class="normal"><a href="#__codelineno-0-324">324</a></span>
 <span class="normal"><a href="#__codelineno-0-325">325</a></span>
 <span class="normal"><a href="#__codelineno-0-326">326</a></span>
-<span class="normal"><a href="#__codelineno-0-327">327</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-279" name="__codelineno-0-279"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.21&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-280" name="__codelineno-0-280"></a><span class="k">def</span> <span class="nf">composite_column_plastic_resistance</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-327">327</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-279" name="__codelineno-0-279"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.21&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;N_{pl,Rd} = \frac{A_a\,f_</span><span class="si">{yk}</span><span class="s2">}{\gamma_A} + \alpha_</span><span class="si">{cc}</span><span class="s2">\,\frac{A_c\,f_</span><span class="si">{ck}</span><span class="s2">}{\gamma_C} + \frac{A_s\,f_</span><span class="si">{sk}</span><span class="s2">}{\gamma_S}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_plastic_resistance</span><span class="p">(</span>
 <a id="__codelineno-0-281" name="__codelineno-0-281"></a>    <span class="n">A_a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-282" name="__codelineno-0-282"></a>    <span class="n">f_yk</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-283" name="__codelineno-0-283"></a>    <span class="n">gamma_A</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -3893,7 +3893,7 @@ N_cr : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-464">464</a></span>
 <span class="normal"><a href="#__codelineno-0-465">465</a></span>
 <span class="normal"><a href="#__codelineno-0-466">466</a></span>
@@ -3918,8 +3918,8 @@ N_cr : float
 <span class="normal"><a href="#__codelineno-0-485">485</a></span>
 <span class="normal"><a href="#__codelineno-0-486">486</a></span>
 <span class="normal"><a href="#__codelineno-0-487">487</a></span>
-<span class="normal"><a href="#__codelineno-0-488">488</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.18&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-465" name="__codelineno-0-465"></a><span class="k">def</span> <span class="nf">composite_column_slenderness</span><span class="p">(</span><span class="n">N_pl_Rk</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N_cr</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-488">488</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-464" name="__codelineno-0-464"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.18&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\bar{\lambda} = \sqrt{\frac{N_{pl,Rk}}{N_</span><span class="si">{cr}</span><span class="s2">}}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-465" name="__codelineno-0-465"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_column_slenderness</span><span class="p">(</span><span class="n">N_pl_Rk</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N_cr</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-466" name="__codelineno-0-466"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Snellezza normalizzata della colonna composta [-].</span>
 <a id="__codelineno-0-467" name="__codelineno-0-467"></a>
 <a id="__codelineno-0-468" name="__codelineno-0-468"></a><span class="sd">    NTC18 §4.3.5.2 [4.3.18]: lambda_bar = sqrt(N_pl,Rk / N_cr).</span>
@@ -3975,7 +3975,7 @@ gamma_C : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-335">335</a></span>
 <span class="normal"><a href="#__codelineno-0-336">336</a></span>
 <span class="normal"><a href="#__codelineno-0-337">337</a></span>
@@ -3998,8 +3998,8 @@ gamma_C : float
 <span class="normal"><a href="#__codelineno-0-354">354</a></span>
 <span class="normal"><a href="#__codelineno-0-355">355</a></span>
 <span class="normal"><a href="#__codelineno-0-356">356</a></span>
-<span class="normal"><a href="#__codelineno-0-357">357</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-335" name="__codelineno-0-335"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.25&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-336" name="__codelineno-0-336"></a><span class="k">def</span> <span class="nf">composite_concrete_part_resistance</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-357">357</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-335" name="__codelineno-0-335"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.25&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;N_{pm,Rd} = 0{,}85\,\frac{f_</span><span class="si">{ck}</span><span class="s2">}{\gamma_C}\,A_c&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-336" name="__codelineno-0-336"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_concrete_part_resistance</span><span class="p">(</span>
 <a id="__codelineno-0-337" name="__codelineno-0-337"></a>    <span class="n">A_c</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">f_ck</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gamma_C</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-338" name="__codelineno-0-338"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Sforzo normale resistente di progetto della porzione in calcestruzzo [N].</span>
@@ -4052,7 +4052,7 @@ e_d : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-588">588</a></span>
 <span class="normal"><a href="#__codelineno-0-589">589</a></span>
 <span class="normal"><a href="#__codelineno-0-590">590</a></span>
@@ -4092,8 +4092,8 @@ e_d : float
 <span class="normal"><a href="#__codelineno-0-624">624</a></span>
 <span class="normal"><a href="#__codelineno-0-625">625</a></span>
 <span class="normal"><a href="#__codelineno-0-626">626</a></span>
-<span class="normal"><a href="#__codelineno-0-627">627</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-588" name="__codelineno-0-588"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.23&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-589" name="__codelineno-0-589"></a><span class="k">def</span> <span class="nf">composite_confinement_coefficients</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-627">627</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-588" name="__codelineno-0-588"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.23&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\eta_a = 0{,}25\,(3 + 2\,\bar{\lambda}), \quad \eta_c = 4{,}9 - 18{,}5\,\bar{\lambda} + 17\,\bar{\lambda}^2&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-589" name="__codelineno-0-589"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_confinement_coefficients</span><span class="p">(</span>
 <a id="__codelineno-0-590" name="__codelineno-0-590"></a>    <span class="n">lambda_bar</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">e_d</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-591" name="__codelineno-0-591"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-592" name="__codelineno-0-592"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficienti di confinamento eta_a ed eta_c per sezioni circolari [-].</span>
@@ -4167,7 +4167,7 @@ b_2 : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-19">19</a></span>
 <span class="normal"><a href="#__codelineno-0-20">20</a></span>
 <span class="normal"><a href="#__codelineno-0-21">21</a></span>
@@ -4195,8 +4195,8 @@ b_2 : float
 <span class="normal"><a href="#__codelineno-0-43">43</a></span>
 <span class="normal"><a href="#__codelineno-0-44">44</a></span>
 <span class="normal"><a href="#__codelineno-0-45">45</a></span>
-<span class="normal"><a href="#__codelineno-0-46">46</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.2.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.2&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">def</span> <span class="nf">composite_effective_width</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.2.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.2&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;b_{\mathrm</span><span class="si">{eff}</span><span class="s2">} = b_0 + b_</span><span class="si">{e1}</span><span class="s2"> + b_</span><span class="si">{e2}</span><span class="s2">, \quad b_</span><span class="si">{ei}</span><span class="s2"> = \min\!\left(\frac</span><span class="si">{L_0}{8}</span><span class="s2">,\, b_i\right)&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_effective_width</span><span class="p">(</span>
 <a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="n">b_0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">L_0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b_1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">b_2</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Larghezza efficace della soletta in calcestruzzo [mm].</span>
@@ -4255,7 +4255,7 @@ stud_type : str
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-235">235</a></span>
 <span class="normal"><a href="#__codelineno-0-236">236</a></span>
 <span class="normal"><a href="#__codelineno-0-237">237</a></span>
@@ -4292,8 +4292,8 @@ stud_type : str
 <span class="normal"><a href="#__codelineno-0-268">268</a></span>
 <span class="normal"><a href="#__codelineno-0-269">269</a></span>
 <span class="normal"><a href="#__codelineno-0-270">270</a></span>
-<span class="normal"><a href="#__codelineno-0-271">271</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-235" name="__codelineno-0-235"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.7&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-236" name="__codelineno-0-236"></a><span class="k">def</span> <span class="nf">composite_minimum_connection_degree</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-235" name="__codelineno-0-235"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.7&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\eta_{\min} = \max\!\left(1 - \frac</span><span class="si">{355}</span><span class="s2">{f_</span><span class="si">{yk}</span><span class="s2">}\left(1{,}0 - 0{,}04\,L_c\right),\;0{,}4\right)&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_minimum_connection_degree</span><span class="p">(</span>
 <a id="__codelineno-0-237" name="__codelineno-0-237"></a>    <span class="n">f_yk</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">L_c</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">stud_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;standard&quot;</span>
 <a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-239" name="__codelineno-0-239"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Grado minimo di connessione eta_min [-].</span>
@@ -4369,7 +4369,7 @@ Se M_min == M_max (momento costante), beta = 1.1.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-716">716</a></span>
 <span class="normal"><a href="#__codelineno-0-717">717</a></span>
 <span class="normal"><a href="#__codelineno-0-718">718</a></span>
@@ -4412,8 +4412,8 @@ Se M_min == M_max (momento costante), beta = 1.1.</p>
 <span class="normal"><a href="#__codelineno-0-755">755</a></span>
 <span class="normal"><a href="#__codelineno-0-756">756</a></span>
 <span class="normal"><a href="#__codelineno-0-757">757</a></span>
-<span class="normal"><a href="#__codelineno-0-758">758</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-716" name="__codelineno-0-716"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.36&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-717" name="__codelineno-0-717"></a><span class="k">def</span> <span class="nf">composite_moment_amplification</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-758">758</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-716" name="__codelineno-0-716"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.4.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.36&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;k = \frac{\beta}{1 - N_</span><span class="si">{Ed}</span><span class="s2">/N_{cr,\mathrm</span><span class="si">{eff}</span><span class="s2">}} \ge 1{,}0&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-717" name="__codelineno-0-717"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_moment_amplification</span><span class="p">(</span>
 <a id="__codelineno-0-718" name="__codelineno-0-718"></a>    <span class="n">N_Ed</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-719" name="__codelineno-0-719"></a>    <span class="n">N_cr_eff</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-720" name="__codelineno-0-720"></a>    <span class="o">*</span><span class="p">,</span>
@@ -4485,7 +4485,7 @@ analysis_type : str
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-66">66</a></span>
 <span class="normal"><a href="#__codelineno-0-67">67</a></span>
 <span class="normal"><a href="#__codelineno-0-68">68</a></span>
@@ -4510,8 +4510,8 @@ analysis_type : str
 <span class="normal"><a href="#__codelineno-0-87">87</a></span>
 <span class="normal"><a href="#__codelineno-0-88">88</a></span>
 <span class="normal"><a href="#__codelineno-0-89">89</a></span>
-<span class="normal"><a href="#__codelineno-0-90">90</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.2.2.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.3.I&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="k">def</span> <span class="nf">composite_moment_redistribution_limits</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-90">90</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-66" name="__codelineno-0-66"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.2.2.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.4.3.I&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\text{Tab.\,4.3.I}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_moment_redistribution_limits</span><span class="p">(</span>
 <a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="n">section_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">analysis_type</span><span class="p">:</span> <span class="nb">str</span>
 <a id="__codelineno-0-69" name="__codelineno-0-69"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-70" name="__codelineno-0-70"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Percentuale massima di ridistribuzione del momento negativo [%].</span>
@@ -4571,7 +4571,7 @@ n_studs : int
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-183">183</a></span>
 <span class="normal"><a href="#__codelineno-0-184">184</a></span>
 <span class="normal"><a href="#__codelineno-0-185">185</a></span>
@@ -4616,8 +4616,8 @@ n_studs : int
 <span class="normal"><a href="#__codelineno-0-224">224</a></span>
 <span class="normal"><a href="#__codelineno-0-225">225</a></span>
 <span class="normal"><a href="#__codelineno-0-226">226</a></span>
-<span class="normal"><a href="#__codelineno-0-227">227</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-183" name="__codelineno-0-183"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.13&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="k">def</span> <span class="nf">composite_profiled_sheet_reduction</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-183" name="__codelineno-0-183"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.13&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;k_1 = \min\!\left(0{,}6\,\frac{b_0\,(h_</span><span class="si">{wc}</span><span class="s2">-h_p)}{h_p^2},\;1{,}0\right)&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_profiled_sheet_reduction</span><span class="p">(</span>
 <a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="n">b_0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="n">h_wc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="n">h_p</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -4696,7 +4696,7 @@ N_pl_Rd : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-365">365</a></span>
 <span class="normal"><a href="#__codelineno-0-366">366</a></span>
 <span class="normal"><a href="#__codelineno-0-367">367</a></span>
@@ -4731,8 +4731,8 @@ N_pl_Rd : float
 <span class="normal"><a href="#__codelineno-0-396">396</a></span>
 <span class="normal"><a href="#__codelineno-0-397">397</a></span>
 <span class="normal"><a href="#__codelineno-0-398">398</a></span>
-<span class="normal"><a href="#__codelineno-0-399">399</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-365" name="__codelineno-0-365"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.15&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-366" name="__codelineno-0-366"></a><span class="k">def</span> <span class="nf">composite_steel_contribution_ratio</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-399">399</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-365" name="__codelineno-0-365"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.15&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\delta = \frac{A_a\,f_</span><span class="si">{yk}</span><span class="s2">}{\gamma_A\,N_{pl,Rd}}, \quad 0{,}2 \le \delta \le 0{,}9&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-366" name="__codelineno-0-366"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_steel_contribution_ratio</span><span class="p">(</span>
 <a id="__codelineno-0-367" name="__codelineno-0-367"></a>    <span class="n">A_a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">f_yk</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gamma_A</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">N_pl_Rd</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-368" name="__codelineno-0-368"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-369" name="__codelineno-0-369"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Contributo meccanico del profilato in acciaio delta [-].</span>
@@ -4796,7 +4796,7 @@ d : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
 <span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
 <span class="normal"><a href="#__codelineno-0-100">100</a></span>
@@ -4820,8 +4820,8 @@ d : float
 <span class="normal"><a href="#__codelineno-0-118">118</a></span>
 <span class="normal"><a href="#__codelineno-0-119">119</a></span>
 <span class="normal"><a href="#__codelineno-0-120">120</a></span>
-<span class="normal"><a href="#__codelineno-0-121">121</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.11&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="k">def</span> <span class="nf">composite_stud_alpha</span><span class="p">(</span><span class="n">h_wc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-121">121</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.11&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\alpha = \begin</span><span class="si">{cases}</span><span class="s2"> 0{,}2\left(\dfrac{h_</span><span class="si">{wc}</span><span class="s2">}</span><span class="si">{d}</span><span class="s2">+1\right) &amp; 3 \le \dfrac{h_</span><span class="si">{wc}</span><span class="s2">}</span><span class="si">{d}</span><span class="s2"> \le 4 </span><span class="se">\\</span><span class="s2"> 1{,}0 &amp; \dfrac{h_</span><span class="si">{wc}</span><span class="s2">}</span><span class="si">{d}</span><span class="s2"> &gt; 4 \end</span><span class="si">{cases}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_stud_alpha</span><span class="p">(</span><span class="n">h_wc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficiente alpha per connettori a piolo [-].</span>
 <a id="__codelineno-0-101" name="__codelineno-0-101"></a>
 <a id="__codelineno-0-102" name="__codelineno-0-102"></a><span class="sd">    NTC18 §4.3.4.3.1.2 [4.3.11a/b].</span>
@@ -4883,7 +4883,7 @@ gamma_V : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\composite.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/composite.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-129">129</a></span>
 <span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
@@ -4930,8 +4930,8 @@ gamma_V : float
 <span class="normal"><a href="#__codelineno-0-172">172</a></span>
 <span class="normal"><a href="#__codelineno-0-173">173</a></span>
 <span class="normal"><a href="#__codelineno-0-174">174</a></span>
-<span class="normal"><a href="#__codelineno-0-175">175</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.9&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="k">def</span> <span class="nf">composite_stud_resistance</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-175">175</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;4.3.4.3.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;4.3.9&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;P_</span><span class="si">{Rd}</span><span class="s2"> = \min\!\left(\frac{0{,}8\,f_u\,\pi\,d^2/4}{\gamma_V},\;\frac{0{,}29\,\alpha\,d^2\sqrt{f_</span><span class="si">{ck}</span><span class="s2">\,E_</span><span class="si">{cm}</span><span class="s2">}}{\gamma_V}\right)&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="k">def</span><span class="w"> </span><span class="nf">composite_stud_resistance</span><span class="p">(</span>
 <a id="__codelineno-0-131" name="__codelineno-0-131"></a>    <span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-132" name="__codelineno-0-132"></a>    <span class="n">h_wc</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-133" name="__codelineno-0-133"></a>    <span class="n">f_u</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>

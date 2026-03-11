@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -252,7 +252,7 @@
           
   
   
-  Azioni (Cap. 2-3)
+  Azioni (Cap. 2-5)
 
         </a>
       </li>
@@ -423,7 +423,7 @@
   <span class="md-ellipsis">
     
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
     
@@ -439,7 +439,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
           </label>
@@ -628,6 +628,34 @@
     
   
     Combinazioni
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/bridges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ponti
   
 
     
@@ -832,34 +860,6 @@
     
   
     Muratura
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../bridges/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ponti
   
 
     
@@ -1949,7 +1949,7 @@ intervention_case : str
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-209">209</a></span>
 <span class="normal"><a href="#__codelineno-0-210">210</a></span>
 <span class="normal"><a href="#__codelineno-0-211">211</a></span>
@@ -1981,8 +1981,8 @@ intervention_case : str
 <span class="normal"><a href="#__codelineno-0-237">237</a></span>
 <span class="normal"><a href="#__codelineno-0-238">238</a></span>
 <span class="normal"><a href="#__codelineno-0-239">239</a></span>
-<span class="normal"><a href="#__codelineno-0-240">240</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.4.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="k">def</span> <span class="nf">adequacy_check</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-209" name="__codelineno-0-209"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.4.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\zeta_E \ge \zeta_{E,\min}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="k">def</span><span class="w"> </span><span class="nf">adequacy_check</span><span class="p">(</span>
 <a id="__codelineno-0-211" name="__codelineno-0-211"></a>    <span class="n">zeta_E</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">intervention_case</span><span class="p">:</span> <span class="nb">str</span>
 <a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica soglie minime per interventi di adeguamento.</span>
@@ -2045,7 +2045,7 @@ load_post : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-243">243</a></span>
 <span class="normal"><a href="#__codelineno-0-244">244</a></span>
 <span class="normal"><a href="#__codelineno-0-245">245</a></span>
@@ -2074,8 +2074,8 @@ load_post : float
 <span class="normal"><a href="#__codelineno-0-268">268</a></span>
 <span class="normal"><a href="#__codelineno-0-269">269</a></span>
 <span class="normal"><a href="#__codelineno-0-270">270</a></span>
-<span class="normal"><a href="#__codelineno-0-271">271</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.4.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="k">def</span> <span class="nf">adequacy_required_load_increase</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-243" name="__codelineno-0-243"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.4.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\frac{Q_</span><span class="si">{post}</span><span class="s2">}{Q_</span><span class="si">{pre}</span><span class="s2">} &gt; 1{,}10&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a><span class="k">def</span><span class="w"> </span><span class="nf">adequacy_required_load_increase</span><span class="p">(</span>
 <a id="__codelineno-0-245" name="__codelineno-0-245"></a>    <span class="n">load_pre</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">load_post</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Verifica se l&#39;incremento di carichi richiede adeguamento (caso c).</span>
@@ -2135,7 +2135,7 @@ Valori numerici da Circolare C8.5.4.1, Tab.C8.5.IV:
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-30">30</a></span>
 <span class="normal"><a href="#__codelineno-0-31">31</a></span>
 <span class="normal"><a href="#__codelineno-0-32">32</a></span>
@@ -2162,8 +2162,8 @@ Valori numerici da Circolare C8.5.4.1, Tab.C8.5.IV:
 <span class="normal"><a href="#__codelineno-0-53">53</a></span>
 <span class="normal"><a href="#__codelineno-0-54">54</a></span>
 <span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.5.4&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="k">def</span> <span class="nf">confidence_factor</span><span class="p">(</span><span class="n">knowledge_level</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.5.4&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\text{Tab.\,C8.5.IV — }FC&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="k">def</span><span class="w"> </span><span class="nf">confidence_factor</span><span class="p">(</span><span class="n">knowledge_level</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fattore di confidenza FC per costruzioni esistenti [-].</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33"></a>
 <a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">    NTC18 §8.5.4 — Livelli di conoscenza e fattori di confidenza.</span>
@@ -2225,7 +2225,7 @@ FC : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-310">310</a></span>
 <span class="normal"><a href="#__codelineno-0-311">311</a></span>
 <span class="normal"><a href="#__codelineno-0-312">312</a></span>
@@ -2258,8 +2258,8 @@ FC : float
 <span class="normal"><a href="#__codelineno-0-339">339</a></span>
 <span class="normal"><a href="#__codelineno-0-340">340</a></span>
 <span class="normal"><a href="#__codelineno-0-341">341</a></span>
-<span class="normal"><a href="#__codelineno-0-342">342</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-310" name="__codelineno-0-310"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.7.2&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-311" name="__codelineno-0-311"></a><span class="k">def</span> <span class="nf">existing_design_strength_brittle</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-342">342</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-310" name="__codelineno-0-310"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.7.2&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;f_d = \frac{f_</span><span class="si">{mean}</span><span class="s2">}{\gamma_m \cdot FC}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-311" name="__codelineno-0-311"></a><span class="k">def</span><span class="w"> </span><span class="nf">existing_design_strength_brittle</span><span class="p">(</span>
 <a id="__codelineno-0-312" name="__codelineno-0-312"></a>    <span class="n">f_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">gamma_m</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">FC</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-313" name="__codelineno-0-313"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-314" name="__codelineno-0-314"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resistenza di progetto per meccanismi fragili [MPa].</span>
@@ -2325,7 +2325,7 @@ FC : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-279">279</a></span>
 <span class="normal"><a href="#__codelineno-0-280">280</a></span>
 <span class="normal"><a href="#__codelineno-0-281">281</a></span>
@@ -2354,8 +2354,8 @@ FC : float
 <span class="normal"><a href="#__codelineno-0-304">304</a></span>
 <span class="normal"><a href="#__codelineno-0-305">305</a></span>
 <span class="normal"><a href="#__codelineno-0-306">306</a></span>
-<span class="normal"><a href="#__codelineno-0-307">307</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-279" name="__codelineno-0-279"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.7.2&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-280" name="__codelineno-0-280"></a><span class="k">def</span> <span class="nf">existing_design_strength_ductile</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-307">307</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-279" name="__codelineno-0-279"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.7.2&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;f_d = \frac{f_</span><span class="si">{mean}</span><span class="s2">}</span><span class="si">{FC}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-280" name="__codelineno-0-280"></a><span class="k">def</span><span class="w"> </span><span class="nf">existing_design_strength_ductile</span><span class="p">(</span>
 <a id="__codelineno-0-281" name="__codelineno-0-281"></a>    <span class="n">f_mean</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">FC</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-282" name="__codelineno-0-282"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-283" name="__codelineno-0-283"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Resistenza di progetto per meccanismi duttili [MPa].</span>
@@ -2425,7 +2425,7 @@ zeta_E_pre : float or None
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
@@ -2488,8 +2488,8 @@ zeta_E_pre : float or None
 <span class="normal"><a href="#__codelineno-0-189">189</a></span>
 <span class="normal"><a href="#__codelineno-0-190">190</a></span>
 <span class="normal"><a href="#__codelineno-0-191">191</a></span>
-<span class="normal"><a href="#__codelineno-0-192">192</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.4.2&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="k">def</span> <span class="nf">improvement_check</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.4.2&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\zeta_E \ge \zeta_{E,\min}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="k">def</span><span class="w"> </span><span class="nf">improvement_check</span><span class="p">(</span>
 <a id="__codelineno-0-132" name="__codelineno-0-132"></a>    <span class="n">zeta_E_post</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-133" name="__codelineno-0-133"></a>    <span class="n">use_class</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <a id="__codelineno-0-134" name="__codelineno-0-134"></a>    <span class="o">*</span><span class="p">,</span>
@@ -2584,7 +2584,7 @@ demand_action : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-64">64</a></span>
 <span class="normal"><a href="#__codelineno-0-65">65</a></span>
 <span class="normal"><a href="#__codelineno-0-66">66</a></span>
@@ -2612,8 +2612,8 @@ demand_action : float
 <span class="normal"><a href="#__codelineno-0-88">88</a></span>
 <span class="normal"><a href="#__codelineno-0-89">89</a></span>
 <span class="normal"><a href="#__codelineno-0-90">90</a></span>
-<span class="normal"><a href="#__codelineno-0-91">91</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="k">def</span> <span class="nf">safety_ratio_seismic</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-91">91</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-64" name="__codelineno-0-64"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\zeta_E = \frac{PGA_</span><span class="si">{C}</span><span class="s2">}{PGA_</span><span class="si">{D}</span><span class="s2">}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65"></a><span class="k">def</span><span class="w"> </span><span class="nf">safety_ratio_seismic</span><span class="p">(</span>
 <a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="n">capacity_action</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">demand_action</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-67" name="__codelineno-0-67"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-68" name="__codelineno-0-68"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Rapporto di sicurezza sismico ζ_E [-].</span>
@@ -2674,7 +2674,7 @@ demand_load : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\existing_buildings.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/existing_buildings.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
 <span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
 <span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
@@ -2703,8 +2703,8 @@ demand_load : float
 <span class="normal"><a href="#__codelineno-0-119">119</a></span>
 <span class="normal"><a href="#__codelineno-0-120">120</a></span>
 <span class="normal"><a href="#__codelineno-0-121">121</a></span>
-<span class="normal"><a href="#__codelineno-0-122">122</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="k">def</span> <span class="nf">safety_ratio_vertical</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-122">122</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;8.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\zeta_v = \frac{Q_</span><span class="si">{C}</span><span class="s2">}{Q_</span><span class="si">{D}</span><span class="s2">}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="k">def</span><span class="w"> </span><span class="nf">safety_ratio_vertical</span><span class="p">(</span>
 <a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="n">capacity_load</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">demand_load</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-97" name="__codelineno-0-97"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-98" name="__codelineno-0-98"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Rapporto di sicurezza per carichi variabili verticali ζ_v [-].</span>

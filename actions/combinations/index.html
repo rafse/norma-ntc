@@ -18,14 +18,14 @@
         <link rel="prev" href="../fire/">
       
       
-        <link rel="next" href="../../checks/concrete/">
+        <link rel="next" href="../bridges/">
       
       
         
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -254,7 +254,7 @@
           
   
   
-  Azioni (Cap. 2-3)
+  Azioni (Cap. 2-5)
 
         </a>
       </li>
@@ -428,7 +428,7 @@
   <span class="md-ellipsis">
     
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
     
@@ -444,7 +444,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
           </label>
@@ -1116,6 +1116,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bridges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ponti
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1302,34 +1330,6 @@
     
   
     Muratura
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../checks/bridges/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ponti
   
 
     
@@ -2091,7 +2091,7 @@ masse sismiche [2.5.7]. Tabelle coefficienti Tab. 2.5.1 e Tab. 2.6.1.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-52">52</a></span>
 <span class="normal"><a href="#__codelineno-0-53">53</a></span>
 <span class="normal"><a href="#__codelineno-0-54">54</a></span>
@@ -2128,8 +2128,8 @@ masse sismiche [2.5.7]. Tabelle coefficienti Tab. 2.5.1 e Tab. 2.6.1.</p>
 <span class="normal"><a href="#__codelineno-0-85">85</a></span>
 <span class="normal"><a href="#__codelineno-0-86">86</a></span>
 <span class="normal"><a href="#__codelineno-0-87">87</a></span>
-<span class="normal"><a href="#__codelineno-0-88">88</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.2&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.2.5.1&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="k">def</span> <span class="nf">combination_coefficients</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.2&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.2.5.1&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\text{Tab.\,2.5.1} \to (\psi_0,\;\psi_1,\;\psi_2)&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="k">def</span><span class="w"> </span><span class="nf">combination_coefficients</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficienti di combinazione ψ_0, ψ_1, ψ_2 [-].</span>
 <a id="__codelineno-0-55" name="__codelineno-0-55"></a>
 <a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">    NTC18 §2.5.2, Tab. 2.5.1.</span>
@@ -2204,7 +2204,7 @@ P : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-419">419</a></span>
 <span class="normal"><a href="#__codelineno-0-420">420</a></span>
 <span class="normal"><a href="#__codelineno-0-421">421</a></span>
@@ -2246,8 +2246,8 @@ P : float
 <span class="normal"><a href="#__codelineno-0-457">457</a></span>
 <span class="normal"><a href="#__codelineno-0-458">458</a></span>
 <span class="normal"><a href="#__codelineno-0-459">459</a></span>
-<span class="normal"><a href="#__codelineno-0-460">460</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-419" name="__codelineno-0-419"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.6&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-420" name="__codelineno-0-420"></a><span class="k">def</span> <span class="nf">exceptional_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-460">460</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-419" name="__codelineno-0-419"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.6&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_d = G_1 + G_2 + P + A_d + \sum_i \psi_</span><span class="si">{2i}</span><span class="s2"> Q_</span><span class="si">{ki}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-420" name="__codelineno-0-420"></a><span class="k">def</span><span class="w"> </span><span class="nf">exceptional_combination</span><span class="p">(</span>
 <a id="__codelineno-0-421" name="__codelineno-0-421"></a>    <span class="n">G1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-422" name="__codelineno-0-422"></a>    <span class="n">G2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-423" name="__codelineno-0-423"></a>    <span class="n">A_d</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2324,7 +2324,7 @@ approach : str
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
 <span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
 <span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
@@ -2367,8 +2367,8 @@ approach : str
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
 <span class="normal"><a href="#__codelineno-0-133">133</a></span>
 <span class="normal"><a href="#__codelineno-0-134">134</a></span>
-<span class="normal"><a href="#__codelineno-0-135">135</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.6.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.2.6.1&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="k">def</span> <span class="nf">partial_safety_factors</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-135">135</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.6.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.2.6.1&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\text{Tab.\,2.6.1} \to \gamma_F&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="k">def</span><span class="w"> </span><span class="nf">partial_safety_factors</span><span class="p">(</span>
 <a id="__codelineno-0-95" name="__codelineno-0-95"></a>    <span class="n">load_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="n">favorable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <a id="__codelineno-0-97" name="__codelineno-0-97"></a>    <span class="n">approach</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;A1&quot;</span><span class="p">,</span>
@@ -2449,7 +2449,7 @@ P : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-373">373</a></span>
 <span class="normal"><a href="#__codelineno-0-374">374</a></span>
 <span class="normal"><a href="#__codelineno-0-375">375</a></span>
@@ -2491,8 +2491,8 @@ P : float
 <span class="normal"><a href="#__codelineno-0-411">411</a></span>
 <span class="normal"><a href="#__codelineno-0-412">412</a></span>
 <span class="normal"><a href="#__codelineno-0-413">413</a></span>
-<span class="normal"><a href="#__codelineno-0-414">414</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-373" name="__codelineno-0-373"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.5&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-374" name="__codelineno-0-374"></a><span class="k">def</span> <span class="nf">seismic_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-414">414</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-373" name="__codelineno-0-373"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.5&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_d = E + G_1 + G_2 + P + \sum_i \psi_</span><span class="si">{2i}</span><span class="s2"> Q_</span><span class="si">{ki}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-374" name="__codelineno-0-374"></a><span class="k">def</span><span class="w"> </span><span class="nf">seismic_combination</span><span class="p">(</span>
 <a id="__codelineno-0-375" name="__codelineno-0-375"></a>    <span class="n">E</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-376" name="__codelineno-0-376"></a>    <span class="n">G1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-377" name="__codelineno-0-377"></a>    <span class="n">G2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2568,7 +2568,7 @@ categories : list[str]
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-465">465</a></span>
 <span class="normal"><a href="#__codelineno-0-466">466</a></span>
 <span class="normal"><a href="#__codelineno-0-467">467</a></span>
@@ -2604,8 +2604,8 @@ categories : list[str]
 <span class="normal"><a href="#__codelineno-0-497">497</a></span>
 <span class="normal"><a href="#__codelineno-0-498">498</a></span>
 <span class="normal"><a href="#__codelineno-0-499">499</a></span>
-<span class="normal"><a href="#__codelineno-0-500">500</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-465" name="__codelineno-0-465"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.7&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-466" name="__codelineno-0-466"></a><span class="k">def</span> <span class="nf">seismic_masses</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-500">500</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-465" name="__codelineno-0-465"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.7&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;W = G_1 + G_2 + \sum_i \psi_</span><span class="si">{2i}</span><span class="s2"> Q_</span><span class="si">{ki}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-466" name="__codelineno-0-466"></a><span class="k">def</span><span class="w"> </span><span class="nf">seismic_masses</span><span class="p">(</span>
 <a id="__codelineno-0-467" name="__codelineno-0-467"></a>    <span class="n">G1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-468" name="__codelineno-0-468"></a>    <span class="n">G2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-469" name="__codelineno-0-469"></a>    <span class="n">Q</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -2677,7 +2677,7 @@ P : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-224">224</a></span>
 <span class="normal"><a href="#__codelineno-0-225">225</a></span>
 <span class="normal"><a href="#__codelineno-0-226">226</a></span>
@@ -2725,8 +2725,8 @@ P : float
 <span class="normal"><a href="#__codelineno-0-268">268</a></span>
 <span class="normal"><a href="#__codelineno-0-269">269</a></span>
 <span class="normal"><a href="#__codelineno-0-270">270</a></span>
-<span class="normal"><a href="#__codelineno-0-271">271</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.2&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="k">def</span> <span class="nf">sle_characteristic_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-271">271</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.2&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_d = G_1 + G_2 + P + Q_</span><span class="si">{k1}</span><span class="s2"> + \sum_{i&gt;1} \psi_</span><span class="si">{0i}</span><span class="s2"> Q_</span><span class="si">{ki}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="k">def</span><span class="w"> </span><span class="nf">sle_characteristic_combination</span><span class="p">(</span>
 <a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="n">G1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-227" name="__codelineno-0-227"></a>    <span class="n">G2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-228" name="__codelineno-0-228"></a>    <span class="n">Q</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -2810,7 +2810,7 @@ P : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-276">276</a></span>
 <span class="normal"><a href="#__codelineno-0-277">277</a></span>
 <span class="normal"><a href="#__codelineno-0-278">278</a></span>
@@ -2860,8 +2860,8 @@ P : float
 <span class="normal"><a href="#__codelineno-0-322">322</a></span>
 <span class="normal"><a href="#__codelineno-0-323">323</a></span>
 <span class="normal"><a href="#__codelineno-0-324">324</a></span>
-<span class="normal"><a href="#__codelineno-0-325">325</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-276" name="__codelineno-0-276"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-277" name="__codelineno-0-277"></a><span class="k">def</span> <span class="nf">sle_frequent_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-325">325</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-276" name="__codelineno-0-276"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_d = G_1 + G_2 + P + \psi_</span><span class="si">{11}</span><span class="s2"> Q_</span><span class="si">{k1}</span><span class="s2"> + \sum_{i&gt;1} \psi_</span><span class="si">{2i}</span><span class="s2"> Q_</span><span class="si">{ki}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-277" name="__codelineno-0-277"></a><span class="k">def</span><span class="w"> </span><span class="nf">sle_frequent_combination</span><span class="p">(</span>
 <a id="__codelineno-0-278" name="__codelineno-0-278"></a>    <span class="n">G1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-279" name="__codelineno-0-279"></a>    <span class="n">G2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-280" name="__codelineno-0-280"></a>    <span class="n">Q</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -2947,7 +2947,7 @@ P : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-330">330</a></span>
 <span class="normal"><a href="#__codelineno-0-331">331</a></span>
 <span class="normal"><a href="#__codelineno-0-332">332</a></span>
@@ -2986,8 +2986,8 @@ P : float
 <span class="normal"><a href="#__codelineno-0-365">365</a></span>
 <span class="normal"><a href="#__codelineno-0-366">366</a></span>
 <span class="normal"><a href="#__codelineno-0-367">367</a></span>
-<span class="normal"><a href="#__codelineno-0-368">368</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-330" name="__codelineno-0-330"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.4&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-331" name="__codelineno-0-331"></a><span class="k">def</span> <span class="nf">sle_quasi_permanent_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-368">368</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-330" name="__codelineno-0-330"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.4&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_d = G_1 + G_2 + P + \sum_i \psi_</span><span class="si">{2i}</span><span class="s2"> Q_</span><span class="si">{ki}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-331" name="__codelineno-0-331"></a><span class="k">def</span><span class="w"> </span><span class="nf">sle_quasi_permanent_combination</span><span class="p">(</span>
 <a id="__codelineno-0-332" name="__codelineno-0-332"></a>    <span class="n">G1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-333" name="__codelineno-0-333"></a>    <span class="n">G2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-334" name="__codelineno-0-334"></a>    <span class="n">Q</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -3069,7 +3069,7 @@ approach : str
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\actions\combinations.py</code></summary>
+              <summary>Source code in <code>src/pyntc/actions/combinations.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-154">154</a></span>
 <span class="normal"><a href="#__codelineno-0-155">155</a></span>
 <span class="normal"><a href="#__codelineno-0-156">156</a></span>
@@ -3135,8 +3135,8 @@ approach : str
 <span class="normal"><a href="#__codelineno-0-216">216</a></span>
 <span class="normal"><a href="#__codelineno-0-217">217</a></span>
 <span class="normal"><a href="#__codelineno-0-218">218</a></span>
-<span class="normal"><a href="#__codelineno-0-219">219</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.1&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="k">def</span> <span class="nf">slu_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-219">219</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;2.5.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;2.5.1&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_d = \gamma_</span><span class="si">{G1}</span><span class="s2"> G_1 + \gamma_</span><span class="si">{G2}</span><span class="s2"> G_2 + \gamma_P P + \gamma_</span><span class="si">{Q1}</span><span class="s2"> Q_</span><span class="si">{k1}</span><span class="s2"> + \sum_{i&gt;1} \gamma_</span><span class="si">{Qi}</span><span class="s2"> \psi_</span><span class="si">{0i}</span><span class="s2"> Q_</span><span class="si">{ki}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="k">def</span><span class="w"> </span><span class="nf">slu_combination</span><span class="p">(</span>
 <a id="__codelineno-0-156" name="__codelineno-0-156"></a>    <span class="n">G1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-157" name="__codelineno-0-157"></a>    <span class="n">G2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-158" name="__codelineno-0-158"></a>    <span class="n">Q</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>

@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -252,7 +252,7 @@
           
   
   
-  Azioni (Cap. 2-3)
+  Azioni (Cap. 2-5)
 
         </a>
       </li>
@@ -423,7 +423,7 @@
   <span class="md-ellipsis">
     
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
     
@@ -439,7 +439,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Azioni (Cap. 2-3)
+    Azioni (Cap. 2-5)
   
 
           </label>
@@ -628,6 +628,34 @@
     
   
     Combinazioni
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../actions/bridges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ponti
   
 
     
@@ -832,34 +860,6 @@
     
   
     Muratura
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../bridges/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ponti
   
 
     
@@ -2336,7 +2336,7 @@ legno, muratura. Criteri di gerarchia delle resistenze.</p>
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-442">442</a></span>
 <span class="normal"><a href="#__codelineno-0-443">443</a></span>
 <span class="normal"><a href="#__codelineno-0-444">444</a></span>
@@ -2356,8 +2356,8 @@ legno, muratura. Criteri di gerarchia delle resistenze.</p>
 <span class="normal"><a href="#__codelineno-0-458">458</a></span>
 <span class="normal"><a href="#__codelineno-0-459">459</a></span>
 <span class="normal"><a href="#__codelineno-0-460">460</a></span>
-<span class="normal"><a href="#__codelineno-0-461">461</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-442" name="__codelineno-0-442"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.6&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-443" name="__codelineno-0-443"></a><span class="k">def</span> <span class="nf">approximate_period</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-461">461</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-442" name="__codelineno-0-442"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.6&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;T_1 = 2\,\sqrt</span><span class="si">{d}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-443" name="__codelineno-0-443"></a><span class="k">def</span><span class="w"> </span><span class="nf">approximate_period</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-444" name="__codelineno-0-444"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Periodo fondamentale approssimato [s].</span>
 <a id="__codelineno-0-445" name="__codelineno-0-445"></a>
 <a id="__codelineno-0-446" name="__codelineno-0-446"></a><span class="sd">    NTC18 §7.3.3.2, Formula [7.3.6]:</span>
@@ -2408,7 +2408,7 @@ regular_in_height : bool
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-259">259</a></span>
 <span class="normal"><a href="#__codelineno-0-260">260</a></span>
 <span class="normal"><a href="#__codelineno-0-261">261</a></span>
@@ -2434,8 +2434,8 @@ regular_in_height : bool
 <span class="normal"><a href="#__codelineno-0-281">281</a></span>
 <span class="normal"><a href="#__codelineno-0-282">282</a></span>
 <span class="normal"><a href="#__codelineno-0-283">283</a></span>
-<span class="normal"><a href="#__codelineno-0-284">284</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-260" name="__codelineno-0-260"></a><span class="k">def</span> <span class="nf">behavior_factor</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-284">284</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-259" name="__codelineno-0-259"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;q = q_0 \cdot K_R&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-260" name="__codelineno-0-260"></a><span class="k">def</span><span class="w"> </span><span class="nf">behavior_factor</span><span class="p">(</span>
 <a id="__codelineno-0-261" name="__codelineno-0-261"></a>    <span class="n">q_0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">regular_in_height</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <a id="__codelineno-0-262" name="__codelineno-0-262"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-263" name="__codelineno-0-263"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Limite superiore del fattore di comportamento q_lim [-].</span>
@@ -2494,7 +2494,7 @@ lambda_factor : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-211">211</a></span>
 <span class="normal"><a href="#__codelineno-0-212">212</a></span>
 <span class="normal"><a href="#__codelineno-0-213">213</a></span>
@@ -2540,8 +2540,8 @@ lambda_factor : float
 <span class="normal"><a href="#__codelineno-0-253">253</a></span>
 <span class="normal"><a href="#__codelineno-0-254">254</a></span>
 <span class="normal"><a href="#__codelineno-0-255">255</a></span>
-<span class="normal"><a href="#__codelineno-0-256">256</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.7.3.II&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="k">def</span> <span class="nf">behavior_factor_base</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-256">256</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-211" name="__codelineno-0-211"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.7.3.II&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\text{Tab.\,7.3.II}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="k">def</span><span class="w"> </span><span class="nf">behavior_factor_base</span><span class="p">(</span>
 <a id="__codelineno-0-213" name="__codelineno-0-213"></a>    <span class="n">structural_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <a id="__codelineno-0-214" name="__codelineno-0-214"></a>    <span class="n">ductility_class</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;B&quot;</span><span class="p">,</span>
 <a id="__codelineno-0-215" name="__codelineno-0-215"></a>    <span class="o">*</span><span class="p">,</span>
@@ -2615,7 +2615,7 @@ lambda_factor : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-287">287</a></span>
 <span class="normal"><a href="#__codelineno-0-288">288</a></span>
 <span class="normal"><a href="#__codelineno-0-289">289</a></span>
@@ -2636,8 +2636,8 @@ lambda_factor : float
 <span class="normal"><a href="#__codelineno-0-304">304</a></span>
 <span class="normal"><a href="#__codelineno-0-305">305</a></span>
 <span class="normal"><a href="#__codelineno-0-306">306</a></span>
-<span class="normal"><a href="#__codelineno-0-307">307</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-287" name="__codelineno-0-287"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.2&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-288" name="__codelineno-0-288"></a><span class="k">def</span> <span class="nf">behavior_factor_nondissipative</span><span class="p">(</span><span class="n">q_cdb</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-307">307</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-287" name="__codelineno-0-287"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.2&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;1 \le q_</span><span class="si">{ND}</span><span class="s2"> = \frac</span><span class="si">{2}{3}</span><span class="s2">\,q_{CD\text</span><span class="si">{B}</span><span class="s2">} \le 1{,}5&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-288" name="__codelineno-0-288"></a><span class="k">def</span><span class="w"> </span><span class="nf">behavior_factor_nondissipative</span><span class="p">(</span><span class="n">q_cdb</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-289" name="__codelineno-0-289"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fattore di comportamento per strutture non dissipative [-].</span>
 <a id="__codelineno-0-290" name="__codelineno-0-290"></a>
 <a id="__codelineno-0-291" name="__codelineno-0-291"></a><span class="sd">    NTC18 §7.3.1, Formula [7.3.2]:</span>
@@ -2691,7 +2691,7 @@ gamma_Rd : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-646">646</a></span>
 <span class="normal"><a href="#__codelineno-0-647">647</a></span>
 <span class="normal"><a href="#__codelineno-0-648">648</a></span>
@@ -2725,8 +2725,8 @@ gamma_Rd : float
 <span class="normal"><a href="#__codelineno-0-676">676</a></span>
 <span class="normal"><a href="#__codelineno-0-677">677</a></span>
 <span class="normal"><a href="#__codelineno-0-678">678</a></span>
-<span class="normal"><a href="#__codelineno-0-679">679</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-646" name="__codelineno-0-646"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.4.4.2.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.4.4&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-647" name="__codelineno-0-647"></a><span class="k">def</span> <span class="nf">capacity_design_columns</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-679">679</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-646" name="__codelineno-0-646"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.4.4.2.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.4.4&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\sum M_{c,Rd} \ge \gamma_</span><span class="si">{Rd}</span><span class="s2"> \sum M_{b,Rd}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-647" name="__codelineno-0-647"></a><span class="k">def</span><span class="w"> </span><span class="nf">capacity_design_columns</span><span class="p">(</span>
 <a id="__codelineno-0-648" name="__codelineno-0-648"></a>    <span class="n">M_c</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <a id="__codelineno-0-649" name="__codelineno-0-649"></a>    <span class="n">M_b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <a id="__codelineno-0-650" name="__codelineno-0-650"></a>    <span class="n">gamma_Rd</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -2793,7 +2793,7 @@ damping : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-380">380</a></span>
 <span class="normal"><a href="#__codelineno-0-381">381</a></span>
 <span class="normal"><a href="#__codelineno-0-382">382</a></span>
@@ -2848,8 +2848,8 @@ damping : float
 <span class="normal"><a href="#__codelineno-0-431">431</a></span>
 <span class="normal"><a href="#__codelineno-0-432">432</a></span>
 <span class="normal"><a href="#__codelineno-0-433">433</a></span>
-<span class="normal"><a href="#__codelineno-0-434">434</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-380" name="__codelineno-0-380"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.4&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-381" name="__codelineno-0-381"></a><span class="k">def</span> <span class="nf">cqc_modal_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-434">434</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-380" name="__codelineno-0-380"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.4&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;E = \sqrt{\sum_i \sum_j \rho_</span><span class="si">{ij}</span><span class="s2">\,E_i\,E_j}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-381" name="__codelineno-0-381"></a><span class="k">def</span><span class="w"> </span><span class="nf">cqc_modal_combination</span><span class="p">(</span>
 <a id="__codelineno-0-382" name="__codelineno-0-382"></a>    <span class="n">effects</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <a id="__codelineno-0-383" name="__codelineno-0-383"></a>    <span class="n">periods</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <a id="__codelineno-0-384" name="__codelineno-0-384"></a>    <span class="n">damping</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
@@ -2937,7 +2937,7 @@ T_c : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-611">611</a></span>
 <span class="normal"><a href="#__codelineno-0-612">612</a></span>
 <span class="normal"><a href="#__codelineno-0-613">613</a></span>
@@ -2970,8 +2970,8 @@ T_c : float
 <span class="normal"><a href="#__codelineno-0-640">640</a></span>
 <span class="normal"><a href="#__codelineno-0-641">641</a></span>
 <span class="normal"><a href="#__codelineno-0-642">642</a></span>
-<span class="normal"><a href="#__codelineno-0-643">643</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-611" name="__codelineno-0-611"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.4.4.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.4.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-612" name="__codelineno-0-612"></a><span class="k">def</span> <span class="nf">curvature_ductility_demand</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-643">643</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-611" name="__codelineno-0-611"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.4.4.1.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.4.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\mu_{\varphi,0} = \begin</span><span class="si">{cases}</span><span class="s2"> 1{,}2\,(2\,q_0 - 1) &amp; T_1 \ge T_C </span><span class="se">\\</span><span class="s2"> 1 + 2\,(q_0 - 1)\,\frac</span><span class="si">{T_C}{T_1}</span><span class="s2"> &amp; T_1 &lt; T_C \end</span><span class="si">{cases}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-612" name="__codelineno-0-612"></a><span class="k">def</span><span class="w"> </span><span class="nf">curvature_ductility_demand</span><span class="p">(</span>
 <a id="__codelineno-0-613" name="__codelineno-0-613"></a>    <span class="n">q_0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">T_1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">T_c</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-614" name="__codelineno-0-614"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-615" name="__codelineno-0-615"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Domanda di duttilita&#39; in curvatura mu_phi0 [-].</span>
@@ -3039,7 +3039,7 @@ T_c : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-528">528</a></span>
 <span class="normal"><a href="#__codelineno-0-529">529</a></span>
 <span class="normal"><a href="#__codelineno-0-530">530</a></span>
@@ -3077,8 +3077,8 @@ T_c : float
 <span class="normal"><a href="#__codelineno-0-562">562</a></span>
 <span class="normal"><a href="#__codelineno-0-563">563</a></span>
 <span class="normal"><a href="#__codelineno-0-564">564</a></span>
-<span class="normal"><a href="#__codelineno-0-565">565</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-528" name="__codelineno-0-528"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.8&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-529" name="__codelineno-0-529"></a><span class="k">def</span> <span class="nf">displacement_ductility</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-565">565</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-528" name="__codelineno-0-528"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.8&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\mu_d = \begin</span><span class="si">{cases}</span><span class="s2"> q &amp; T_1 \ge T_C </span><span class="se">\\</span><span class="s2"> 1 + (q-1)\,\frac</span><span class="si">{T_C}{T_1}</span><span class="s2"> &amp; T_1 &lt; T_C \end</span><span class="si">{cases}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-529" name="__codelineno-0-529"></a><span class="k">def</span><span class="w"> </span><span class="nf">displacement_ductility</span><span class="p">(</span>
 <a id="__codelineno-0-530" name="__codelineno-0-530"></a>    <span class="n">q</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">T_1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">T_c</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-531" name="__codelineno-0-531"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-532" name="__codelineno-0-532"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fattore di duttilita&#39; in spostamento mu_d [-].</span>
@@ -3155,7 +3155,7 @@ n_floors : int
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-467">467</a></span>
 <span class="normal"><a href="#__codelineno-0-468">468</a></span>
 <span class="normal"><a href="#__codelineno-0-469">469</a></span>
@@ -3209,8 +3209,8 @@ n_floors : int
 <span class="normal"><a href="#__codelineno-0-517">517</a></span>
 <span class="normal"><a href="#__codelineno-0-518">518</a></span>
 <span class="normal"><a href="#__codelineno-0-519">519</a></span>
-<span class="normal"><a href="#__codelineno-0-520">520</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-467" name="__codelineno-0-467"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.7&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-468" name="__codelineno-0-468"></a><span class="k">def</span> <span class="nf">equivalent_static_forces</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-520">520</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-467" name="__codelineno-0-467"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.3.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.7&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_i = F_h \,\frac{z_i \, W_i}{\sum_j z_j \, W_j}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-468" name="__codelineno-0-468"></a><span class="k">def</span><span class="w"> </span><span class="nf">equivalent_static_forces</span><span class="p">(</span>
 <a id="__codelineno-0-469" name="__codelineno-0-469"></a>    <span class="n">S_d_T1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-470" name="__codelineno-0-470"></a>    <span class="n">weights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
 <a id="__codelineno-0-471" name="__codelineno-0-471"></a>    <span class="n">heights</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
@@ -3300,7 +3300,7 @@ h : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-315">315</a></span>
 <span class="normal"><a href="#__codelineno-0-316">316</a></span>
 <span class="normal"><a href="#__codelineno-0-317">317</a></span>
@@ -3346,8 +3346,8 @@ h : float
 <span class="normal"><a href="#__codelineno-0-357">357</a></span>
 <span class="normal"><a href="#__codelineno-0-358">358</a></span>
 <span class="normal"><a href="#__codelineno-0-359">359</a></span>
-<span class="normal"><a href="#__codelineno-0-360">360</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-315" name="__codelineno-0-315"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-316" name="__codelineno-0-316"></a><span class="k">def</span> <span class="nf">pdelta_sensitivity</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-360">360</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-315" name="__codelineno-0-315"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.1&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\theta = \frac{P \cdot d_r}{V \cdot h}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-316" name="__codelineno-0-316"></a><span class="k">def</span><span class="w"> </span><span class="nf">pdelta_sensitivity</span><span class="p">(</span>
 <a id="__codelineno-0-317" name="__codelineno-0-317"></a>    <span class="n">P</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">d_r</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">V</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">h</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-318" name="__codelineno-0-318"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-319" name="__codelineno-0-319"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficiente di sensibilita&#39; agli effetti del secondo ordine [-].</span>
@@ -3433,7 +3433,7 @@ g : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-687">687</a></span>
 <span class="normal"><a href="#__codelineno-0-688">688</a></span>
 <span class="normal"><a href="#__codelineno-0-689">689</a></span>
@@ -3475,8 +3475,8 @@ g : float
 <span class="normal"><a href="#__codelineno-0-725">725</a></span>
 <span class="normal"><a href="#__codelineno-0-726">726</a></span>
 <span class="normal"><a href="#__codelineno-0-727">727</a></span>
-<span class="normal"><a href="#__codelineno-0-728">728</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-687" name="__codelineno-0-687"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.11.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.11.3&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-688" name="__codelineno-0-688"></a><span class="k">def</span> <span class="nf">pseudostatic_coefficients</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-728">728</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-687" name="__codelineno-0-687"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.11.3.5.2&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.11.3&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;k_h = \beta_s \,\frac{a_</span><span class="si">{max}</span><span class="s2">}</span><span class="si">{g}</span><span class="s2">, \quad k_v = 0{,}5\,k_h, \quad a_</span><span class="si">{max}</span><span class="s2"> = S_S \, S_T \, a_g&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-688" name="__codelineno-0-688"></a><span class="k">def</span><span class="w"> </span><span class="nf">pseudostatic_coefficients</span><span class="p">(</span>
 <a id="__codelineno-0-689" name="__codelineno-0-689"></a>    <span class="n">a_g</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-690" name="__codelineno-0-690"></a>    <span class="n">S_s</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <a id="__codelineno-0-691" name="__codelineno-0-691"></a>    <span class="n">S_t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -3551,7 +3551,7 @@ E_z : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-573">573</a></span>
 <span class="normal"><a href="#__codelineno-0-574">574</a></span>
 <span class="normal"><a href="#__codelineno-0-575">575</a></span>
@@ -3582,8 +3582,8 @@ E_z : float
 <span class="normal"><a href="#__codelineno-0-600">600</a></span>
 <span class="normal"><a href="#__codelineno-0-601">601</a></span>
 <span class="normal"><a href="#__codelineno-0-602">602</a></span>
-<span class="normal"><a href="#__codelineno-0-603">603</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-573" name="__codelineno-0-573"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.5&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.10&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-574" name="__codelineno-0-574"></a><span class="k">def</span> <span class="nf">seismic_directional_combination</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-603">603</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-573" name="__codelineno-0-573"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.3.5&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.3.10&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;1{,}00\,E_x + 0{,}30\,E_y + 0{,}30\,E_z&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-574" name="__codelineno-0-574"></a><span class="k">def</span><span class="w"> </span><span class="nf">seismic_directional_combination</span><span class="p">(</span>
 <a id="__codelineno-0-575" name="__codelineno-0-575"></a>    <span class="n">E_x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">E_y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">E_z</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
 <a id="__codelineno-0-576" name="__codelineno-0-576"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <a id="__codelineno-0-577" name="__codelineno-0-577"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Combinazione direzionale delle componenti sismiche.</span>
@@ -3646,7 +3646,7 @@ q_a : float
 
 
             <details class="mkdocstrings-source">
-              <summary>Source code in <code>src\pyntc\checks\seismic_design.py</code></summary>
+              <summary>Source code in <code>src/pyntc/checks/seismic_design.py</code></summary>
               <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-29">29</a></span>
 <span class="normal"><a href="#__codelineno-0-30">30</a></span>
 <span class="normal"><a href="#__codelineno-0-31">31</a></span>
@@ -3674,8 +3674,8 @@ q_a : float
 <span class="normal"><a href="#__codelineno-0-53">53</a></span>
 <span class="normal"><a href="#__codelineno-0-54">54</a></span>
 <span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.2.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.2.1&quot;</span><span class="p">)</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="k">def</span> <span class="nf">seismic_force_nonstructural</span><span class="p">(</span>
+<span class="normal"><a href="#__codelineno-0-56">56</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-29" name="__codelineno-0-29"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;7.2.3&quot;</span><span class="p">,</span> <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;7.2.1&quot;</span><span class="p">,</span> <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;F_a = \frac{S_a \cdot W_a}</span><span class="si">{q_a}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="k">def</span><span class="w"> </span><span class="nf">seismic_force_nonstructural</span><span class="p">(</span>
 <a id="__codelineno-0-31" name="__codelineno-0-31"></a>    <span class="n">S_a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">W_a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">q_a</span><span class="p">:</span> <span class="nb">float</span>
 <a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Forza sismica orizzontale su elemento non strutturale [kN].</span>
