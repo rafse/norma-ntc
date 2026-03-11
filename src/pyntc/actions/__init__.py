@@ -28,9 +28,14 @@ from pyntc.actions.snow import (
 from pyntc.actions.seismic import (
     elastic_response_spectrum,
     seismic_damping_factor,
+    seismic_displacement_spectrum,
+    seismic_equivalent_shear_velocity,
+    seismic_max_ground_displacement,
+    seismic_peak_ground_displacement,
     seismic_return_period,
     seismic_soil_amplification,
     seismic_topographic_amplification,
+    seismic_vertical_spectrum_amplification,
 )
 from pyntc.actions.temperature import (
     temperature_extremes,
@@ -68,6 +73,11 @@ from pyntc.actions.bridges import (
     bridge_road_psi_coefficients,
     bridge_starting_force_rail,
     bridge_sw_load,
+)
+from pyntc.actions.safety import (
+    reference_period,
+    safety_nominal_life,
+    safety_usage_coefficient,
 )
 from pyntc.actions.combinations import (
     combination_coefficients,

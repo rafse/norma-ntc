@@ -1,21 +1,24 @@
 # TODO — Funzioni mancanti pyntc vs NTC18 Vault
 
-Copertura attuale: **~201 / 373 items** (~54%)
+Copertura attuale: **~230 / 373 items** (~62%)
 
 ---
 
 ## Cap. 2 — Sicurezza e periodo di riferimento
 
-- [ ] **Tab 2.4.1 + Tab 2.4.II + Formula 2.4.1** — Vita nominale V_N, coefficiente d'uso C_U, periodo di riferimento V_R = V_N · C_U
+- [x] `safety_nominal_life` [Tab 2.4.I] — vita nominale V_N
+- [x] `safety_usage_coefficient` [Tab 2.4.II] — coefficiente d'uso C_U
+- [x] `reference_period` [2.4.1] — V_R = V_N · C_U
 
 ## Cap. 3 — Azioni sulle costruzioni
 
 ### §3.2 — Azione sismica
 
-- [ ] **Formula 3.2.1** — Velocita' equivalente onde di taglio V_s,eq
-- [ ] **Formula 3.2.9 + Tab 3.2.VI** — Spettro elastico componente verticale
-- [ ] **Formule 3.2.10–3.2.11 + Tab 3.2.VII** — Spettro di spostamento (S_De)
-- [ ] **Formule 3.2.12–3.2.16** — Spostamento e velocita' del terreno (d_g, v_g)
+- [x] `seismic_equivalent_shear_velocity` [3.2.1] — V_s,eq
+- [x] `seismic_vertical_spectrum_amplification` [3.2.9] — spettro verticale
+- [x] `seismic_displacement_spectrum` [3.2.10–3.2.11] — S_De(T)
+- [x] `seismic_peak_ground_displacement` [3.2.12] — d_g, v_g
+- [x] `seismic_max_ground_displacement` [3.2.13] — d_g,max
 
 ### §3.3 — Azione del vento
 
@@ -39,8 +42,12 @@ Copertura attuale: **~201 / 373 items** (~54%)
 - [x] `concrete_beam_min_reinforcement` [4.1.45] — armatura min. travi
 - [x] `concrete_column_min_reinforcement` [4.1.46] — armatura min. pilastri
 - [x] `concrete_prestress_stress_limits` [4.1.49] — limiti tensione precompressione
-- [ ] Formule mancanti: flessione, punzonamento, instabilita' avanzata, fessurazione SLE
-- [ ] Tab 4.1.I–IV (classi di resistenza, esposizione, fessurazione)
+- [x] `concrete_strength_class` [Tab 4.1.I] — classi C8/10–C90/105
+- [x] `concrete_crack_mean_strain` [4.1.15] — epsilon_am - epsilon_cm
+- [x] `concrete_crack_spacing` [4.1.17] — s_r,max
+- [x] `concrete_crack_width` [4.1.14] — w_1 = 1.7 * epsilon * s_r
+- [x] `concrete_crack_width_limit` [Tab 4.1.IV] — w_max per classe esposizione
+- [ ] Formule mancanti: flessione, punzonamento, instabilita' avanzata
 
 ### §4.2 — Acciaio
 
@@ -48,6 +55,13 @@ Copertura attuale: **~201 / 373 items** (~54%)
 - [x] `steel_von_mises_check` [4.2.4] — stato tensionale equivalente
 - [x] `pin_shear_resistance` [4.2.75] — taglio perno
 - [x] `pin_bearing_resistance` [4.2.76] — rifollamento perno
+- [x] `steel_bending_resistance_class3` [4.2.13] — M_el,Rd sezione classe 3
+- [x] `steel_bending_resistance_class4` [4.2.14] — M_eff,Rd sezione classe 4
+- [x] `steel_torsion_resistance` — T_Rd = W_t * f_yk / (sqrt(3) * gamma_M0)
+- [x] `steel_torsion_check` [4.2.28] — T_Ed / T_Rd ≤ 1
+- [x] `steel_relative_slenderness` [4.2.45–4.2.46] — lambda_bar
+- [x] `steel_buckling_resistance_class4` [4.2.43] — N_b,Rd classe 4
+- [x] `weld_combined_stress_check` [4.2.81] — verifica combinata saldatura
 - [ ] Formule mancanti: stabilita' avanzata (aste composte, piastre, connessioni a T)
 - [ ] Tab 4.2.II–XIV rimanenti
 

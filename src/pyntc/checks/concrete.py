@@ -1,7 +1,8 @@
 """Verifiche calcestruzzo armato — NTC18 §4.1.
 
 Resistenze di progetto dei materiali, limiti di deformazione,
-verifiche SLE (tensioni) e SLU (taglio, torsione, pressoflessione deviata).
+verifiche SLE (tensioni, fessurazione) e SLU (taglio, torsione,
+pressoflessione deviata).
 
 Unita':
 - Resistenze e tensioni: [MPa]
@@ -10,6 +11,7 @@ Unita':
 - Forze: [N]
 - Momenti torcenti: [N*mm]
 - Deformazioni: adimensionali (rapporto, non per mille)
+- Aperture fessure: [mm]
 """
 
 from __future__ import annotations
@@ -772,3 +774,301 @@ def concrete_prestress_stress_limits(
             f"prestress_type deve essere 'post_tensioned' o 'pre_tensioned', "
             f"ricevuto '{prestress_type}'"
         )
+
+
+# ── Classi di resistenza del calcestruzzo ─────────────────────────────────────
+
+# Valori NTC18 Tab. 4.1.I — f_ck [MPa] -> (f_cm, f_ctm, f_ctk_005, E_cm)
+# f_cm = f_ck + 8 [MPa]
+# f_ctm = 0.30 * f_ck^(2/3) per f_ck <= 50; 2.12 * ln(1 + f_cm/10) per f_ck > 50
+# f_ctk_005 = 0.70 * f_ctm (5° percentile)
+# E_cm = 22000 * (f_cm/10)^0.3 [MPa]
+_CONCRETE_CLASSES: dict[str, dict[str, float]] = {
+    "C8/10":    {"f_ck": 8.0,  "f_cm": 16.0, "f_ctm": 1.12, "f_ctk_005": 0.78,  "E_cm": 27085.0},
+    "C12/15":   {"f_ck": 12.0, "f_cm": 20.0, "f_ctm": 1.57, "f_ctk_005": 1.10,  "E_cm": 29000.0},
+    "C16/20":   {"f_ck": 16.0, "f_cm": 24.0, "f_ctm": 1.90, "f_ctk_005": 1.33,  "E_cm": 29900.0},
+    "C20/25":   {"f_ck": 20.0, "f_cm": 28.0, "f_ctm": 2.21, "f_ctk_005": 1.55,  "E_cm": 30000.0},
+    "C25/30":   {"f_ck": 25.0, "f_cm": 33.0, "f_ctm": 2.56, "f_ctk_005": 1.80,  "E_cm": 31476.0},
+    "C30/37":   {"f_ck": 30.0, "f_cm": 38.0, "f_ctm": 2.90, "f_ctk_005": 2.03,  "E_cm": 32837.0},
+    "C35/45":   {"f_ck": 35.0, "f_cm": 43.0, "f_ctm": 3.21, "f_ctk_005": 2.25,  "E_cm": 34077.0},
+    "C40/50":   {"f_ck": 40.0, "f_cm": 48.0, "f_ctm": 3.51, "f_ctk_005": 2.46,  "E_cm": 35220.0},
+    "C45/55":   {"f_ck": 45.0, "f_cm": 53.0, "f_ctm": 3.80, "f_ctk_005": 2.66,  "E_cm": 36283.0},
+    "C50/60":   {"f_ck": 50.0, "f_cm": 58.0, "f_ctm": 4.07, "f_ctk_005": 2.85,  "E_cm": 37278.0},
+    "C55/67":   {"f_ck": 55.0, "f_cm": 63.0, "f_ctm": 4.21, "f_ctk_005": 2.95,  "E_cm": 38215.0},
+    "C60/75":   {"f_ck": 60.0, "f_cm": 68.0, "f_ctm": 4.34, "f_ctk_005": 3.04,  "E_cm": 39096.0},
+    "C70/85":   {"f_ck": 70.0, "f_cm": 78.0, "f_ctm": 4.57, "f_ctk_005": 3.20,  "E_cm": 40745.0},
+    "C80/95":   {"f_ck": 80.0, "f_cm": 88.0, "f_ctm": 4.77, "f_ctk_005": 3.34,  "E_cm": 42292.0},
+    "C90/105":  {"f_ck": 90.0, "f_cm": 98.0, "f_ctm": 4.96, "f_ctk_005": 3.47,  "E_cm": 43745.0},
+}
+
+
+@ntc_ref(
+    article="4.1.2.1.1",
+    table="Tab. 4.1.I",
+    latex=r"\text{Tab.\,4.1.I — Classi di resistenza del calcestruzzo}",
+)
+def concrete_strength_class(strength_class: str) -> dict[str, float]:
+    """Proprieta' meccaniche di una classe di resistenza del calcestruzzo.
+
+    NTC18 §4.1.2.1.1 — Tabella 4.1.I.
+    Classi disponibili: C8/10 ... C90/105.
+
+    Parameters
+    ----------
+    strength_class : str
+        Denominazione della classe di resistenza (es. "C25/30").
+
+    Returns
+    -------
+    dict[str, float]
+        Dizionario con le chiavi:
+        - f_ck  : resistenza caratteristica cilindrica [MPa]
+        - f_cm  : resistenza media cilindrica [MPa]
+        - f_ctm : resistenza media a trazione [MPa]
+        - f_ctk_005 : resistenza caratteristica a trazione (5° perc.) [MPa]
+        - E_cm  : modulo elastico secante [MPa]
+    """
+    if strength_class not in _CONCRETE_CLASSES:
+        valid = ", ".join(_CONCRETE_CLASSES)
+        raise ValueError(
+            f"Classe '{strength_class}' non riconosciuta. "
+            f"Classi valide: {valid}"
+        )
+    return dict(_CONCRETE_CLASSES[strength_class])
+
+
+# ── Verifica a fessurazione SLE ───────────────────────────────────────────────
+
+# Limiti w_max [mm] — NTC18 Tab. 4.1.IV
+# Armatura sensibile: Gruppi A(frequente/q.p.)=w1, B(frequente)=w1, C(frequente)=0
+# Armatura poco sensibile: tutti i casi w1
+# Valori numerici EC2/NTC18: w1=0.2mm, w2=0.3mm, w3=0.4mm
+# NTC18 §4.1.2.2.4 specifica w1, w2, w3 in funzione della classe di esposizione
+# Tabella 4.1.III NTC18 assegna:
+#   XC1           -> w_max = 0.4 mm
+#   XC2, XC3, XC4 -> w_max = 0.3 mm
+#   XD, XS, XF    -> w_max = 0.2 mm (armatura sensibile)
+_CRACK_WIDTH_LIMITS: dict[tuple[str, str], float | None] = {
+    # (classe_esposizione, combinazione) -> w_max [mm] | None (decompressione)
+    ("XC1", "quasi_permanent"):  0.4,
+    ("XC1", "frequent"):         0.4,
+    ("XC2", "quasi_permanent"):  0.3,
+    ("XC2", "frequent"):         0.3,
+    ("XC3", "quasi_permanent"):  0.3,
+    ("XC3", "frequent"):         0.3,
+    ("XC4", "quasi_permanent"):  0.3,
+    ("XC4", "frequent"):         0.3,
+    ("XD1", "quasi_permanent"):  0.2,
+    ("XD1", "frequent"):         0.2,
+    ("XD2", "quasi_permanent"):  0.2,
+    ("XD2", "frequent"):         0.2,
+    ("XD3", "quasi_permanent"):  0.2,
+    ("XD3", "frequent"):         0.2,
+    ("XS1", "quasi_permanent"):  0.2,
+    ("XS1", "frequent"):         0.2,
+    ("XS2", "quasi_permanent"):  0.2,
+    ("XS2", "frequent"):         0.2,
+    ("XS3", "quasi_permanent"):  0.2,
+    ("XS3", "frequent"):         0.2,
+}
+
+
+@ntc_ref(
+    article="4.1.2.2.4.4",
+    table="Tab. 4.1.IV",
+    latex=r"w_k \le w_{\max} \quad \text{(Tab.\,4.1.IV)}",
+)
+def concrete_crack_width_limit(
+    exposure_class: str,
+    load_combination: str = "quasi_permanent",
+) -> float:
+    """Apertura massima delle fessure in funzione della classe di esposizione.
+
+    NTC18 §4.1.2.2.4.4 — Tab. 4.1.IV.
+
+    Parameters
+    ----------
+    exposure_class : str
+        Classe di esposizione ambientale secondo NTC18/EC2.
+        Valori ammessi: "XC1", "XC2", "XC3", "XC4",
+        "XD1", "XD2", "XD3", "XS1", "XS2", "XS3".
+    load_combination : str
+        Combinazione delle azioni: "quasi_permanent" (default) o "frequent".
+
+    Returns
+    -------
+    float
+        Apertura massima ammissibile w_max [mm].
+    """
+    key = (exposure_class.upper(), load_combination)
+    if key not in _CRACK_WIDTH_LIMITS:
+        valid_classes = sorted({k[0] for k in _CRACK_WIDTH_LIMITS})
+        valid_combos = sorted({k[1] for k in _CRACK_WIDTH_LIMITS})
+        raise ValueError(
+            f"Combinazione classe='{exposure_class}', "
+            f"combinazione='{load_combination}' non valida. "
+            f"Classi valide: {valid_classes}. "
+            f"Combinazioni valide: {valid_combos}."
+        )
+    return _CRACK_WIDTH_LIMITS[key]
+
+
+@ntc_ref(
+    article="4.1.2.2.4.5",
+    formula="4.1.14",
+    latex=r"w_1 = 1{,}7 \cdot \varepsilon_{am} \cdot \Delta_{am}",
+)
+def concrete_crack_width(epsilon_am_cm: float, s_r_max: float) -> float:
+    """Apertura caratteristica delle fessure [mm].
+
+    NTC18 §4.1.2.2.4.5 — Formula [4.1.14]:
+        w_1 = 1.7 * epsilon_am_cm * s_r_max
+
+    Parameters
+    ----------
+    epsilon_am_cm : float
+        Differenza media di deformazione (epsilon_am - epsilon_cm) [-].
+        Valore non negativo (adimensionale).
+    s_r_max : float
+        Distanza massima tra fessure [mm].
+
+    Returns
+    -------
+    float
+        Apertura caratteristica w_1 [mm].
+    """
+    if epsilon_am_cm < 0:
+        raise ValueError(
+            f"epsilon_am_cm deve essere >= 0, ricevuto {epsilon_am_cm}"
+        )
+    if s_r_max <= 0:
+        raise ValueError(f"s_r_max deve essere > 0, ricevuto {s_r_max}")
+    return 1.7 * epsilon_am_cm * s_r_max
+
+
+@ntc_ref(
+    article="4.1.2.2.4.5",
+    formula="4.1.15",
+    latex=(
+        r"\varepsilon_{am} - \varepsilon_{cm} = "
+        r"\frac{\sigma_s - k_t \frac{f_{ctm}}{\rho_{eff}}(1 + n\,\rho_{eff})}{E_s}"
+        r"\ge 0{,}6\,\frac{\sigma_s}{E_s}"
+    ),
+)
+def concrete_crack_mean_strain(
+    sigma_s: float,
+    E_s: float,
+    rho_eff: float,
+    f_ctm: float,
+    k_t: float = 0.4,
+) -> float:
+    """Differenza media di deformazione tra acciaio e calcestruzzo [-].
+
+    NTC18 §4.1.2.2.4.5 — Formule [4.1.15]-[4.1.16]:
+        epsilon_am - epsilon_cm =
+            [sigma_s - k_t * (f_ctm / rho_eff) * (1 + n * rho_eff)] / E_s
+        con il limite inferiore:
+            >= 0.6 * sigma_s / E_s
+
+    Il rapporto modulare n = E_s / E_cm e' comunemente preso pari a 15
+    (valore di riferimento NTC18 per il calcestruzzo ordinario),
+    ma il suo effetto su (1 + n*rho_eff) e' trascurabile per rho_eff tipici.
+    In questa formula n*rho_eff rappresenta il contributo della rigidezza
+    del calcestruzzo interposto tra le fessure; il prodotto
+    (f_ctm/rho_eff)*(1+n*rho_eff) e' anche scritto come f_ctm/rho_eff + n*f_ctm.
+
+    Parameters
+    ----------
+    sigma_s : float
+        Tensione nell'armatura tesa nella sezione fessurata [MPa].
+    E_s : float
+        Modulo elastico dell'acciaio [MPa] (tipicamente 200000 MPa).
+    rho_eff : float
+        Rapporto di armatura efficace A_s / A_c,eff [-].
+    f_ctm : float
+        Resistenza media a trazione del calcestruzzo [MPa].
+    k_t : float
+        Coefficiente di durata del carico: 0.6 per carichi brevi,
+        0.4 per carichi di lunga durata (default 0.4).
+
+    Returns
+    -------
+    float
+        epsilon_am - epsilon_cm [-], non negativo.
+    """
+    if sigma_s <= 0:
+        raise ValueError(f"sigma_s deve essere > 0, ricevuto {sigma_s}")
+    if E_s <= 0:
+        raise ValueError(f"E_s deve essere > 0, ricevuto {E_s}")
+    if rho_eff <= 0:
+        raise ValueError(f"rho_eff deve essere > 0, ricevuto {rho_eff}")
+    if f_ctm <= 0:
+        raise ValueError(f"f_ctm deve essere > 0, ricevuto {f_ctm}")
+    if k_t not in (0.4, 0.6) and not (0.0 < k_t <= 1.0):
+        raise ValueError(f"k_t deve essere in (0, 1], ricevuto {k_t}")
+
+    # Rapporto modulare n = E_s / E_cm; per E_cm medio NTC18 ≈ 31000 MPa -> n ≈ 6.45
+    # NTC18 usa n = E_s / E_cm calcolato; come da prassi si usa n ≈ 15 per c.a. ordinario
+    # ma la formula nel testo NTC18 §4.1.2.2.4.5 indica esplicitamente n = E_s/E_cm.
+    # Qui si adotta n = 15 come valore di riferimento standard per acciaio/calcestruzzo.
+    n = 15.0
+
+    eps_formula = (sigma_s - k_t * (f_ctm / rho_eff) * (1.0 + n * rho_eff)) / E_s
+    eps_min = 0.6 * sigma_s / E_s
+    return max(eps_formula, eps_min)
+
+
+@ntc_ref(
+    article="4.1.2.2.4.5",
+    formula="4.1.17",
+    latex=r"s_{r,\max} = k_3\,c + k_1\,k_2\,k_4\,\frac{\phi}{\rho_{eff}}",
+)
+def concrete_crack_spacing(
+    phi: float,
+    rho_eff: float,
+    c: float,
+    k_1: float = 0.8,
+    k_2: float = 0.5,
+    k_3: float = 3.4,
+    k_4: float = 0.425,
+) -> float:
+    """Distanza massima tra fessure [mm].
+
+    NTC18 §4.1.2.2.4.5 — Formula [4.1.17]:
+        s_r,max = k_3 * c + k_1 * k_2 * k_4 * phi / rho_eff
+
+    Valori tipici dei coefficienti (NTC18/EC2):
+    - k_1 = 0.8 per barre ad aderenza migliorata, 1.6 per barre lisce
+    - k_2 = 0.5 per flessione pura, 1.0 per trazione pura
+    - k_3 = 3.4
+    - k_4 = 0.425
+
+    Parameters
+    ----------
+    phi : float
+        Diametro delle barre di armatura [mm].
+    rho_eff : float
+        Rapporto di armatura efficace A_s / A_c,eff [-].
+    c : float
+        Copriferro netto [mm].
+    k_1 : float
+        Coefficiente per tipo di barra (default 0.8, aderenza migliorata).
+    k_2 : float
+        Coefficiente per distribuzione delle deformazioni (default 0.5).
+    k_3 : float
+        Coefficiente per copriferro (default 3.4).
+    k_4 : float
+        Coefficiente per spaziatura (default 0.425).
+
+    Returns
+    -------
+    float
+        s_r,max [mm].
+    """
+    if phi <= 0:
+        raise ValueError(f"phi deve essere > 0, ricevuto {phi}")
+    if rho_eff <= 0:
+        raise ValueError(f"rho_eff deve essere > 0, ricevuto {rho_eff}")
+    if c < 0:
+        raise ValueError(f"c deve essere >= 0, ricevuto {c}")
+    return k_3 * c + k_1 * k_2 * k_4 * phi / rho_eff

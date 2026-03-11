@@ -16,21 +16,28 @@ from pyntc.checks.steel import (
     pin_bearing_resistance,
     pin_shear_resistance,
     steel_bending_resistance,
+    steel_bending_resistance_class3,
+    steel_bending_resistance_class4,
     steel_bending_shear_reduction,
     steel_biaxial_check,
     steel_buckling_imperfection,
     steel_buckling_reduction,
     steel_buckling_resistance,
+    steel_buckling_resistance_class4,
     steel_compression_resistance,
     steel_grade_properties,
     steel_lt_buckling_reduction,
     steel_lt_buckling_resistance,
     steel_NM_resistance_y,
     steel_NM_resistance_z,
+    steel_relative_slenderness,
     steel_shear_area,
     steel_shear_resistance,
     steel_tension_resistance,
+    steel_torsion_check,
+    steel_torsion_resistance,
     steel_von_mises_check,
+    weld_combined_stress_check,
     weld_fillet_resistance,
 )
 from pyntc.core.reference import get_ntc_ref
@@ -949,3 +956,269 @@ class TestPinBearingResistance:
         assert ref is not None
         assert ref.article == "4.2.8.1.2"
         assert ref.formula == "4.2.76"
+
+
+# ── [4.2.13] — Flessione sezione classe 3 ────────────────────────────────────
+
+
+class TestSteelBendingResistanceClass3:
+    """NTC18 §4.2.4.1.2.3, Formula [4.2.13]."""
+
+    def test_basic(self):
+        """M_el,Rd = W_el_min * f_yk / gamma_M0."""
+        result = steel_bending_resistance_class3(100e3, 355.0)
+        assert_allclose(result, 100e3 * 355.0 / 1.0, rtol=1e-6)
+
+    def test_with_gamma(self):
+        """Con gamma_M0 = 1.05."""
+        result = steel_bending_resistance_class3(200e3, 275.0, gamma_M0=1.05)
+        assert_allclose(result, 200e3 * 275.0 / 1.05, rtol=1e-6)
+
+    def test_zero_W_raises(self):
+        with pytest.raises(ValueError, match="W_el_min"):
+            steel_bending_resistance_class3(0.0, 355.0)
+
+    def test_zero_fyk_raises(self):
+        with pytest.raises(ValueError, match="f_yk"):
+            steel_bending_resistance_class3(100e3, 0.0)
+
+    def test_zero_gamma_raises(self):
+        with pytest.raises(ValueError, match="gamma_M0"):
+            steel_bending_resistance_class3(100e3, 355.0, gamma_M0=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_bending_resistance_class3)
+        assert ref is not None
+        assert ref.formula == "4.2.13"
+        assert ref.article == "4.2.4.1.2.3"
+
+
+# ── [4.2.14] — Flessione sezione classe 4 ────────────────────────────────────
+
+
+class TestSteelBendingResistanceClass4:
+    """NTC18 §4.2.4.1.2.3, Formula [4.2.14]."""
+
+    def test_basic(self):
+        """M_eff,Rd = W_eff_min * f_yk / gamma_M0."""
+        result = steel_bending_resistance_class4(80e3, 355.0)
+        assert_allclose(result, 80e3 * 355.0 / 1.0, rtol=1e-6)
+
+    def test_with_gamma(self):
+        result = steel_bending_resistance_class4(150e3, 235.0, gamma_M0=1.05)
+        assert_allclose(result, 150e3 * 235.0 / 1.05, rtol=1e-6)
+
+    def test_zero_W_raises(self):
+        with pytest.raises(ValueError, match="W_eff_min"):
+            steel_bending_resistance_class4(0.0, 355.0)
+
+    def test_zero_fyk_raises(self):
+        with pytest.raises(ValueError, match="f_yk"):
+            steel_bending_resistance_class4(80e3, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_bending_resistance_class4)
+        assert ref is not None
+        assert ref.formula == "4.2.14"
+        assert ref.article == "4.2.4.1.2.3"
+
+
+# ── §4.2.4.1.2.5 — Torsione ──────────────────────────────────────────────────
+
+
+class TestSteelTorsionResistance:
+    """NTC18 §4.2.4.1.2.5 — Resistenza a torsione."""
+
+    def test_basic(self):
+        """T_Rd = W_t * f_yk / (sqrt(3) * gamma_M0)."""
+        W_t, f_yk = 50e3, 355.0
+        result = steel_torsion_resistance(W_t, f_yk)
+        assert_allclose(result, W_t * f_yk / math.sqrt(3), rtol=1e-6)
+
+    def test_with_gamma(self):
+        W_t, f_yk, gM0 = 30e3, 275.0, 1.05
+        result = steel_torsion_resistance(W_t, f_yk, gamma_M0=gM0)
+        assert_allclose(result, W_t * f_yk / (math.sqrt(3) * gM0), rtol=1e-6)
+
+    def test_zero_Wt_raises(self):
+        with pytest.raises(ValueError, match="W_t"):
+            steel_torsion_resistance(0.0, 355.0)
+
+    def test_zero_fyk_raises(self):
+        with pytest.raises(ValueError, match="f_yk"):
+            steel_torsion_resistance(50e3, 0.0)
+
+    def test_zero_gamma_raises(self):
+        with pytest.raises(ValueError, match="gamma_M0"):
+            steel_torsion_resistance(50e3, 355.0, gamma_M0=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_torsion_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.5"
+
+
+class TestSteelTorsionCheck:
+    """NTC18 §4.2.4.1.2.5, Formula [4.2.28]."""
+
+    def test_pass(self):
+        ok, ratio = steel_torsion_check(T_Ed=80.0, T_Rd=100.0)
+        assert ok is True
+        assert_allclose(ratio, 0.8, rtol=1e-6)
+
+    def test_fail(self):
+        ok, ratio = steel_torsion_check(T_Ed=110.0, T_Rd=100.0)
+        assert ok is False
+        assert_allclose(ratio, 1.1, rtol=1e-6)
+
+    def test_equal(self):
+        ok, ratio = steel_torsion_check(T_Ed=100.0, T_Rd=100.0)
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_zero_TRd_raises(self):
+        with pytest.raises(ValueError, match="T_Rd"):
+            steel_torsion_check(50.0, 0.0)
+
+    def test_negative_TEd_raises(self):
+        with pytest.raises(ValueError, match="T_Ed"):
+            steel_torsion_check(-10.0, 100.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_torsion_check)
+        assert ref is not None
+        assert ref.formula == "4.2.28"
+
+
+# ── [4.2.45/4.2.46] — Snellezza adimensionale ────────────────────────────────
+
+
+class TestSteelRelativeSlenderness:
+    """NTC18 §4.2.4.1.3.1, Formule [4.2.45] e [4.2.46]."""
+
+    def test_class1(self):
+        """Classe 1: lambda_bar = sqrt(A * f_yk / N_cr)."""
+        A, f_yk, N_cr = 5000.0, 355.0, 1e6
+        result = steel_relative_slenderness(A, f_yk, N_cr, section_class=1)
+        assert_allclose(result, math.sqrt(A * f_yk / N_cr), rtol=1e-6)
+
+    def test_class3(self):
+        """Classe 3 usa stessa formula della classe 1."""
+        A, f_yk, N_cr = 4000.0, 275.0, 8e5
+        result = steel_relative_slenderness(A, f_yk, N_cr, section_class=3)
+        assert_allclose(result, math.sqrt(A * f_yk / N_cr), rtol=1e-6)
+
+    def test_class4(self):
+        """Classe 4: lambda_bar = sqrt(A_eff * f_yk / N_cr)."""
+        A_eff, f_yk, N_cr = 3500.0, 355.0, 9e5
+        result = steel_relative_slenderness(A_eff, f_yk, N_cr, section_class=4)
+        assert_allclose(result, math.sqrt(A_eff * f_yk / N_cr), rtol=1e-6)
+
+    def test_invalid_class_raises(self):
+        with pytest.raises(ValueError, match="section_class"):
+            steel_relative_slenderness(5000.0, 355.0, 1e6, section_class=5)
+
+    def test_zero_area_raises(self):
+        with pytest.raises(ValueError, match="A_or_A_eff"):
+            steel_relative_slenderness(0.0, 355.0, 1e6)
+
+    def test_zero_Ncr_raises(self):
+        with pytest.raises(ValueError, match="N_cr"):
+            steel_relative_slenderness(5000.0, 355.0, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_relative_slenderness)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.3.1"
+        assert ref.formula == "4.2.45"
+
+
+# ── [4.2.43] — Resistenza instabilita' sezione classe 4 ─────────────────────
+
+
+class TestSteelBucklingResistanceClass4:
+    """NTC18 §4.2.4.1.3.1, Formula [4.2.43]."""
+
+    def test_basic(self):
+        """N_b,Rd = chi * A_eff * f_yk / gamma_M1."""
+        chi, A_eff, f_yk, gM1 = 0.75, 4000.0, 355.0, 1.05
+        result = steel_buckling_resistance_class4(chi, A_eff, f_yk, gM1)
+        assert_allclose(result, chi * A_eff * f_yk / gM1, rtol=1e-6)
+
+    def test_chi_one(self):
+        result = steel_buckling_resistance_class4(1.0, 3000.0, 235.0)
+        assert_allclose(result, 3000.0 * 235.0, rtol=1e-6)
+
+    def test_chi_zero_raises(self):
+        with pytest.raises(ValueError, match="chi"):
+            steel_buckling_resistance_class4(0.0, 4000.0, 355.0)
+
+    def test_chi_over_one_raises(self):
+        with pytest.raises(ValueError, match="chi"):
+            steel_buckling_resistance_class4(1.1, 4000.0, 355.0)
+
+    def test_zero_Aeff_raises(self):
+        with pytest.raises(ValueError, match="A_eff"):
+            steel_buckling_resistance_class4(0.8, 0.0, 355.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_buckling_resistance_class4)
+        assert ref is not None
+        assert ref.formula == "4.2.43"
+        assert ref.article == "4.2.4.1.3.1"
+
+
+# ── [4.2.81] — Verifica combinata saldatura ───────────────────────────────────
+
+
+class TestWeldCombinedStressCheck:
+    """NTC18 §4.2.8.2.4, Formula [4.2.81]."""
+
+    def test_pass(self):
+        """Stato tensionale all'interno del limite."""
+        # f_limit = 510 / (0.9 * 1.25) = 453.33
+        # sigma_eq = sqrt(100^2 + 3*(80^2 + 60^2)) = sqrt(10000+3*10000) = sqrt(40000) ~ 200
+        sigma_eq = math.sqrt(100.0**2 + 3.0 * (80.0**2 + 60.0**2))
+        f_limit = 510.0 / (0.9 * 1.25)
+        ok, ratio = weld_combined_stress_check(100.0, 80.0, 60.0, 510.0, 0.9)
+        assert ok is True
+        assert_allclose(ratio, sigma_eq / f_limit, rtol=1e-6)
+
+    def test_fail(self):
+        """Stato tensionale oltre il limite."""
+        ok, ratio = weld_combined_stress_check(300.0, 200.0, 150.0, 360.0, 0.8)
+        assert ok is False
+        assert ratio > 1.0
+
+    def test_zero_stresses(self):
+        """Con tutti zero, sigma_eq = 0 -> ratio = 0, verifica OK."""
+        ok, ratio = weld_combined_stress_check(0.0, 0.0, 0.0, 360.0, 0.8)
+        assert ok is True
+        assert_allclose(ratio, 0.0, atol=1e-10)
+
+    def test_formula_components(self):
+        """Verifica formula: sigma_perp=0, tau_par=tau -> sigma_eq = sqrt(3)*tau."""
+        tau = 100.0
+        f_u, beta_w, gM2 = 510.0, 0.9, 1.25
+        ok, ratio = weld_combined_stress_check(0.0, 0.0, tau, f_u, beta_w, gM2)
+        expected_sigma_eq = math.sqrt(3.0) * tau
+        expected_ratio = expected_sigma_eq / (f_u / (beta_w * gM2))
+        assert_allclose(ratio, expected_ratio, rtol=1e-6)
+
+    def test_zero_fu_raises(self):
+        with pytest.raises(ValueError, match="f_u"):
+            weld_combined_stress_check(100.0, 50.0, 50.0, 0.0, 0.9)
+
+    def test_zero_beta_raises(self):
+        with pytest.raises(ValueError, match="beta_w"):
+            weld_combined_stress_check(100.0, 50.0, 50.0, 510.0, 0.0)
+
+    def test_zero_gamma_raises(self):
+        with pytest.raises(ValueError, match="gamma_M2"):
+            weld_combined_stress_check(100.0, 50.0, 50.0, 510.0, 0.9, gamma_M2=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(weld_combined_stress_check)
+        assert ref is not None
+        assert ref.formula == "4.2.81"
+        assert ref.article == "4.2.8.2.4"

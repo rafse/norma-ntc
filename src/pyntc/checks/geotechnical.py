@@ -765,6 +765,43 @@ def geo_anchor_characteristic_resistance(
         )
 
 
+@ntc_ref(
+    article="6.2.4.2",
+    formula="6.2.5",
+    latex=r"V_{\mathrm{inst},d} = C_{\mathrm{inst},d} + Q_{\mathrm{inst},d}",
+)
+def geo_destabilising_force(C_inst_d: float, Q_inst_d: float) -> float:
+    """Forza instabilizzante di progetto per verifiche idrauliche [kN].
+
+    NTC18 §6.2.4.2 — Formula [6.2.5]:
+
+    .. math::
+        V_{\\mathrm{inst},d} = C_{\\mathrm{inst},d} + Q_{\\mathrm{inst},d}
+
+    Parameters
+    ----------
+    C_inst_d : float
+        Componente permanente instabilizzante di progetto [kN].
+    Q_inst_d : float
+        Componente variabile instabilizzante di progetto [kN].
+
+    Returns
+    -------
+    float
+        Forza instabilizzante totale V_inst,d [kN].
+
+    Raises
+    ------
+    ValueError
+        Se uno dei parametri è negativo.
+    """
+    if C_inst_d < 0:
+        raise ValueError(f"C_inst_d non puo' essere negativa: {C_inst_d}")
+    if Q_inst_d < 0:
+        raise ValueError(f"Q_inst_d non puo' essere negativa: {Q_inst_d}")
+    return C_inst_d + Q_inst_d
+
+
 @ntc_ref(article="6.8.2", table="Tab.6.8.1", latex=r"\gamma_R = 1{,}1")
 def geo_embankment_resistance_factor() -> float:
     """Coefficiente parziale R2 per opere di materiali sciolti e fronti di scavo [-].

@@ -12,12 +12,17 @@ from pyntc.checks.concrete import (
     concrete_beam_min_reinforcement,
     concrete_column_min_reinforcement,
     concrete_confined_strength,
+    concrete_crack_mean_strain,
+    concrete_crack_spacing,
+    concrete_crack_width,
+    concrete_crack_width_limit,
     concrete_design_compressive_strength,
     concrete_design_tensile_strength,
     concrete_prestress_stress_limits,
     concrete_slenderness,
     concrete_slenderness_limit,
     concrete_strain_limits,
+    concrete_strength_class,
     concrete_stress_limit,
     shear_resistance_no_stirrups,
     shear_resistance_with_stirrups,
@@ -739,3 +744,262 @@ class TestConcretePrestressStressLimits:
         assert ref is not None
         assert ref.article == "4.1.8.15"
         assert ref.formula == "4.1.49"
+
+
+# ── Tab. 4.1.I — Classi di resistenza del calcestruzzo ───────────────────────
+
+
+class TestConcreteStrengthClass:
+    """NTC18 §4.1.2.1.1, Tab. 4.1.I."""
+
+    def test_c25_30_keys(self):
+        """C25/30 deve restituire le chiavi corrette."""
+        result = concrete_strength_class("C25/30")
+        assert set(result.keys()) == {"f_ck", "f_cm", "f_ctm", "f_ctk_005", "E_cm"}
+
+    def test_c25_30_fck(self):
+        """C25/30: f_ck = 25 MPa."""
+        result = concrete_strength_class("C25/30")
+        assert_allclose(result["f_ck"], 25.0, rtol=1e-6)
+
+    def test_c25_30_fcm(self):
+        """C25/30: f_cm = f_ck + 8 = 33 MPa."""
+        result = concrete_strength_class("C25/30")
+        assert_allclose(result["f_cm"], 33.0, rtol=1e-6)
+
+    def test_c8_10_fck(self):
+        """C8/10: f_ck = 8 MPa (classe minima NTC18)."""
+        result = concrete_strength_class("C8/10")
+        assert_allclose(result["f_ck"], 8.0, rtol=1e-6)
+
+    def test_c90_105_fck(self):
+        """C90/105: f_ck = 90 MPa (classe massima NTC18)."""
+        result = concrete_strength_class("C90/105")
+        assert_allclose(result["f_ck"], 90.0, rtol=1e-6)
+
+    def test_fcm_equals_fck_plus_8(self):
+        """Per tutte le classi: f_cm = f_ck + 8."""
+        for cls in ["C20/25", "C30/37", "C40/50", "C50/60"]:
+            d = concrete_strength_class(cls)
+            assert_allclose(d["f_cm"], d["f_ck"] + 8.0, rtol=1e-6,
+                            err_msg=f"Fallito per classe {cls}")
+
+    def test_fctk_005_is_070_fctm(self):
+        """f_ctk_005 = 0.70 * f_ctm per tutte le classi (tolleranza 1%)."""
+        for cls in ["C25/30", "C35/45", "C50/60"]:
+            d = concrete_strength_class(cls)
+            assert_allclose(d["f_ctk_005"], 0.70 * d["f_ctm"], rtol=0.01,
+                            err_msg=f"Fallito per classe {cls}")
+
+    def test_invalid_class_raises(self):
+        """Classe inesistente deve sollevare ValueError."""
+        with pytest.raises(ValueError):
+            concrete_strength_class("C99/110")
+
+    def test_returns_copy(self):
+        """Il dizionario restituito deve essere una copia indipendente."""
+        d = concrete_strength_class("C25/30")
+        d["f_ck"] = 999.0
+        d2 = concrete_strength_class("C25/30")
+        assert d2["f_ck"] == 25.0
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_strength_class)
+        assert ref is not None
+        assert ref.article == "4.1.2.1.1"
+        assert ref.table == "Tab. 4.1.I"
+
+
+# ── §4.1.2.2.4.5 — Verifica SLE fessurazione ─────────────────────────────────
+
+
+class TestConcreteCrackMeanStrain:
+    """NTC18 §4.1.2.2.4.5, Formule [4.1.15]-[4.1.16]."""
+
+    def test_basic(self):
+        """Calcolo manuale con valori tipici:
+        sigma_s=200 MPa, E_s=200000, rho_eff=0.02, f_ctm=2.56, k_t=0.4, n=15.
+        eps_formula = [200 - 0.4*(2.56/0.02)*(1+15*0.02)] / 200000
+                    = [200 - 0.4*128*(1.30)] / 200000
+                    = [200 - 66.56] / 200000 = 133.44/200000 = 6.672e-4
+        eps_min = 0.6*200/200000 = 6.0e-4
+        risultato = max(6.672e-4, 6.0e-4) = 6.672e-4
+        """
+        n = 15.0
+        sigma_s = 200.0
+        E_s = 200000.0
+        rho_eff = 0.02
+        f_ctm = 2.56
+        k_t = 0.4
+        eps_formula = (sigma_s - k_t * (f_ctm / rho_eff) * (1 + n * rho_eff)) / E_s
+        eps_min = 0.6 * sigma_s / E_s
+        expected = max(eps_formula, eps_min)
+        result = concrete_crack_mean_strain(sigma_s, E_s, rho_eff, f_ctm, k_t)
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_minimum_governs(self):
+        """Con sigma_s basso il limite inferiore 0.6*sigma_s/E_s governa."""
+        # sigma_s=50, E_s=200000, rho_eff=0.05, f_ctm=3.0, k_t=0.4, n=15
+        # eps_formula = [50 - 0.4*(60)*(1.75)] / 200000 = [50 - 42] / 200000 = 4e-5
+        # eps_min = 0.6*50/200000 = 1.5e-4
+        # min limit governs
+        result = concrete_crack_mean_strain(50.0, 200000.0, 0.05, 3.0, k_t=0.4)
+        eps_min = 0.6 * 50.0 / 200000.0
+        assert_allclose(result, eps_min, rtol=1e-6)
+
+    def test_k_t_06_short_term(self):
+        """k_t=0.6 per carichi di breve durata riduce la differenza."""
+        result_long = concrete_crack_mean_strain(300.0, 200000.0, 0.02, 2.56, k_t=0.4)
+        result_short = concrete_crack_mean_strain(300.0, 200000.0, 0.02, 2.56, k_t=0.6)
+        # k_t piu' alto -> termine sottratto piu' grande -> risultato piu' piccolo
+        assert result_short <= result_long
+
+    def test_negative_sigma_s_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_mean_strain(-100.0, 200000.0, 0.02, 2.56)
+
+    def test_zero_rho_eff_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_mean_strain(200.0, 200000.0, 0.0, 2.56)
+
+    def test_zero_f_ctm_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_mean_strain(200.0, 200000.0, 0.02, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_crack_mean_strain)
+        assert ref is not None
+        assert ref.article == "4.1.2.2.4.5"
+        assert ref.formula == "4.1.15"
+
+
+class TestConcreteCrackSpacing:
+    """NTC18 §4.1.2.2.4.5, Formula [4.1.17]."""
+
+    def test_basic(self):
+        """s_r,max = 3.4*35 + 0.8*0.5*0.425*16/0.02
+               = 119 + 136 = 255 mm.
+        """
+        result = concrete_crack_spacing(phi=16.0, rho_eff=0.02, c=35.0)
+        expected = 3.4 * 35.0 + 0.8 * 0.5 * 0.425 * 16.0 / 0.02
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_plain_bar(self):
+        """k_1=1.6 per barre lisce."""
+        result = concrete_crack_spacing(phi=16.0, rho_eff=0.02, c=35.0, k_1=1.6)
+        expected = 3.4 * 35.0 + 1.6 * 0.5 * 0.425 * 16.0 / 0.02
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_pure_tension(self):
+        """k_2=1.0 per trazione pura."""
+        result = concrete_crack_spacing(phi=20.0, rho_eff=0.025, c=40.0, k_2=1.0)
+        expected = 3.4 * 40.0 + 0.8 * 1.0 * 0.425 * 20.0 / 0.025
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_larger_bar_larger_spacing(self):
+        """Diametro maggiore -> distanza tra fessure maggiore (a parita' di rho)."""
+        s_small = concrete_crack_spacing(phi=12.0, rho_eff=0.02, c=35.0)
+        s_large = concrete_crack_spacing(phi=20.0, rho_eff=0.02, c=35.0)
+        assert s_large > s_small
+
+    def test_zero_phi_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_spacing(phi=0.0, rho_eff=0.02, c=35.0)
+
+    def test_zero_rho_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_spacing(phi=16.0, rho_eff=0.0, c=35.0)
+
+    def test_negative_c_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_spacing(phi=16.0, rho_eff=0.02, c=-10.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_crack_spacing)
+        assert ref is not None
+        assert ref.article == "4.1.2.2.4.5"
+        assert ref.formula == "4.1.17"
+
+
+class TestConcreteCrackWidth:
+    """NTC18 §4.1.2.2.4.5, Formula [4.1.14]."""
+
+    def test_basic(self):
+        """w_1 = 1.7 * 5e-4 * 300 = 0.255 mm."""
+        result = concrete_crack_width(epsilon_am_cm=5e-4, s_r_max=300.0)
+        assert_allclose(result, 1.7 * 5e-4 * 300.0, rtol=1e-6)
+
+    def test_zero_epsilon_gives_zero(self):
+        """epsilon_am_cm = 0 -> w_1 = 0."""
+        result = concrete_crack_width(epsilon_am_cm=0.0, s_r_max=200.0)
+        assert_allclose(result, 0.0, atol=1e-12)
+
+    def test_proportional_to_spacing(self):
+        """L'apertura e' proporzionale a s_r_max."""
+        w1 = concrete_crack_width(5e-4, 200.0)
+        w2 = concrete_crack_width(5e-4, 400.0)
+        assert_allclose(w2, 2 * w1, rtol=1e-6)
+
+    def test_negative_epsilon_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_width(epsilon_am_cm=-1e-4, s_r_max=300.0)
+
+    def test_zero_s_r_max_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_width(epsilon_am_cm=5e-4, s_r_max=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_crack_width)
+        assert ref is not None
+        assert ref.article == "4.1.2.2.4.5"
+        assert ref.formula == "4.1.14"
+
+
+class TestConcreteCrackWidthLimit:
+    """NTC18 §4.1.2.2.4.4, Tab. 4.1.IV."""
+
+    def test_xc1_quasi_permanent(self):
+        """XC1 + quasi permanente: w_max = 0.4 mm."""
+        result = concrete_crack_width_limit("XC1", "quasi_permanent")
+        assert_allclose(result, 0.4, rtol=1e-6)
+
+    def test_xc2_quasi_permanent(self):
+        """XC2 + quasi permanente: w_max = 0.3 mm."""
+        result = concrete_crack_width_limit("XC2", "quasi_permanent")
+        assert_allclose(result, 0.3, rtol=1e-6)
+
+    def test_xd1_quasi_permanent(self):
+        """XD1 + quasi permanente (ambiente aggressivo): w_max = 0.2 mm."""
+        result = concrete_crack_width_limit("XD1", "quasi_permanent")
+        assert_allclose(result, 0.2, rtol=1e-6)
+
+    def test_xs3_frequent(self):
+        """XS3 + frequente (marino molto aggressivo): w_max = 0.2 mm."""
+        result = concrete_crack_width_limit("XS3", "frequent")
+        assert_allclose(result, 0.2, rtol=1e-6)
+
+    def test_default_combination_is_quasi_permanent(self):
+        """La combinazione di default e' quasi_permanent."""
+        assert concrete_crack_width_limit("XC3") == concrete_crack_width_limit(
+            "XC3", "quasi_permanent"
+        )
+
+    def test_case_insensitive(self):
+        """La classe di esposizione e' case-insensitive."""
+        result_lower = concrete_crack_width_limit("xc1", "quasi_permanent")
+        result_upper = concrete_crack_width_limit("XC1", "quasi_permanent")
+        assert result_lower == result_upper
+
+    def test_invalid_class_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_width_limit("X99", "quasi_permanent")
+
+    def test_invalid_combination_raises(self):
+        with pytest.raises(ValueError):
+            concrete_crack_width_limit("XC1", "rare")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_crack_width_limit)
+        assert ref is not None
+        assert ref.article == "4.1.2.2.4.4"
+        assert ref.table == "Tab. 4.1.IV"

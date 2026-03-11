@@ -56,6 +56,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Azioni (Cap. 2-5):
+    - Sicurezza e vita nominale: actions/safety.md
     - Carichi: actions/loads.md
     - Vento: actions/wind.md
     - Neve: actions/snow.md

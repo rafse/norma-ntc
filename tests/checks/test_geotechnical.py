@@ -12,6 +12,7 @@ from pyntc.checks.geotechnical import (
     geo_sifonamento_check,
     geo_design_resistance,
     geo_design_check,
+    geo_destabilising_force,
     geo_shallow_foundation_factors,
     geo_pile_resistance_factors,
     geo_pile_correlation_static,
@@ -788,7 +789,45 @@ class TestGeoAnchorCharacteristicResistance:
 
 
 # ---------------------------------------------------------------------------
-# 20. geo_embankment_resistance_factor — Tab. 6.8.1
+# 20. geo_destabilising_force — [6.2.5]
+# ---------------------------------------------------------------------------
+class TestGeoDestabilisingForce:
+    """NTC18 §6.2.4.2 — Forza instabilizzante [6.2.5]."""
+
+    def test_basic(self):
+        """V_inst,d = C_inst,d + Q_inst,d."""
+        from numpy.testing import assert_allclose
+        assert_allclose(geo_destabilising_force(80.0, 40.0), 120.0)
+
+    def test_zero_variable(self):
+        """Solo componente permanente."""
+        from numpy.testing import assert_allclose
+        assert_allclose(geo_destabilising_force(100.0, 0.0), 100.0)
+
+    def test_zero_permanent(self):
+        """Solo componente variabile."""
+        from numpy.testing import assert_allclose
+        assert_allclose(geo_destabilising_force(0.0, 50.0), 50.0)
+
+    def test_negative_C_raises(self):
+        """C_inst_d negativa non ammessa."""
+        with pytest.raises(ValueError, match="C_inst_d"):
+            geo_destabilising_force(-10.0, 20.0)
+
+    def test_negative_Q_raises(self):
+        """Q_inst_d negativa non ammessa."""
+        with pytest.raises(ValueError, match="Q_inst_d"):
+            geo_destabilising_force(10.0, -5.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(geo_destabilising_force)
+        assert ref is not None
+        assert ref.article == "6.2.4.2"
+        assert ref.formula == "6.2.5"
+
+
+# ---------------------------------------------------------------------------
+# 21. geo_embankment_resistance_factor — Tab. 6.8.1
 # ---------------------------------------------------------------------------
 class TestGeoEmbankmentResistanceFactor:
     """NTC18 §6.8.2 — Coefficiente R2 per opere di materiali sciolti."""

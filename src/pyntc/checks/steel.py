@@ -951,6 +951,320 @@ def weld_fillet_resistance(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.2.3 — FLESSIONE SEZIONI CLASSE 3 E CLASSE 4
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.2.4.1.2.3",
+    formula="4.2.13",
+    latex=r"M_{el,Rd} = \frac{W_{el,min} \cdot f_{yk}}{\gamma_{M0}}",
+)
+def steel_bending_resistance_class3(
+    W_el_min: float, f_yk: float, gamma_M0: float = 1.0
+) -> float:
+    """Resistenza a flessione elastica per sezioni di classe 3 [N*mm].
+
+    NTC18 §4.2.4.1.2.3, Formula [4.2.13]:
+        M_c,Rd = M_el,Rd = W_el,min * f_yk / gamma_M0
+
+    Parameters
+    ----------
+    W_el_min : float
+        Modulo di resistenza elastico minimo della sezione [mm^3].
+    f_yk : float
+        Tensione di snervamento caratteristica [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-]. Default NTC18: 1.0.
+
+    Returns
+    -------
+    float
+        M_el,Rd: resistenza a flessione elastica [N*mm].
+    """
+    if W_el_min <= 0:
+        raise ValueError("W_el_min deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    return W_el_min * f_yk / gamma_M0
+
+
+@ntc_ref(
+    article="4.2.4.1.2.3",
+    formula="4.2.14",
+    latex=r"M_{eff,Rd} = \frac{W_{eff,min} \cdot f_{yk}}{\gamma_{M0}}",
+)
+def steel_bending_resistance_class4(
+    W_eff_min: float, f_yk: float, gamma_M0: float = 1.0
+) -> float:
+    """Resistenza a flessione per sezioni di classe 4 (sezione efficace) [N*mm].
+
+    NTC18 §4.2.4.1.2.3, Formula [4.2.14]:
+        M_c,Rd = M_eff,Rd = W_eff,min * f_yk / gamma_M0
+
+    Parameters
+    ----------
+    W_eff_min : float
+        Modulo di resistenza della sezione efficace minimo [mm^3].
+    f_yk : float
+        Tensione di snervamento caratteristica [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-]. Default NTC18: 1.0.
+
+    Returns
+    -------
+    float
+        M_eff,Rd: resistenza a flessione sezione efficace [N*mm].
+    """
+    if W_eff_min <= 0:
+        raise ValueError("W_eff_min deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    return W_eff_min * f_yk / gamma_M0
+
+
+# ── §4.2.4.1.2.5 — Torsione ────────────────────────────────────────────────
+
+
+@ntc_ref(
+    article="4.2.4.1.2.5",
+    formula="4.2.28",
+    latex=r"T_{Rd} = \frac{W_t \cdot f_{yk}}{\sqrt{3} \cdot \gamma_{M0}}",
+)
+def steel_torsion_resistance(
+    W_t: float, f_yk: float, gamma_M0: float = 1.0
+) -> float:
+    """Resistenza a torsione della sezione [N*mm].
+
+    NTC18 §4.2.4.1.2.5 — Resistenza a torsione (formula standard EN):
+        T_Rd = W_t * f_yk / (sqrt(3) * gamma_M0)
+
+    dove W_t e' il modulo resistente a torsione (W_t,el per torsione
+    uniforme, W_t = 2*A_m*t per sezioni tubolari).
+
+    Parameters
+    ----------
+    W_t : float
+        Modulo resistente a torsione della sezione [mm^3].
+    f_yk : float
+        Tensione di snervamento caratteristica [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-]. Default NTC18: 1.0.
+
+    Returns
+    -------
+    float
+        T_Rd: resistenza a torsione [N*mm].
+    """
+    if W_t <= 0:
+        raise ValueError("W_t deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    return W_t * f_yk / (math.sqrt(3) * gamma_M0)
+
+
+@ntc_ref(
+    article="4.2.4.1.2.5",
+    formula="4.2.28",
+    latex=r"\frac{T_{Ed}}{T_{Rd}} \le 1{,}0",
+)
+def steel_torsion_check(T_Ed: float, T_Rd: float) -> tuple[bool, float]:
+    """Verifica a torsione della sezione [-].
+
+    NTC18 §4.2.4.1.2.5, Formula [4.2.28]:
+        T_Ed / T_Rd <= 1.0
+
+    Parameters
+    ----------
+    T_Ed : float
+        Momento torcente di progetto [N*mm].
+    T_Rd : float
+        Resistenza a torsione della sezione [N*mm].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_superata, utilization):
+        - verifica_superata: True se T_Ed / T_Rd <= 1.0
+        - utilization: rapporto T_Ed / T_Rd [-]
+    """
+    if T_Rd <= 0:
+        raise ValueError("T_Rd deve essere > 0")
+    if T_Ed < 0:
+        raise ValueError("T_Ed deve essere >= 0")
+    utilization = T_Ed / T_Rd
+    return utilization <= 1.0, utilization
+
+
+# ── §4.2.4.1.3.1 — Snellezza adimensionale (classi 1-3 e classe 4) ──────────
+
+
+@ntc_ref(
+    article="4.2.4.1.3.1",
+    formula="4.2.45",
+    latex=(
+        r"\bar{\lambda} = \sqrt{\frac{A \cdot f_{yk}}{N_{cr}}}"
+        r"\quad \text{(cl.\,1\text{-}3)} \;"
+        r";\quad \bar{\lambda} = \sqrt{\frac{A_{\text{eff}} \cdot f_{yk}}{N_{cr}}}"
+        r"\quad \text{(cl.\,4)}"
+    ),
+)
+def steel_relative_slenderness(
+    A_or_A_eff: float,
+    f_yk: float,
+    N_cr: float,
+    section_class: int = 1,
+) -> float:
+    """Snellezza adimensionale per aste compresse [-].
+
+    NTC18 §4.2.4.1.3.1:
+        Classi 1, 2, 3 — Formula [4.2.45]:
+            lambda_bar = sqrt(A * f_yk / N_cr)
+        Classe 4 — Formula [4.2.46]:
+            lambda_bar = sqrt(A_eff * f_yk / N_cr)
+
+    Parameters
+    ----------
+    A_or_A_eff : float
+        Area lorda A (classi 1-3) o area efficace A_eff (classe 4) [mm^2].
+    f_yk : float
+        Tensione di snervamento caratteristica [N/mm^2].
+    N_cr : float
+        Carico critico euleriano [N].
+    section_class : int
+        Classe della sezione: 1, 2, 3 → Formula [4.2.45];
+        4 → Formula [4.2.46]. Default: 1.
+
+    Returns
+    -------
+    float
+        lambda_bar: snellezza adimensionale [-].
+    """
+    if A_or_A_eff <= 0:
+        raise ValueError("A_or_A_eff deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if N_cr <= 0:
+        raise ValueError("N_cr deve essere > 0")
+    if section_class not in (1, 2, 3, 4):
+        raise ValueError("section_class deve essere 1, 2, 3 o 4")
+    return math.sqrt(A_or_A_eff * f_yk / N_cr)
+
+
+@ntc_ref(
+    article="4.2.4.1.3.1",
+    formula="4.2.43",
+    latex=r"N_{b,Rd} = \frac{\chi \cdot A_{\text{eff}} \cdot f_{yk}}{\gamma_{M1}}",
+)
+def steel_buckling_resistance_class4(
+    chi: float, A_eff: float, f_yk: float, gamma_M1: float = 1.0
+) -> float:
+    """Resistenza ad instabilita' per sezioni di classe 4 [N].
+
+    NTC18 §4.2.4.1.3.1, Formula [4.2.43]:
+        N_b,Rd = chi * A_eff * f_yk / gamma_M1
+
+    Parameters
+    ----------
+    chi : float
+        Coefficiente di riduzione per instabilita' [-].
+    A_eff : float
+        Area efficace della sezione di classe 4 [mm^2].
+    f_yk : float
+        Tensione di snervamento caratteristica [N/mm^2].
+    gamma_M1 : float
+        Coefficiente parziale gamma_M1 [-]. Default NTC18: 1.0.
+
+    Returns
+    -------
+    float
+        N_b,Rd: resistenza ad instabilita' [N].
+    """
+    if chi <= 0 or chi > 1:
+        raise ValueError("chi deve essere 0 < chi <= 1")
+    if A_eff <= 0:
+        raise ValueError("A_eff deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M1 <= 0:
+        raise ValueError("gamma_M1 deve essere > 0")
+    return chi * A_eff * f_yk / gamma_M1
+
+
+# ── §4.2.8.2.4 — Verifica combinata saldatura ────────────────────────────────
+
+
+@ntc_ref(
+    article="4.2.8.2.4",
+    formula="4.2.81",
+    latex=(
+        r"\sqrt{\sigma_{\perp}^2 + 3(\tau_{\perp}^2 + \tau_{\parallel}^2)}"
+        r"\le \frac{f_u}{\beta_w \cdot \gamma_{M2}}"
+    ),
+)
+def weld_combined_stress_check(
+    sigma_perp: float,
+    tau_perp: float,
+    tau_par: float,
+    f_u: float,
+    beta_w: float,
+    gamma_M2: float = 1.25,
+) -> tuple[bool, float]:
+    """Verifica tensionale combinata di cordone d'angolo [-].
+
+    NTC18 §4.2.8.2.4, Formula [4.2.81]:
+        sqrt(sigma_perp^2 + 3*(tau_perp^2 + tau_par^2)) <= f_u / (beta_w * gamma_M2)
+
+    dove:
+        sigma_perp: tensione normale perpendicolare al piano della gola
+        tau_perp:   tensione tangenziale perp. all'asse del cordone
+        tau_par:    tensione tangenziale parallela all'asse del cordone
+
+    Fattore di correlazione beta_w (Tab. 4.2.XIII):
+        S235 → 0.80, S275 → 0.85, S355 → 0.90, S420/S460 → 1.00
+
+    Parameters
+    ----------
+    sigma_perp : float
+        Tensione normale perpendicolare al piano della gola [N/mm^2].
+    tau_perp : float
+        Tensione tangenziale perpendicolare all'asse del cordone [N/mm^2].
+    tau_par : float
+        Tensione tangenziale parallela all'asse del cordone [N/mm^2].
+    f_u : float
+        Tensione di rottura dell'acciaio base [N/mm^2].
+    beta_w : float
+        Fattore di correlazione [-] (da Tab. 4.2.XIII).
+    gamma_M2 : float
+        Coefficiente parziale gamma_M2 [-]. Default NTC18: 1.25.
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_superata, ratio):
+        - verifica_superata: True se ratio <= 1.0
+        - ratio = sqrt(...) / (f_u / (beta_w * gamma_M2)) [-]
+    """
+    if f_u <= 0:
+        raise ValueError("f_u deve essere > 0")
+    if beta_w <= 0:
+        raise ValueError("beta_w deve essere > 0")
+    if gamma_M2 <= 0:
+        raise ValueError("gamma_M2 deve essere > 0")
+
+    sigma_eq = math.sqrt(sigma_perp**2 + 3.0 * (tau_perp**2 + tau_par**2))
+    f_limit = f_u / (beta_w * gamma_M2)
+    ratio = sigma_eq / f_limit
+    return ratio <= 1.0, ratio
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §4.2.4.1.2 — AREA RESISTENTE A TAGLIO
 # ══════════════════════════════════════════════════════════════════════════════
 
