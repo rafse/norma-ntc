@@ -13,6 +13,8 @@ from pyntc.checks.steel import (
     bolt_shear_resistance,
     bolt_shear_tension_interaction,
     bolt_tension_resistance,
+    pin_bearing_resistance,
+    pin_shear_resistance,
     steel_bending_resistance,
     steel_bending_shear_reduction,
     steel_biaxial_check,
@@ -25,8 +27,10 @@ from pyntc.checks.steel import (
     steel_lt_buckling_resistance,
     steel_NM_resistance_y,
     steel_NM_resistance_z,
+    steel_shear_area,
     steel_shear_resistance,
     steel_tension_resistance,
+    steel_von_mises_check,
     weld_fillet_resistance,
 )
 from pyntc.core.reference import get_ntc_ref
@@ -788,3 +792,160 @@ class TestWeldFilletResistance:
         ref = get_ntc_ref(weld_fillet_resistance)
         assert ref is not None
         assert ref.article == "4.2.8.2.4"
+
+
+# ── [4.2.18-4.2.23] — Area resistente a taglio ───────────────────────────────
+
+
+class TestSteelShearArea:
+    """NTC18 §4.2.4.1.2.4, Formule [4.2.18]–[4.2.23]."""
+
+    def test_I_H_rolled(self):
+        # A=8000, b=200, t_f=12, t_w=8, r=15
+        # A_v = 8000 - 2*200*12 + (8 + 2*15)*12 = 8000 - 4800 + 456 = 3656
+        result = steel_shear_area("I_H_rolled", 8000.0, b=200.0, t_f=12.0, t_w=8.0, r=15.0)
+        expected = 8000.0 - 2.0*200.0*12.0 + (8.0 + 2.0*15.0)*12.0
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_I_H_weld(self):
+        # A=7000, b=180, t_f=10, t_w=6, r=8
+        # A_v = 7000 - 2*180*10 + (6 + 8)*10 = 7000 - 3600 + 140 = 3540
+        result = steel_shear_area("I_H_weld", 7000.0, b=180.0, t_f=10.0, t_w=6.0, r=8.0)
+        expected = 7000.0 - 2.0*180.0*10.0 + (6.0 + 8.0)*10.0
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_box(self):
+        # A=12000, hw_tw_sum = 2*300*8 = 4800
+        result = steel_shear_area("box", 12000.0, hw_tw_sum=4800.0)
+        assert_allclose(result, 12000.0 - 4800.0, rtol=1e-6)
+
+    def test_T(self):
+        # A=5000, b=150, t_f=10
+        # A_v = 0.9*(5000 - 150*10) = 0.9*3500 = 3150
+        result = steel_shear_area("T", 5000.0, b=150.0, t_f=10.0)
+        assert_allclose(result, 0.9*(5000.0 - 150.0*10.0), rtol=1e-6)
+
+    def test_rectangular_height(self):
+        # A=b*h=200*400=80000, load parallel to height
+        # A_v = A*h/(b+h) = 80000*400/600 = 53333.3
+        result = steel_shear_area("rectangular", 80000.0, b=200.0, h=400.0, load_direction="height")
+        assert_allclose(result, 80000.0*400.0/600.0, rtol=1e-6)
+
+    def test_rectangular_width(self):
+        result = steel_shear_area("rectangular", 80000.0, b=200.0, h=400.0, load_direction="width")
+        assert_allclose(result, 80000.0*200.0/600.0, rtol=1e-6)
+
+    def test_circular(self):
+        # A=pi*(50^2)/4 = 1963.5, A_v = 2*A/pi = 2*1963.5/pi = 1250
+        import math as _math
+        A = _math.pi * 50.0**2 / 4.0
+        result = steel_shear_area("circular", A)
+        assert_allclose(result, 2.0*A/_math.pi, rtol=1e-6)
+
+    def test_missing_params_raises(self):
+        with pytest.raises(ValueError):
+            steel_shear_area("I_H_rolled", 8000.0)
+
+    def test_invalid_section_raises(self):
+        with pytest.raises(ValueError):
+            steel_shear_area("unknown", 8000.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_shear_area)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2.4"
+
+
+# ── [4.2.4] — Von Mises ──────────────────────────────────────────────────────
+
+
+class TestSteelVonMisesCheck:
+    """NTC18 §4.2.4.1.2, Formula [4.2.4]."""
+
+    def test_safe_uniaxial(self):
+        # Solo sigma_x, nessun tau → sigma_eq = sigma_x
+        f_yk = 355.0
+        ok, ratio = steel_von_mises_check(200.0, 0.0, 0.0, f_yk, 1.05)
+        assert ok is True
+        assert_allclose(ratio, 200.0 / (355.0/1.05), rtol=1e-6)
+
+    def test_safe_combined(self):
+        # sigma_x=100, sigma_y=50, tau=80, f_yk=355, γ=1.05
+        import math as _math
+        sigma_eq = _math.sqrt(100**2 + 50**2 - 100*50 + 3*80**2)
+        f_limit = 355.0/1.05
+        ok, ratio = steel_von_mises_check(100.0, 50.0, 80.0, 355.0, 1.05)
+        assert_allclose(ratio, sigma_eq/f_limit, rtol=1e-6)
+        assert ok == (sigma_eq <= f_limit)
+
+    def test_unsafe(self):
+        # σ_x = f_yk/γ → exactly at limit but sigma_y and tau push it over
+        ok, ratio = steel_von_mises_check(300.0, 300.0, 200.0, 355.0, 1.05)
+        assert ok is False
+        assert ratio > 1.0
+
+    def test_pure_shear_limit(self):
+        # Per taglio puro: sigma_eq = sqrt(3)*tau = f_yk/γ
+        import math as _math
+        f_yk = 355.0
+        gamma = 1.05
+        tau = f_yk / (gamma * _math.sqrt(3))
+        ok, ratio = steel_von_mises_check(0.0, 0.0, tau, f_yk, gamma)
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_zero_fyk_raises(self):
+        with pytest.raises(ValueError):
+            steel_von_mises_check(100.0, 0.0, 0.0, 0.0, 1.05)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(steel_von_mises_check)
+        assert ref is not None
+        assert ref.article == "4.2.4.1.2"
+        assert ref.formula == "4.2.4"
+
+
+# ── [4.2.75] — Resistenza a taglio perno ─────────────────────────────────────
+
+
+class TestPinShearResistance:
+    """NTC18 §4.2.8.1.2, Formula [4.2.75]."""
+
+    def test_basic(self):
+        # f_upk=500, A=pi*(20^2)/4=314.2, gamma_M2=1.25
+        import math as _math
+        A = _math.pi * 20.0**2 / 4.0
+        result = pin_shear_resistance(500.0, A, 1.25)
+        assert_allclose(result, 0.6 * 500.0 * A / 1.25, rtol=1e-6)
+
+    def test_zero_fupk_raises(self):
+        with pytest.raises(ValueError):
+            pin_shear_resistance(0.0, 314.0, 1.25)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(pin_shear_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.2"
+        assert ref.formula == "4.2.75"
+
+
+# ── [4.2.76] — Resistenza a rifollamento perno ───────────────────────────────
+
+
+class TestPinBearingResistance:
+    """NTC18 §4.2.8.1.2, Formula [4.2.76]."""
+
+    def test_basic(self):
+        # t=20, d=30, f_y=355, gamma_M3=1.25
+        result = pin_bearing_resistance(20.0, 30.0, 355.0, 1.25)
+        assert_allclose(result, 1.5 * 20.0 * 30.0 * 355.0 / 1.25, rtol=1e-6)
+
+    def test_zero_d_raises(self):
+        with pytest.raises(ValueError):
+            pin_bearing_resistance(20.0, 0.0, 355.0, 1.25)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(pin_bearing_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.2"
+        assert ref.formula == "4.2.76"

@@ -639,6 +639,149 @@ def bridge_curvature_radius(L: float, delta_i: float) -> float:
     return L**2 / (8.0 * delta_i)
 
 
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.2.4.2 — TEMPERATURA NEI PONTI
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="5.2.2.4.2",
+    latex=(
+        r"\Delta T_{\text{deck}} = 5\,°\text{C} \quad "
+        r"\Delta T_{\text{box}} = 5\,°\text{C} \quad "
+        r"\Delta T_{\text{composite}} = 5\,°\text{C} \quad "
+        r"\Delta T_{\text{deform}} = 10\,°\text{C}"
+    ),
+)
+def bridge_deck_thermal_gradient(
+    deck_type: str, check: str = "strength"
+) -> float:
+    """Gradiente termico non uniforme nell'impalcato [°C].
+
+    NTC18 §5.2.2.4.2.
+
+    Parameters
+    ----------
+    deck_type : str
+        Tipo di impalcato:
+        - ``"slab"``: impalcato generico (gradiente estradosso-intradosso)
+        - ``"box"``: impalcato a cassone in c.a. (gradiente nello spessore pareti)
+        - ``"composite"``: struttura mista acciaio-calcestruzzo
+          (differenza soletta c.a. - trave acciaio)
+    check : str
+        Tipo di verifica: ``"strength"`` (resistenza, default) o
+        ``"deformation"`` (verifica deformazioni orizzontali/verticali,
+        esclude comfort).
+
+    Returns
+    -------
+    float
+        Differenza di temperatura DeltaT [°C].
+        Il valore e' positivo; applicare con segno ± (entrambi i versi).
+
+    Raises
+    ------
+    ValueError
+        Se ``deck_type`` o ``check`` non sono validi.
+    """
+    _valid_types = {"slab", "box", "composite"}
+    _valid_checks = {"strength", "deformation"}
+
+    if deck_type not in _valid_types:
+        valid = ", ".join(sorted(_valid_types))
+        raise ValueError(
+            f"deck_type '{deck_type}' non valido. Valori ammessi: {valid}"
+        )
+    if check not in _valid_checks:
+        valid = ", ".join(sorted(_valid_checks))
+        raise ValueError(
+            f"check '{check}' non valido. Valori ammessi: {valid}"
+        )
+
+    if check == "deformation":
+        return 10.0
+
+    # check == "strength"
+    return 5.0
+
+
+@ntc_ref(
+    article="5.2.2.4.2",
+    latex=(
+        r"\Delta T_{\text{int-ext}} = 10\,°\text{C}, \quad "
+        r"\Delta T_{\text{fusto-zattera}} = 5\,°\text{C}, \quad "
+        r"h_{\text{var}} = 5 \, t_w"
+    ),
+)
+def bridge_hollow_pier_thermal(t_w: float) -> tuple[float, float, float]:
+    """Gradienti termici per pile cave [°C, °C, m].
+
+    NTC18 §5.2.2.4.2.
+    - DeltaT interno-esterno = 10 °C (con E non ridotto)
+    - DeltaT fusto-zattera = 5 °C con variazione lineare su altezza 5*t_w
+
+    Parameters
+    ----------
+    t_w : float
+        Spessore della parete della pila [m].
+
+    Returns
+    -------
+    tuple[float, float, float]
+        (DeltaT_int_ext [°C], DeltaT_shaft_raft [°C],
+         h_variation [m] altezza di variazione lineare).
+
+    Raises
+    ------
+    ValueError
+        Se ``t_w`` <= 0.
+    """
+    if t_w <= 0:
+        raise ValueError(f"t_w deve essere > 0, ricevuto {t_w}")
+
+    delta_t_int_ext = 10.0
+    delta_t_shaft_raft = 5.0
+    h_variation = 5.0 * t_w
+
+    return delta_t_int_ext, delta_t_shaft_raft, h_variation
+
+
+@ntc_ref(
+    article="5.2.2.4.2",
+    latex=(
+        r"\Delta T_{\text{rotaia}} = \begin{cases} "
+        r"0 & \text{senza giunti di dilatazione} \\ "
+        r"+30\,°\text{C},\; -40\,°\text{C} & \text{con giunti di dilatazione}"
+        r"\end{cases}"
+    ),
+)
+def bridge_rail_thermal_variation(
+    has_expansion_device: bool,
+) -> tuple[float, float]:
+    """Variazioni termiche del binario per interazione statica [°C].
+
+    NTC18 §5.2.2.4.2.
+    Senza apparecchi di dilatazione: variazione nulla.
+    Con apparecchi di dilatazione: +30 °C e -40 °C rispetto alla
+    temperatura di regolazione.
+
+    Parameters
+    ----------
+    has_expansion_device : bool
+        ``True`` se il binario ha apparecchi di dilatazione.
+
+    Returns
+    -------
+    tuple[float, float]
+        (DeltaT_positive [°C], DeltaT_negative [°C]).
+    """
+    if has_expansion_device:
+        return 30.0, -40.0
+    return 0.0, 0.0
+
+
 @ntc_ref(
     article="5.2.3.2.2",
     table="Tab.5.2.VI",

@@ -577,3 +577,198 @@ def biaxial_bending_check(
     nu = N_Ed / N_Rd
     alpha = _biaxial_alpha(nu, section)
     return (M_Edy / M_Rdy) ** alpha + (M_Edz / M_Rdz) ** alpha
+
+
+# ── Snellezza elementi compressi ──────────────────────────────────────────────
+
+
+@ntc_ref(article="4.1.2.3.9.2", formula="4.1.42", latex=r"\lambda = l_0 / i")
+def concrete_slenderness(l_0: float, i: float) -> float:
+    """Snellezza di un elemento compresso in c.a. [-].
+
+    NTC18 §4.1.2.3.9.2, Formula [4.1.42]:
+        lambda = l_0 / i
+
+    Parameters
+    ----------
+    l_0 : float
+        Lunghezza libera di inflessione [mm].
+    i : float
+        Raggio di inerzia della sezione [mm].
+
+    Returns
+    -------
+    float
+        Snellezza lambda [-].
+    """
+    if l_0 <= 0:
+        raise ValueError("l_0 deve essere > 0")
+    if i <= 0:
+        raise ValueError("i deve essere > 0")
+    return l_0 / i
+
+
+@ntc_ref(
+    article="4.1.2.3.9.2",
+    formula="4.1.41",
+    latex=r"\lambda_{\lim} = \frac{25}{\sqrt{v}}",
+)
+def concrete_slenderness_limit(v: float) -> float:
+    """Snellezza limite per pilastri in c.a. [-].
+
+    NTC18 §4.1.2.3.9.2, Formula [4.1.41]:
+        lambda_lim = 25 / sqrt(v)
+
+    dove v = N_Ed / (A_c * f_cd) e' il rapporto di sollecitazione assiale.
+
+    Parameters
+    ----------
+    v : float
+        Rapporto di sollecitazione assiale v = N_Ed / (A_c * f_cd) [-].
+        Deve essere 0 < v <= 1.
+
+    Returns
+    -------
+    float
+        Snellezza limite lambda_lim [-].
+    """
+    if v <= 0:
+        raise ValueError("v deve essere > 0")
+    if v > 1.0:
+        raise ValueError("v deve essere <= 1.0")
+    return 25.0 / math.sqrt(v)
+
+
+# ── Armatura minima ───────────────────────────────────────────────────────────
+
+
+@ntc_ref(
+    article="4.1.6.1.1",
+    formula="4.1.45",
+    latex=r"A_{s,\min} = \max\!\left(0{,}26\,\frac{f_{ctm}}{f_{yk}}\,b\,d;\;0{,}0013\,b\,d\right)",
+)
+def concrete_beam_min_reinforcement(
+    f_ctm: float, f_yk: float, b: float, d: float
+) -> float:
+    """Armatura longitudinale minima per travi in c.a. [mm^2].
+
+    NTC18 §4.1.6.1.1, Formula [4.1.45]:
+        A_s,min = max(0.26 * f_ctm/f_yk * b * d, 0.0013 * b * d)
+
+    Parameters
+    ----------
+    f_ctm : float
+        Resistenza media a trazione del calcestruzzo [MPa].
+    f_yk : float
+        Resistenza caratteristica a snervamento dell'acciaio [MPa].
+    b : float
+        Larghezza della sezione [mm].
+    d : float
+        Altezza utile della sezione [mm].
+
+    Returns
+    -------
+    float
+        A_s,min: area minima dell'armatura longitudinale [mm^2].
+    """
+    if f_ctm <= 0:
+        raise ValueError("f_ctm deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if b <= 0:
+        raise ValueError("b deve essere > 0")
+    if d <= 0:
+        raise ValueError("d deve essere > 0")
+    a1 = 0.26 * (f_ctm / f_yk) * b * d
+    a2 = 0.0013 * b * d
+    return max(a1, a2)
+
+
+@ntc_ref(
+    article="4.1.6.1.2",
+    formula="4.1.46",
+    latex=r"A_{s,\min} = \max\!\left(0{,}10\,\frac{N_{Ed}}{f_{yd}};\;0{,}003\,A_c\right)",
+)
+def concrete_column_min_reinforcement(
+    N_Ed: float, f_yd: float, A_c: float
+) -> float:
+    """Armatura longitudinale minima per pilastri in c.a. [mm^2].
+
+    NTC18 §4.1.6.1.2, Formula [4.1.46]:
+        A_s,min = max(0.10 * N_Ed / f_yd, 0.003 * A_c)
+
+    Parameters
+    ----------
+    N_Ed : float
+        Sforzo normale di progetto [N].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [MPa].
+    A_c : float
+        Area della sezione di calcestruzzo [mm^2].
+
+    Returns
+    -------
+    float
+        A_s,min: area minima dell'armatura longitudinale [mm^2].
+    """
+    if N_Ed < 0:
+        raise ValueError("N_Ed deve essere >= 0")
+    if f_yd <= 0:
+        raise ValueError("f_yd deve essere > 0")
+    if A_c <= 0:
+        raise ValueError("A_c deve essere > 0")
+    a1 = 0.10 * N_Ed / f_yd
+    a2 = 0.003 * A_c
+    return max(a1, a2)
+
+
+# ── Armature da precompressione ───────────────────────────────────────────────
+
+
+@ntc_ref(
+    article="4.1.8.15",
+    formula="4.1.49",
+    latex=(
+        r"\sigma_{p,\max} \le \begin{cases}"
+        r"0{,}85\,f_{p(0,1)k}\text{ e }0{,}75\,f_{pk} & \text{post-tesa}\\"
+        r"0{,}90\,f_{p(0,1)k}\text{ e }0{,}80\,f_{pk} & \text{pre-tesa}"
+        r"\end{cases}"
+    ),
+)
+def concrete_prestress_stress_limits(
+    f_p01k: float, f_pk: float, prestress_type: str
+) -> tuple[float, float]:
+    """Tensioni limite per armature da precompressione [MPa].
+
+    NTC18 §4.1.8.15, Formula [4.1.49]:
+    - Post-tesa:  sigma < 0.85 * f_p(0.1)k  e  sigma < 0.75 * f_pk
+    - Pre-tesa:   sigma < 0.90 * f_p(0.1)k  e  sigma < 0.80 * f_pk
+
+    Parameters
+    ----------
+    f_p01k : float
+        Tensione caratteristica all'1‰ di deformazione [MPa].
+    f_pk : float
+        Tensione caratteristica a rottura [MPa].
+    prestress_type : str
+        Tipo di precompressione: "post_tensioned" o "pre_tensioned".
+
+    Returns
+    -------
+    tuple[float, float]
+        (sigma_max_01k, sigma_max_pk): tensioni limite [MPa].
+        La tensione applicata deve essere minore di entrambi i valori.
+    """
+    if f_p01k <= 0:
+        raise ValueError("f_p01k deve essere > 0")
+    if f_pk <= 0:
+        raise ValueError("f_pk deve essere > 0")
+    if prestress_type == "post_tensioned":
+        return 0.85 * f_p01k, 0.75 * f_pk
+    elif prestress_type == "pre_tensioned":
+        return 0.90 * f_p01k, 0.80 * f_pk
+    else:
+        raise ValueError(
+            f"prestress_type deve essere 'post_tensioned' o 'pre_tensioned', "
+            f"ricevuto '{prestress_type}'"
+        )

@@ -4,7 +4,7 @@ Verifiche per strutture in acciaio secondo NTC18 §4.2.
 
 ## Riferimento normativo
 
-NTC18 §4.2, Tab. 4.2.VII, Formule [4.2.1]–[4.2.83]
+NTC18 §4.2, Tab. 4.2.I/VIII/XIII, Formule [4.2.4]–[4.2.83]
 
 ## API
 

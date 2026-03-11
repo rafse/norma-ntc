@@ -680,6 +680,541 @@ def capacity_design_columns(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §7.4 — COSTRUZIONI IN CALCESTRUZZO ARMATO (DETTAGLI E GERARCHIA)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="7.4.4.2.1",
+    formula="7.4.5",
+    latex=r"V_{Ed}\,l_p = \gamma_{Rd}\,(M_{i,d}^s + M_{i,d}^i)",
+)
+def column_capacity_shear(
+    M_top: float,
+    M_bot: float,
+    l_p: float,
+    gamma_Rd: float,
+) -> float:
+    """Taglio di progetto in capacita' per pilastri sismici [kN].
+
+    NTC18 §7.4.4.2.1, Formula [7.4.5]:
+        V_Ed * l_p = gamma_Rd * (M_top + M_bot)
+        V_Ed = gamma_Rd * (M_top + M_bot) / l_p
+
+    Parameters
+    ----------
+    M_top : float
+        Capacita' a flessione nella sezione superiore del pilastro [kNm].
+    M_bot : float
+        Capacita' a flessione nella sezione inferiore del pilastro [kNm].
+    l_p : float
+        Lunghezza libera del pilastro [m].
+    gamma_Rd : float
+        Coefficiente di sovraresistenza (Tab. 7.2.1) [-].
+
+    Returns
+    -------
+    float
+        Taglio di progetto V_Ed [kN].
+    """
+    if l_p <= 0:
+        raise ValueError(f"l_p deve essere > 0, ricevuto {l_p}")
+    if gamma_Rd <= 0:
+        raise ValueError(f"gamma_Rd deve essere > 0, ricevuto {gamma_Rd}")
+    if M_top < 0 or M_bot < 0:
+        raise ValueError("M_top e M_bot devono essere >= 0 (valori assoluti)")
+    return gamma_Rd * (M_top + M_bot) / l_p
+
+
+@ntc_ref(
+    article="7.4.4.3.1",
+    formula="7.4.6",
+    latex=r"V_{jd} = \gamma_{Rd}\,(A_{s1}+A_{s2})\,f_{yd} - V_C",
+)
+def beam_column_joint_shear(
+    A_s1: float,
+    A_s2: float,
+    f_yd: float,
+    V_C: float,
+    gamma_Rd: float,
+    *,
+    interior: bool = True,
+) -> float:
+    """Domanda di taglio orizzontale nel nodo trave-pilastro [kN].
+
+    NTC18 §7.4.4.3.1:
+        V_jd = gamma_Rd * (A_s1 + A_s2) * f_yd - V_C  [nodi interni, 7.4.6]
+        V_jd = gamma_Rd * A_s1 * f_yd - V_C             [nodi esterni, 7.4.7]
+
+    Parameters
+    ----------
+    A_s1 : float
+        Area armatura superiore della trave confluente [m^2].
+    A_s2 : float
+        Area armatura inferiore della trave confluente [m^2].
+    f_yd : float
+        Resistenza di snervamento di progetto dell'acciaio [kN/m^2].
+    V_C : float
+        Forza di taglio nel pilastro al di sopra del nodo [kN].
+    gamma_Rd : float
+        Coefficiente di sovraresistenza (Tab. 7.2.1) [-].
+    interior : bool
+        True per nodo interno [7.4.6], False per nodo esterno [7.4.7].
+
+    Returns
+    -------
+    float
+        Domanda di taglio V_jd nel nodo [kN].
+    """
+    if gamma_Rd <= 0:
+        raise ValueError(f"gamma_Rd deve essere > 0, ricevuto {gamma_Rd}")
+    if A_s1 < 0 or A_s2 < 0:
+        raise ValueError("A_s1 e A_s2 devono essere >= 0")
+    if f_yd <= 0:
+        raise ValueError(f"f_yd deve essere > 0, ricevuto {f_yd}")
+
+    if interior:
+        return gamma_Rd * (A_s1 + A_s2) * f_yd - V_C
+    else:
+        return gamma_Rd * A_s1 * f_yd - V_C
+
+
+@ntc_ref(
+    article="7.4.4.3.1",
+    formula="7.4.8",
+    latex=r"V_{jd} \le \eta\,f_{sd}\,b_j\,h_{js}\sqrt{1 - v_d/\eta}",
+)
+def joint_concrete_compression_check(
+    V_jd: float,
+    eta: float,
+    f_sd: float,
+    b_j: float,
+    h_js: float,
+    v_d: float,
+) -> tuple[bool, float]:
+    """Verifica compressione del puntone diagonale nel nodo trave-pilastro.
+
+    NTC18 §7.4.4.3.1, Formula [7.4.8]:
+        V_jd <= eta * f_sd * b_j * h_js * sqrt(1 - v_d / eta)
+
+    Parameters
+    ----------
+    V_jd : float
+        Domanda di taglio nel nodo [kN].
+    eta : float
+        Coefficiente riduttivo del calcestruzzo (da [7.4.9]) [-].
+    f_sd : float
+        Resistenza a compressione di progetto del calcestruzzo [kN/m^2].
+    b_j : float
+        Larghezza efficace del nodo [m].
+    h_js : float
+        Distanza tra le giaciture piu' esterne delle armature del pilastro [m].
+    v_d : float
+        Forza assiale normalizzata nel pilastro al di sopra del nodo [-].
+
+    Returns
+    -------
+    tuple[bool, float]
+        - satisfied: True se la verifica e' soddisfatta
+        - ratio: V_jd / V_Rd [-]
+    """
+    if eta <= 0:
+        raise ValueError(f"eta deve essere > 0, ricevuto {eta}")
+    if f_sd <= 0:
+        raise ValueError(f"f_sd deve essere > 0, ricevuto {f_sd}")
+    if b_j <= 0 or h_js <= 0:
+        raise ValueError("b_j e h_js devono essere > 0")
+    if v_d < 0 or v_d >= eta:
+        raise ValueError(
+            f"v_d deve essere in [0, eta), ricevuto v_d={v_d}, eta={eta}"
+        )
+
+    V_Rd = eta * f_sd * b_j * h_js * math.sqrt(1.0 - v_d / eta)
+    ratio = V_jd / V_Rd
+    return ratio <= 1.0, ratio
+
+
+@ntc_ref(
+    article="7.4.4.3.1",
+    formula="7.4.9",
+    latex=r"\eta = a_j \cdot \left(1 - \frac{f_{sk}}{250}\right)",
+)
+def joint_eta_factor(a_j: float, f_ck: float) -> float:
+    """Coefficiente eta per la resistenza a taglio del nodo trave-pilastro [-].
+
+    NTC18 §7.4.4.3.1, Formula [7.4.9]:
+        eta = a_j * (1 - f_sk / 250)
+
+    con f_sk espresso in MPa.
+
+    Parameters
+    ----------
+    a_j : float
+        Coefficiente di nodo: 0.60 per nodi interni (CD'A'), 0.48 per esterni.
+    f_ck : float
+        Resistenza caratteristica del calcestruzzo [MPa].
+
+    Returns
+    -------
+    float
+        Coefficiente eta [-].
+    """
+    if a_j <= 0:
+        raise ValueError(f"a_j deve essere > 0, ricevuto {a_j}")
+    if f_ck <= 0:
+        raise ValueError(f"f_ck deve essere > 0, ricevuto {f_ck}")
+    return a_j * (1.0 - f_ck / 250.0)
+
+
+@ntc_ref(
+    article="7.4.4.3.1",
+    formula="7.4.11",
+    latex=r"A_{sh}\,f_{ywd} \ge \gamma_{Rd}\,(A_{s1}+A_{s2})\,f_{yd}\,(1-0{,}8v_d)",
+)
+def joint_horizontal_stirrups(
+    A_s1: float,
+    A_s2: float,
+    f_yd: float,
+    gamma_Rd: float,
+    v_d: float,
+    *,
+    interior: bool = True,
+) -> float:
+    """Armatura orizzontale minima richiesta nel nodo trave-pilastro [m^2].
+
+    NTC18 §7.4.4.3.1:
+        A_sh * f_ywd >= gamma_Rd * (A_s1 + A_s2) * f_yd * (1 - 0.8*v_d)
+            [nodi interni, 7.4.11]
+        A_sh * f_ywd >= gamma_Rd * A_s2 * f_yd * (1 - 0.8*v_d)
+            [nodi esterni, 7.4.12]
+
+    Parameters
+    ----------
+    A_s1 : float
+        Area armatura superiore della trave confluente [m^2].
+    A_s2 : float
+        Area armatura inferiore della trave confluente [m^2].
+    f_yd : float
+        Resistenza di snervamento di progetto armatura trave [kN/m^2].
+    gamma_Rd : float
+        Coefficiente di sovraresistenza (Tab. 7.2.1) [-].
+    v_d : float
+        Forza assiale normalizzata del pilastro [-].
+    interior : bool
+        True per nodo interno [7.4.11], False per nodo esterno [7.4.12].
+
+    Returns
+    -------
+    float
+        Prodotto minimo A_sh * f_ywd richiesto [kN].
+    """
+    if gamma_Rd <= 0:
+        raise ValueError(f"gamma_Rd deve essere > 0, ricevuto {gamma_Rd}")
+    if A_s1 < 0 or A_s2 < 0:
+        raise ValueError("A_s1 e A_s2 devono essere >= 0")
+    if f_yd <= 0:
+        raise ValueError(f"f_yd deve essere > 0, ricevuto {f_yd}")
+    if not 0.0 <= v_d <= 1.0:
+        raise ValueError(f"v_d deve essere in [0, 1], ricevuto {v_d}")
+
+    factor = 1.0 - 0.8 * v_d
+    if interior:
+        return gamma_Rd * (A_s1 + A_s2) * f_yd * factor
+    else:
+        return gamma_Rd * A_s2 * f_yd * factor
+
+
+@ntc_ref(
+    article="7.4.4.5.1",
+    formula="7.4.13",
+    latex=r"h_{cr} = \max(l_w,\,h_w/6)",
+)
+def wall_critical_height(
+    l_w: float,
+    h_w: float,
+    n_floors: int,
+) -> float:
+    """Altezza della zona dissipativa di base delle pareti in c.a. [m].
+
+    NTC18 §7.4.4.5.1, Formula [7.4.13]:
+        h_cr = max(l_w, h_w/6)
+        con limite: h_cr <= 2*l_w   (n <= 6 piani)
+                    h_cr <= h_w     (n >= 7 piani)
+
+    Parameters
+    ----------
+    l_w : float
+        Dimensione maggiore della sezione trasversale della parete [m].
+    h_w : float
+        Altezza totale della parete [m].
+    n_floors : int
+        Numero di piani della costruzione.
+
+    Returns
+    -------
+    float
+        Altezza della zona dissipativa h_cr [m].
+    """
+    if l_w <= 0:
+        raise ValueError(f"l_w deve essere > 0, ricevuto {l_w}")
+    if h_w <= 0:
+        raise ValueError(f"h_w deve essere > 0, ricevuto {h_w}")
+    if n_floors < 1:
+        raise ValueError(f"n_floors deve essere >= 1, ricevuto {n_floors}")
+
+    h_cr = max(l_w, h_w / 6.0)
+
+    if n_floors <= 6:
+        h_cr = min(h_cr, 2.0 * l_w)
+    else:
+        h_cr = min(h_cr, h_w)
+
+    return h_cr
+
+
+@ntc_ref(
+    article="7.4.6.2.1",
+    formula="7.4.26",
+    latex=r"\frac{1{,}4}{f_{yk}} < \rho < \rho_{\text{comp}} + \frac{3{,}5}{f_{yk}}",
+)
+def beam_reinforcement_ratio_limits(
+    f_yk: float,
+    rho_comp: float,
+) -> tuple[float, float]:
+    """Limiti del rapporto geometrico di armatura tesa nelle travi sismiche.
+
+    NTC18 §7.4.6.2.1, Formula [7.4.26]:
+        1.4 / f_yk < rho < rho_comp + 3.5 / f_yk
+
+    con f_yk espresso in MPa.
+
+    Parameters
+    ----------
+    f_yk : float
+        Tensione caratteristica di snervamento dell'acciaio [MPa].
+    rho_comp : float
+        Rapporto geometrico dell'armatura compressa [-].
+
+    Returns
+    -------
+    tuple[float, float]
+        - rho_min: limite inferiore del rapporto di armatura tesa [-]
+        - rho_max: limite superiore del rapporto di armatura tesa [-]
+    """
+    if f_yk <= 0:
+        raise ValueError(f"f_yk deve essere > 0, ricevuto {f_yk}")
+    if rho_comp < 0:
+        raise ValueError(f"rho_comp deve essere >= 0, ricevuto {rho_comp}")
+
+    rho_min = 1.4 / f_yk
+    rho_max = rho_comp + 3.5 / f_yk
+    return rho_min, rho_max
+
+
+@ntc_ref(
+    article="7.4.6.2.2",
+    formula="7.4.28",
+    latex=r"1\% \le \rho \le 4\%",
+)
+def column_reinforcement_ratio_check(
+    rho: float,
+) -> tuple[bool, float, float]:
+    """Verifica del rapporto di armatura longitudinale nei pilastri sismici.
+
+    NTC18 §7.4.6.2.2, Formula [7.4.28]:
+        1% <= rho <= 4%
+
+    Parameters
+    ----------
+    rho : float
+        Rapporto geometrico di armatura longitudinale del pilastro [-]
+        (area armatura / area sezione cls).
+
+    Returns
+    -------
+    tuple[bool, float, float]
+        - satisfied: True se il vincolo e' soddisfatto
+        - rho_min: limite inferiore 0.01 [-]
+        - rho_max: limite superiore 0.04 [-]
+    """
+    if rho < 0:
+        raise ValueError(f"rho deve essere >= 0, ricevuto {rho}")
+
+    rho_min = 0.01
+    rho_max = 0.04
+    satisfied = rho_min <= rho <= rho_max
+    return satisfied, rho_min, rho_max
+
+
+@ntc_ref(
+    article="7.4.6.2.2",
+    formula="7.4.29",
+    latex=r"\alpha \cdot \omega_{sd} \ge 30\mu_e \cdot v_d \cdot \varepsilon_{\gamma d} \cdot \frac{b_s}{b_o} - 0{,}035",
+)
+def column_confinement_requirement(
+    mu_e: float,
+    v_d: float,
+    eps_yd: float,
+    b_s: float,
+    b_o: float,
+    alpha: float,
+) -> float:
+    """Rapporto meccanico minimo di armatura di confinamento nei pilastri.
+
+    NTC18 §7.4.6.2.2, Formula [7.4.29]:
+        alpha * omega_sd >= 30 * mu_e * v_d * eps_yd * (b_s/b_o) - 0.035
+
+    Parameters
+    ----------
+    mu_e : float
+        Domanda di duttilita' in curvatura allo SLC [-].
+    v_d : float
+        Forza assiale adimensionalizzata di progetto (N_Ed / A_c * f_cd) [-].
+    eps_yd : float
+        Deformazione di snervamento dell'acciaio [-].
+    b_s : float
+        Profondita' della sezione trasversale lorda [m].
+    b_o : float
+        Profondita' del nucleo confinato [m].
+    alpha : float
+        Coefficiente di efficacia del confinamento [-].
+
+    Returns
+    -------
+    float
+        Valore minimo richiesto di omega_sd [-].
+    """
+    if mu_e < 1.0:
+        raise ValueError(f"mu_e deve essere >= 1.0, ricevuto {mu_e}")
+    if not 0.0 < v_d <= 1.0:
+        raise ValueError(f"v_d deve essere in (0, 1], ricevuto {v_d}")
+    if eps_yd <= 0:
+        raise ValueError(f"eps_yd deve essere > 0, ricevuto {eps_yd}")
+    if b_o <= 0 or b_s <= 0:
+        raise ValueError("b_s e b_o devono essere > 0")
+    if alpha <= 0 or alpha > 1.0:
+        raise ValueError(f"alpha deve essere in (0, 1], ricevuto {alpha}")
+
+    demand = 30.0 * mu_e * v_d * eps_yd * (b_s / b_o) - 0.035
+    omega_sd_min = max(demand, 0.0) / alpha
+    return omega_sd_min
+
+
+@ntc_ref(
+    article="7.4.6.2.2",
+    formula="7.4.31",
+    latex=r"\alpha_n = 1 - \frac{\sum b_{si}^2}{n\,(2\,b_o\,h_o)} \qquad \alpha_s = \left(1-\frac{s}{2b_o}\right)\!\left(1-\frac{s}{2h_o}\right)",
+)
+def confinement_effectiveness_rectangular(
+    b_si_list: list[float],
+    b_o: float,
+    h_o: float,
+    s: float,
+) -> tuple[float, float, float]:
+    """Coefficiente di efficacia del confinamento per sezione rettangolare [-].
+
+    NTC18 §7.4.6.2.2, Formule [7.4.31a] e [7.4.31b]:
+        alpha_n = 1 - sum(b_si^2) / (n * 2 * b_o * h_o)
+        alpha_s = (1 - s/(2*b_o)) * (1 - s/(2*h_o))
+        alpha = alpha_n * alpha_s
+
+    Parameters
+    ----------
+    b_si_list : list[float]
+        Lista delle distanze tra barre consecutive contenute [m].
+    b_o : float
+        Larghezza del nucleo confinato (linea media staffe) [m].
+    h_o : float
+        Altezza del nucleo confinato (linea media staffe) [m].
+    s : float
+        Passo delle staffe di confinamento [m].
+
+    Returns
+    -------
+    tuple[float, float, float]
+        - alpha_n: coefficiente di efficacia in pianta [-]
+        - alpha_s: coefficiente di efficacia in altezza [-]
+        - alpha: prodotto alpha_n * alpha_s [-]
+    """
+    if b_o <= 0 or h_o <= 0:
+        raise ValueError("b_o e h_o devono essere > 0")
+    if s <= 0:
+        raise ValueError(f"s deve essere > 0, ricevuto {s}")
+    if len(b_si_list) == 0:
+        raise ValueError("b_si_list non puo' essere vuota")
+
+    n = len(b_si_list)
+    sum_bsi2 = sum(b ** 2 for b in b_si_list)
+    alpha_n = 1.0 - sum_bsi2 / (n * 2.0 * b_o * h_o)
+    alpha_n = max(alpha_n, 0.0)
+
+    alpha_s = (1.0 - s / (2.0 * b_o)) * (1.0 - s / (2.0 * h_o))
+    alpha_s = max(alpha_s, 0.0)
+
+    return alpha_n, alpha_s, alpha_n * alpha_s
+
+
+@ntc_ref(
+    article="7.4.6.2.4",
+    formula="7.4.32",
+    latex=r"\alpha \cdot \omega_{wd} \ge 30\mu_k \cdot (v_g+\omega_v) \cdot \varepsilon_{y,d} \cdot \frac{b_x}{b_0} - 0{,}035",
+)
+def wall_confinement_requirement(
+    mu_k: float,
+    v_g: float,
+    omega_v: float,
+    eps_yd: float,
+    b_x: float,
+    b_0: float,
+    alpha: float,
+) -> float:
+    """Rapporto meccanico minimo di armatura di confinamento negli elementi di bordo delle pareti.
+
+    NTC18 §7.4.6.2.4, Formula [7.4.32]:
+        alpha * omega_wd >= 30 * mu_k * (v_g + omega_v) * eps_yd * (b_x/b_0) - 0.035
+
+    Parameters
+    ----------
+    mu_k : float
+        Domanda di duttilita' in curvatura per la parete [-].
+    v_g : float
+        Forza assiale normalizzata per i carichi gravitazionali [-].
+    omega_v : float
+        Rapporto meccanico dell'armatura verticale fuori dagli elementi di bordo
+        (rho_v * f_yd_v / f_ed) [-].
+    eps_yd : float
+        Deformazione di snervamento dell'acciaio [-].
+    b_x : float
+        Larghezza della sezione trasversale lorda [m].
+    b_0 : float
+        Larghezza del nucleo confinato degli elementi di bordo [m].
+    alpha : float
+        Coefficiente di efficacia del confinamento [-].
+
+    Returns
+    -------
+    float
+        Valore minimo richiesto di omega_wd [-].
+    """
+    if mu_k < 1.0:
+        raise ValueError(f"mu_k deve essere >= 1.0, ricevuto {mu_k}")
+    if v_g < 0:
+        raise ValueError(f"v_g deve essere >= 0, ricevuto {v_g}")
+    if omega_v < 0:
+        raise ValueError(f"omega_v deve essere >= 0, ricevuto {omega_v}")
+    if eps_yd <= 0:
+        raise ValueError(f"eps_yd deve essere > 0, ricevuto {eps_yd}")
+    if b_0 <= 0 or b_x <= 0:
+        raise ValueError("b_x e b_0 devono essere > 0")
+    if alpha <= 0 or alpha > 1.0:
+        raise ValueError(f"alpha deve essere in (0, 1], ricevuto {alpha}")
+
+    demand = 30.0 * mu_k * (v_g + omega_v) * eps_yd * (b_x / b_0) - 0.035
+    omega_wd_min = max(demand, 0.0) / alpha
+    return omega_wd_min
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §7.11 — OPERE E SISTEMI GEOTECNICI
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -726,3 +1261,174 @@ def pseudostatic_coefficients(
     k_h = beta_s * a_max / g
     k_v = 0.5 * k_h
     return k_h, k_v, a_max
+
+
+@ntc_ref(
+    article="7.11.6.2.1",
+    formula="7.11.6",
+    latex=r"k_h = \beta_m \frac{a_{max}}{g},\quad k_v = \pm 0{,}5\,k_h,\quad a_{max} = (S_g \cdot S_f)\,a_g",
+)
+def retaining_wall_seismic_coefficients(
+    a_g: float,
+    S_g: float,
+    S_f: float,
+    beta_m: float,
+    g: float = 9.81,
+) -> tuple[float, float, float]:
+    """Coefficienti sismici per muri di sostegno (analisi pseudostatica).
+
+    NTC18 §7.11.6.2.1, Formule [7.11.6]-[7.11.8]:
+        a_max = S_g * S_f * a_g        [7.11.8]
+        k_h   = beta_m * a_max / g      [7.11.6]
+        k_v   = 0.5 * k_h               [7.11.7]
+
+    Per SLV: beta_m = 0.38; per SLD: beta_m = 0.47.
+    Per muri non liberi di spostarsi rispetto al terreno: beta_m = 1.0.
+
+    Parameters
+    ----------
+    a_g : float
+        Accelerazione orizzontale massima su sito rigido [m/s^2].
+    S_g : float
+        Coefficiente di amplificazione stratigrafica [-].
+    S_f : float
+        Coefficiente di amplificazione topografica [-].
+    beta_m : float
+        Coefficiente di riduzione dell'accelerazione massima [-].
+    g : float
+        Accelerazione di gravita' [m/s^2], default 9.81.
+
+    Returns
+    -------
+    tuple[float, float, float]
+        - k_h: coefficiente sismico orizzontale [-]
+        - k_v: coefficiente sismico verticale [-]
+        - a_max: accelerazione massima attesa al sito [m/s^2]
+    """
+    if a_g < 0:
+        raise ValueError(f"a_g deve essere >= 0, ricevuto {a_g}")
+    if beta_m < 0:
+        raise ValueError(f"beta_m deve essere >= 0, ricevuto {beta_m}")
+
+    a_max = S_g * S_f * a_g
+    k_h = beta_m * a_max / g
+    k_v = 0.5 * k_h
+    return k_h, k_v, a_max
+
+
+@ntc_ref(
+    article="7.11.6.3.1",
+    formula="7.11.9",
+    latex=r"a_h = k_h \cdot g = \alpha \cdot \beta \cdot a_{max}",
+)
+def sheet_pile_pseudostatic_acceleration(
+    alpha: float,
+    beta: float,
+    a_max: float,
+    g: float = 9.81,
+) -> tuple[float, float]:
+    """Accelerazione pseudostatica equivalente per paratie [m/s^2].
+
+    NTC18 §7.11.6.3.1, Formula [7.11.9]:
+        a_h = k_h * g = alpha * beta * a_max
+
+    Per le paratie si puo' porre a_h = 0 (§7.11.6.3.1).
+
+    Parameters
+    ----------
+    alpha : float
+        Coefficiente di deformabilita' del terreno (alpha <= 1) [-].
+    beta : float
+        Coefficiente di capacita' di spostamento dell'opera (beta <= 1) [-].
+    a_max : float
+        Accelerazione di picco attesa nel terreno significativo [m/s^2].
+    g : float
+        Accelerazione di gravita' [m/s^2], default 9.81.
+
+    Returns
+    -------
+    tuple[float, float]
+        - a_h: accelerazione orizzontale equivalente [m/s^2]
+        - k_h: coefficiente sismico orizzontale [-]
+    """
+    if not 0.0 <= alpha <= 1.0:
+        raise ValueError(f"alpha deve essere in [0, 1], ricevuto {alpha}")
+    if not 0.0 <= beta <= 1.0:
+        raise ValueError(f"beta deve essere in [0, 1], ricevuto {beta}")
+    if a_max < 0:
+        raise ValueError(f"a_max deve essere >= 0, ricevuto {a_max}")
+
+    alpha_beta = alpha * beta
+    # NTC18: se alpha*beta <= 0.2, assumere k_h = 0.2 * a_max / g
+    if alpha_beta <= 0.2 and a_max > 0:
+        k_h = max(alpha_beta * a_max / g, 0.2 * a_max / g)
+    else:
+        k_h = alpha_beta * a_max / g
+
+    a_h = k_h * g
+    return a_h, k_h
+
+
+@ntc_ref(
+    article="7.11.6.3.1",
+    formula="7.11.11",
+    latex=r"u_s \le 0{,}005 \cdot H",
+)
+def sheet_pile_displacement_limit(
+    H: float,
+) -> float:
+    """Spostamento permanente massimo ammissibile per una paratia [m].
+
+    NTC18 §7.11.6.3.1, Formula [7.11.11]:
+        u_s <= 0.005 * H
+
+    Parameters
+    ----------
+    H : float
+        Altezza complessiva della paratia [m].
+
+    Returns
+    -------
+    float
+        Spostamento permanente massimo u_s,max = 0.005 * H [m].
+    """
+    if H <= 0:
+        raise ValueError(f"H deve essere > 0, ricevuto {H}")
+    return 0.005 * H
+
+
+@ntc_ref(
+    article="7.11.6.4",
+    formula="7.11.12",
+    latex=r"L_{q,i} = L_s \left(1 + 1{,}5\,\frac{a_{max}}{g}\right)",
+)
+def anchor_free_length_seismic(
+    L_s: float,
+    a_max: float,
+    g: float = 9.81,
+) -> float:
+    """Lunghezza libera di ancoraggio in condizioni sismiche [m].
+
+    NTC18 §7.11.6.4, Formula [7.11.12]:
+        L_q,i = L_s * (1 + 1.5 * a_max / g)
+
+    Parameters
+    ----------
+    L_s : float
+        Lunghezza libera dell'ancoraggio in condizioni statiche [m].
+    a_max : float
+        Accelerazione orizzontale massima attesa al sito [m/s^2].
+    g : float
+        Accelerazione di gravita' [m/s^2], default 9.81.
+
+    Returns
+    -------
+    float
+        Lunghezza libera in condizioni sismiche L_q,i [m].
+    """
+    if L_s <= 0:
+        raise ValueError(f"L_s deve essere > 0, ricevuto {L_s}")
+    if a_max < 0:
+        raise ValueError(f"a_max deve essere >= 0, ricevuto {a_max}")
+
+    return L_s * (1.0 + 1.5 * a_max / g)

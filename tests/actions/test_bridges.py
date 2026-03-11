@@ -25,6 +25,9 @@ from pyntc.actions.bridges import (
     bridge_starting_force_rail,
     bridge_curvature_radius,
     bridge_rail_psi_coefficients,
+    bridge_deck_thermal_gradient,
+    bridge_hollow_pier_thermal,
+    bridge_rail_thermal_variation,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -685,3 +688,126 @@ class TestBridgeRailPsiCoefficients:
         ref = get_ntc_ref(bridge_rail_psi_coefficients)
         assert ref is not None
         assert ref.table == "Tab.5.2.VI"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.2.4.2 — TEMPERATURA NEI PONTI
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+# ── Gradiente termico impalcato ──────────────────────────────────────────────
+
+
+class TestBridgeDeckThermalGradient:
+    """NTC18 §5.2.2.4.2 — Gradiente termico non uniforme nell'impalcato."""
+
+    def test_slab_strength(self):
+        """Impalcato generico, verifica resistenza: ΔT = 5 °C."""
+        result = bridge_deck_thermal_gradient(deck_type="slab", check="strength")
+        assert_allclose(result, 5.0)
+
+    def test_box_strength(self):
+        """Cassone c.a., verifica resistenza: ΔT = 5 °C."""
+        result = bridge_deck_thermal_gradient(deck_type="box", check="strength")
+        assert_allclose(result, 5.0)
+
+    def test_composite_strength(self):
+        """Misto acciaio-cls, verifica resistenza: ΔT = 5 °C."""
+        result = bridge_deck_thermal_gradient(deck_type="composite", check="strength")
+        assert_allclose(result, 5.0)
+
+    def test_slab_deformation(self):
+        """Impalcato generico, verifica deformazioni: ΔT = 10 °C."""
+        result = bridge_deck_thermal_gradient(deck_type="slab", check="deformation")
+        assert_allclose(result, 10.0)
+
+    def test_box_deformation(self):
+        """Cassone c.a., verifica deformazioni: ΔT = 10 °C."""
+        result = bridge_deck_thermal_gradient(deck_type="box", check="deformation")
+        assert_allclose(result, 10.0)
+
+    def test_composite_deformation(self):
+        """Misto acciaio-cls, verifica deformazioni: ΔT = 10 °C."""
+        result = bridge_deck_thermal_gradient(
+            deck_type="composite", check="deformation"
+        )
+        assert_allclose(result, 10.0)
+
+    def test_default_check_is_strength(self):
+        """Check di default e' 'strength'."""
+        result = bridge_deck_thermal_gradient(deck_type="slab")
+        assert_allclose(result, 5.0)
+
+    def test_invalid_deck_type_raises(self):
+        with pytest.raises(ValueError, match="deck_type"):
+            bridge_deck_thermal_gradient(deck_type="timber")
+
+    def test_invalid_check_raises(self):
+        with pytest.raises(ValueError, match="check"):
+            bridge_deck_thermal_gradient(deck_type="slab", check="comfort")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_deck_thermal_gradient)
+        assert ref is not None
+        assert ref.article == "5.2.2.4.2"
+
+
+# ── Gradienti termici pile cave ──────────────────────────────────────────────
+
+
+class TestBridgeHollowPierThermal:
+    """NTC18 §5.2.2.4.2 — Gradienti termici per pile cave."""
+
+    def test_typical_wall(self):
+        """t_w=0.40m: ΔT_int_ext=10°C, ΔT_shaft_raft=5°C, h=2.0m."""
+        dt_ie, dt_sr, h = bridge_hollow_pier_thermal(t_w=0.40)
+        assert_allclose(dt_ie, 10.0)
+        assert_allclose(dt_sr, 5.0)
+        assert_allclose(h, 2.0)
+
+    def test_thick_wall(self):
+        """t_w=0.80m: h_variation=4.0m."""
+        _, _, h = bridge_hollow_pier_thermal(t_w=0.80)
+        assert_allclose(h, 4.0)
+
+    def test_thin_wall(self):
+        """t_w=0.25m: h_variation=1.25m."""
+        _, _, h = bridge_hollow_pier_thermal(t_w=0.25)
+        assert_allclose(h, 1.25)
+
+    def test_zero_thickness_raises(self):
+        with pytest.raises(ValueError):
+            bridge_hollow_pier_thermal(t_w=0.0)
+
+    def test_negative_thickness_raises(self):
+        with pytest.raises(ValueError):
+            bridge_hollow_pier_thermal(t_w=-0.3)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_hollow_pier_thermal)
+        assert ref is not None
+        assert ref.article == "5.2.2.4.2"
+
+
+# ── Variazione termica binario ───────────────────────────────────────────────
+
+
+class TestBridgeRailThermalVariation:
+    """NTC18 §5.2.2.4.2 — Variazioni termiche del binario."""
+
+    def test_with_expansion_device(self):
+        """Con apparecchi di dilatazione: +30 °C, -40 °C."""
+        dt_pos, dt_neg = bridge_rail_thermal_variation(has_expansion_device=True)
+        assert_allclose(dt_pos, 30.0)
+        assert_allclose(dt_neg, -40.0)
+
+    def test_without_expansion_device(self):
+        """Senza apparecchi di dilatazione: 0 °C, 0 °C."""
+        dt_pos, dt_neg = bridge_rail_thermal_variation(has_expansion_device=False)
+        assert_allclose(dt_pos, 0.0)
+        assert_allclose(dt_neg, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_rail_thermal_variation)
+        assert ref is not None
+        assert ref.article == "5.2.2.4.2"

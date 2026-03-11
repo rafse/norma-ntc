@@ -9,9 +9,14 @@ from numpy.testing import assert_allclose
 from pyntc.checks.concrete import (
     biaxial_bending_check,
     bond_design_strength,
+    concrete_beam_min_reinforcement,
+    concrete_column_min_reinforcement,
     concrete_confined_strength,
     concrete_design_compressive_strength,
     concrete_design_tensile_strength,
+    concrete_prestress_stress_limits,
+    concrete_slenderness,
+    concrete_slenderness_limit,
     concrete_strain_limits,
     concrete_stress_limit,
     shear_resistance_no_stirrups,
@@ -571,3 +576,166 @@ class TestBiaxialBendingCheck:
         ref = get_ntc_ref(biaxial_bending_check)
         assert ref is not None
         assert ref.article == "4.1.2.3.4.2"
+
+
+# ── [4.1.42] — Snellezza ─────────────────────────────────────────────────────
+
+
+class TestConcreteSlenderness:
+    """NTC18 §4.1.2.3.9.2, Formula [4.1.42]."""
+
+    def test_basic(self):
+        # l_0=3000, i=100 → lambda = 30
+        assert_allclose(concrete_slenderness(3000.0, 100.0), 30.0, rtol=1e-6)
+
+    def test_slender(self):
+        assert_allclose(concrete_slenderness(6000.0, 120.0), 50.0, rtol=1e-6)
+
+    def test_zero_l0_raises(self):
+        with pytest.raises(ValueError):
+            concrete_slenderness(0.0, 100.0)
+
+    def test_zero_i_raises(self):
+        with pytest.raises(ValueError):
+            concrete_slenderness(3000.0, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_slenderness)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.9.2"
+        assert ref.formula == "4.1.42"
+
+
+# ── [4.1.41] — Snellezza limite ───────────────────────────────────────────────
+
+
+class TestConcreteSlendernessLimit:
+    """NTC18 §4.1.2.3.9.2, Formula [4.1.41]."""
+
+    def test_v_1(self):
+        # v=1.0 → lambda_lim = 25
+        assert_allclose(concrete_slenderness_limit(1.0), 25.0, rtol=1e-6)
+
+    def test_v_025(self):
+        # v=0.25 → lambda_lim = 25/0.5 = 50
+        assert_allclose(concrete_slenderness_limit(0.25), 50.0, rtol=1e-6)
+
+    def test_v_zero_raises(self):
+        with pytest.raises(ValueError):
+            concrete_slenderness_limit(0.0)
+
+    def test_v_gt_1_raises(self):
+        with pytest.raises(ValueError):
+            concrete_slenderness_limit(1.01)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_slenderness_limit)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.9.2"
+        assert ref.formula == "4.1.41"
+
+
+# ── [4.1.45] — Armatura minima travi ─────────────────────────────────────────
+
+
+class TestConcreteBeamMinReinforcement:
+    """NTC18 §4.1.6.1.1, Formula [4.1.45]."""
+
+    def test_formula_governs(self):
+        # 0.26*f_ctm/f_yk*b*d > 0.0013*b*d
+        # f_ctm=2.9, f_yk=450, b=300, d=500
+        # a1 = 0.26*2.9/450*300*500 = 0.26*0.00644*300*500 = 251.7
+        # a2 = 0.0013*300*500 = 195
+        result = concrete_beam_min_reinforcement(2.9, 450.0, 300.0, 500.0)
+        expected = 0.26 * (2.9 / 450.0) * 300.0 * 500.0
+        assert_allclose(result, expected, rtol=1e-6)
+        assert result > 0.0013 * 300.0 * 500.0
+
+    def test_minimum_governs(self):
+        # Con f_ctm molto basso: a2 = 0.0013*b*d governa
+        # f_ctm=0.5, f_yk=500, b=200, d=400
+        # a1 = 0.26*0.001*200*400 = 20.8
+        # a2 = 0.0013*200*400 = 104
+        result = concrete_beam_min_reinforcement(0.5, 500.0, 200.0, 400.0)
+        expected = 0.0013 * 200.0 * 400.0
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_zero_fctm_raises(self):
+        with pytest.raises(ValueError):
+            concrete_beam_min_reinforcement(0.0, 450.0, 300.0, 500.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_beam_min_reinforcement)
+        assert ref is not None
+        assert ref.article == "4.1.6.1.1"
+        assert ref.formula == "4.1.45"
+
+
+# ── [4.1.46] — Armatura minima pilastri ──────────────────────────────────────
+
+
+class TestConcreteColumnMinReinforcement:
+    """NTC18 §4.1.6.1.2, Formula [4.1.46]."""
+
+    def test_ned_governs(self):
+        # N_Ed=1000e3 N, f_yd=391.3 MPa, A_c=300*300=90e3 mm^2
+        # a1 = 0.10*1000e3/391.3 = 255.6
+        # a2 = 0.003*90e3 = 270 → a2 governa
+        result = concrete_column_min_reinforcement(1000e3, 391.3, 90e3)
+        expected = 0.003 * 90e3
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_ned_formula_governs(self):
+        # N_Ed=5000e3, f_yd=391.3, A_c=90e3
+        # a1 = 0.10*5e6/391.3 = 1278
+        # a2 = 270 → a1 governa
+        result = concrete_column_min_reinforcement(5000e3, 391.3, 90e3)
+        expected = 0.10 * 5000e3 / 391.3
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_zero_ned(self):
+        # N_Ed=0 → always a2=0.003*A_c
+        result = concrete_column_min_reinforcement(0.0, 391.3, 90e3)
+        assert_allclose(result, 0.003 * 90e3, rtol=1e-6)
+
+    def test_zero_ac_raises(self):
+        with pytest.raises(ValueError):
+            concrete_column_min_reinforcement(1000.0, 391.3, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_column_min_reinforcement)
+        assert ref is not None
+        assert ref.article == "4.1.6.1.2"
+        assert ref.formula == "4.1.46"
+
+
+# ── [4.1.49] — Tensioni limite precompressione ───────────────────────────────
+
+
+class TestConcretePrestressStressLimits:
+    """NTC18 §4.1.8.15, Formula [4.1.49]."""
+
+    def test_post_tensioned(self):
+        lim_01k, lim_pk = concrete_prestress_stress_limits(1500.0, 1860.0, "post_tensioned")
+        assert_allclose(lim_01k, 0.85 * 1500.0, rtol=1e-6)
+        assert_allclose(lim_pk, 0.75 * 1860.0, rtol=1e-6)
+
+    def test_pre_tensioned(self):
+        lim_01k, lim_pk = concrete_prestress_stress_limits(1500.0, 1860.0, "pre_tensioned")
+        assert_allclose(lim_01k, 0.90 * 1500.0, rtol=1e-6)
+        assert_allclose(lim_pk, 0.80 * 1860.0, rtol=1e-6)
+
+    def test_post_tighter_than_pre(self):
+        lim_post_01k, _ = concrete_prestress_stress_limits(1500.0, 1860.0, "post_tensioned")
+        lim_pre_01k, _ = concrete_prestress_stress_limits(1500.0, 1860.0, "pre_tensioned")
+        assert lim_post_01k < lim_pre_01k
+
+    def test_invalid_type_raises(self):
+        with pytest.raises(ValueError):
+            concrete_prestress_stress_limits(1500.0, 1860.0, "unknown")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_prestress_stress_limits)
+        assert ref is not None
+        assert ref.article == "4.1.8.15"
+        assert ref.formula == "4.1.49"

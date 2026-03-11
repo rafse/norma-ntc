@@ -415,6 +415,156 @@ def masonry_reduced_strength(Phi: float, f_d: float) -> float:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §4.5.6.2 — ECCENTRICITÀ DEI CARICHI VERTICALI  [4.5.7]
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.5.6.2",
+    formula="4.5.7",
+    latex=(
+        r"e_{s1} = \frac{N_1 d_1}{N_1 + \sum N_2};\quad"
+        r"e_{s2} = \frac{\sum N_2 d_2}{N_1 + \sum N_2}"
+    ),
+)
+def masonry_vertical_load_eccentricity(
+    N1: float, d1: float, N2_sum: float, d2: float
+) -> tuple[float, float]:
+    """Eccentricità totali dei carichi verticali sulla parete [mm].
+
+    NTC18 §4.5.6.2, Formula [4.5.7]:
+        e_s1 = N1 * d1 / (N1 + ΣN2)
+        e_s2 = ΣN2 * d2 / (N1 + ΣN2)
+
+    Parameters
+    ----------
+    N1 : float
+        Carico trasmesso dal muro sovrastante [N].
+    d1 : float
+        Eccentricità di N1 rispetto al piano medio del muro [mm].
+    N2_sum : float
+        Somma delle reazioni di appoggio dei solai soprastanti [N].
+    d2 : float
+        Eccentricità di N2 rispetto al piano medio del muro [mm].
+
+    Returns
+    -------
+    tuple[float, float]
+        (e_s1, e_s2): eccentricità [mm], possono essere positive o negative.
+    """
+    N_tot = N1 + N2_sum
+    if N_tot == 0:
+        raise ValueError("N1 + ΣN2 deve essere != 0")
+    e_s1 = N1 * d1 / N_tot
+    e_s2 = N2_sum * d2 / N_tot
+    return e_s1, e_s2
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.5.6.2 — ECCENTRICITÀ DA AZIONI ORIZZONTALI  [4.5.9]
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.5.6.2", formula="4.5.9", latex=r"e_s = M_s / N")
+def masonry_horizontal_eccentricity(M_s: float, N: float) -> float:
+    """Eccentricità da azioni orizzontali [mm].
+
+    NTC18 §4.5.6.2, Formula [4.5.9]:
+        e_s = M_s / N
+
+    Parameters
+    ----------
+    M_s : float
+        Massimo momento flettente dovuto alle azioni orizzontali [N·mm].
+    N : float
+        Sforzo normale nella sezione di verifica [N]. Deve essere != 0.
+
+    Returns
+    -------
+    float
+        e_s: eccentricità [mm].
+    """
+    if N == 0:
+        raise ValueError("N deve essere != 0")
+    return M_s / N
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.5.6.2 — COMBINAZIONE ECCENTRICITÀ  [4.5.10]
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.5.6.2",
+    formula="4.5.10",
+    latex=r"e_1 = |e_x| + e_y;\quad e_2 = \frac{e_1}{2} + |e_y|",
+)
+def masonry_combined_eccentricity(e_x: float, e_y: float) -> tuple[float, float]:
+    """Combinazione convenzionale delle eccentricità [mm].
+
+    NTC18 §4.5.6.2, Formula [4.5.10]:
+        e1 = |e_x| + e_y
+        e2 = e1/2 + |e_y|
+
+    e1 è adottato per le sezioni di estremità;
+    e2 per la sezione a massimo momento.
+
+    Parameters
+    ----------
+    e_x : float
+        Eccentricità totale dei carichi verticali [mm].
+    e_y : float
+        Eccentricità da tolleranze e azioni orizzontali [mm].
+
+    Returns
+    -------
+    tuple[float, float]
+        (e1, e2): eccentricità di calcolo [mm].
+    """
+    e1 = abs(e_x) + e_y
+    e2 = e1 / 2.0 + abs(e_y)
+    return e1, e2
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.5.6.2 — VERIFICA LIMITI ECCENTRICITÀ  [4.5.11]
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.5.6.2",
+    formula="4.5.11",
+    latex=r"e_1 \le 0{,}33\,t;\quad e_2 \le 0{,}33\,t",
+)
+def masonry_eccentricity_check(e1: float, e2: float, t: float) -> tuple[bool, float]:
+    """Verifica dei limiti di eccentricità [-].
+
+    NTC18 §4.5.6.2, Formula [4.5.11]:
+        e1 <= 0.33 * t  e  e2 <= 0.33 * t
+
+    Parameters
+    ----------
+    e1 : float
+        Eccentricità alla sezione di estremità [mm].
+    e2 : float
+        Eccentricità alla sezione a massimo momento [mm].
+    t : float
+        Spessore della parete [mm].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificata, ratio): verificata = True se entrambe le eccentricità
+        rispettano il limite; ratio = max(e1, e2) / (0.33 * t).
+    """
+    if t <= 0:
+        raise ValueError("t deve essere > 0")
+    limit = 0.33 * t
+    ratio = max(e1, e2) / limit
+    return ratio <= 1.0, ratio
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §4.5.6.4 — VERIFICA SEMPLIFICATA
 # ══════════════════════════════════════════════════════════════════════════════
 

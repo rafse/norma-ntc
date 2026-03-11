@@ -466,7 +466,96 @@ def timber_compression_bending_check(
 
 
 # ===========================================================================
-# 10. timber_shear_check — [4.4.8]
+# 10. timber_tension_check — [4.4.2]
+# ===========================================================================
+
+@ntc_ref(article="4.4.8.1.1", formula="4.4.2",
+         latex=r"\sigma_{t,0,d} \le f_{t,0,d}")
+def timber_tension_check(
+    sigma_t_0_d: float, f_t_0_d: float
+) -> tuple[bool, float]:
+    """Verifica a trazione parallela alla fibratura [-].
+
+    NTC18 [4.4.2]: sigma_t,0,d <= f_t,0,d.
+
+    Parameters
+    ----------
+    sigma_t_0_d : float
+        Tensione di trazione di progetto parallela alla fibratura [N/mm^2].
+    f_t_0_d : float
+        Resistenza di progetto a trazione parallela [N/mm^2].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificata, ratio sigma_t,0,d/f_t,0,d).
+    """
+    ratio = sigma_t_0_d / f_t_0_d
+    return ratio <= 1.0, ratio
+
+
+# ===========================================================================
+# 11. timber_compression_check — [4.4.3]
+# ===========================================================================
+
+@ntc_ref(article="4.4.8.1.3", formula="4.4.3",
+         latex=r"\sigma_{c,0,d} \le f_{c,0,d}")
+def timber_compression_check(
+    sigma_c_0_d: float, f_c_0_d: float
+) -> tuple[bool, float]:
+    """Verifica a compressione parallela alla fibratura [-].
+
+    NTC18 [4.4.3]: sigma_c,0,d <= f_c,0,d.
+
+    Parameters
+    ----------
+    sigma_c_0_d : float
+        Tensione di compressione di progetto parallela alla fibratura [N/mm^2].
+    f_c_0_d : float
+        Resistenza di progetto a compressione parallela [N/mm^2].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificata, ratio sigma_c,0,d/f_c,0,d).
+    """
+    ratio = sigma_c_0_d / f_c_0_d
+    return ratio <= 1.0, ratio
+
+
+# ===========================================================================
+# 12. timber_compression_perp_check — [4.4.4]
+# ===========================================================================
+
+@ntc_ref(article="4.4.8.1.4", formula="4.4.4",
+         latex=r"\sigma_{c,90,d} \le k_{c,90} \cdot f_{c,90,d}")
+def timber_compression_perp_check(
+    sigma_c_90_d: float, f_c_90_d: float, k_c_90: float = 1.0
+) -> tuple[bool, float]:
+    """Verifica a compressione perpendicolare alla fibratura [-].
+
+    NTC18 [4.4.4]: sigma_c,90,d <= k_c,90 * f_c,90,d.
+
+    Parameters
+    ----------
+    sigma_c_90_d : float
+        Tensione di compressione di progetto perpendicolare alla fibratura [N/mm^2].
+    f_c_90_d : float
+        Resistenza di progetto a compressione perpendicolare [N/mm^2].
+    k_c_90 : float, optional
+        Coefficiente di concentrazione (default 1.0).
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificata, ratio sigma_c,90,d/(k_c,90*f_c,90,d)).
+    """
+    ratio = sigma_c_90_d / (k_c_90 * f_c_90_d)
+    return ratio <= 1.0, ratio
+
+
+# ===========================================================================
+# 13. timber_shear_check — [4.4.8]
 # ===========================================================================
 
 @ntc_ref(article="4.4.8.1.9", formula="4.4.8", latex=r"\tau_d \le f_{v,d}")

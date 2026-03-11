@@ -948,3 +948,250 @@ def weld_fillet_resistance(
     if gamma_M2 <= 0:
         raise ValueError("gamma_M2 deve essere > 0")
     return a * f_tk / (math.sqrt(3) * beta_w * gamma_M2)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.2 — AREA RESISTENTE A TAGLIO
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.2.4.1.2.4",
+    formula="4.2.18",
+    latex=(
+        r"A_v = \begin{cases}"
+        r"A - 2bt_f + (t_w + 2r)t_f & \text{I/H laminati}\\"
+        r"A - 2bt_f + (t_w + r)t_f & \text{I/H saldati}\\"
+        r"A - \sum h_w t_w & \text{scatolare}\\"
+        r"0{,}9(A - b t_f) & \text{T}\\"
+        r"2A/\pi & \text{circolare piena}"
+        r"\end{cases}"
+    ),
+)
+def steel_shear_area(
+    section: str,
+    A: float,
+    *,
+    b: float | None = None,
+    t_f: float | None = None,
+    t_w: float | None = None,
+    r: float = 0.0,
+    h: float | None = None,
+    hw_tw_sum: float | None = None,
+    load_direction: str = "height",
+) -> float:
+    """Area resistente a taglio A_v per diversi profili [mm^2].
+
+    NTC18 §4.2.4.1.2.4, Formule [4.2.18]–[4.2.23]:
+    - "I_H_rolled": A_v = A - 2*b*t_f + (t_w + 2*r)*t_f  [4.2.18]
+    - "I_H_weld":   A_v = A - 2*b*t_f + (t_w + r)*t_f    [4.2.19]
+    - "box":        A_v = A - hw_tw_sum                    [4.2.20]
+    - "T":          A_v = 0.9*(A - b*t_f)                 [4.2.21]
+    - "rectangular": A_v = A*h/(b+h) o A*b/(b+h)          [4.2.22]
+    - "circular":   A_v = 2*A/pi                           [4.2.23]
+
+    Parameters
+    ----------
+    section : str
+        Tipo di sezione: "I_H_rolled", "I_H_weld", "box", "T",
+        "rectangular", "circular".
+    A : float
+        Area totale della sezione [mm^2].
+    b : float, optional
+        Larghezza delle ali [mm].
+    t_f : float, optional
+        Spessore delle ali [mm].
+    t_w : float, optional
+        Spessore dell'anima [mm].
+    r : float, optional
+        Raccordo d'angolo o gola della saldatura [mm]. Default 0.
+    h : float, optional
+        Altezza del profilo [mm] (per sezione rettangolare).
+    hw_tw_sum : float, optional
+        Somma (h_w * t_w) delle anime [mm^2] (per sezione scatolare).
+    load_direction : str, optional
+        Direzione del carico per sezione rettangolare:
+        "height" (carico parallelo all'altezza) o "width". Default "height".
+
+    Returns
+    -------
+    float
+        A_v: area resistente a taglio [mm^2].
+    """
+    if A <= 0:
+        raise ValueError("A deve essere > 0")
+
+    if section in ("I_H_rolled", "I_H_weld"):
+        if b is None or t_f is None or t_w is None:
+            raise ValueError(
+                f"Per section='{section}' sono richiesti b, t_f, t_w"
+            )
+        factor = 2.0 if section == "I_H_rolled" else 1.0
+        return A - 2.0 * b * t_f + (t_w + factor * r) * t_f
+
+    elif section == "box":
+        if hw_tw_sum is None:
+            raise ValueError("Per section='box' è richiesto hw_tw_sum")
+        return A - hw_tw_sum
+
+    elif section == "T":
+        if b is None or t_f is None:
+            raise ValueError("Per section='T' sono richiesti b e t_f")
+        return 0.9 * (A - b * t_f)
+
+    elif section == "rectangular":
+        if b is None or h is None:
+            raise ValueError("Per section='rectangular' sono richiesti b e h")
+        if load_direction == "height":
+            return A * h / (b + h)
+        elif load_direction == "width":
+            return A * b / (b + h)
+        else:
+            raise ValueError(
+                "load_direction deve essere 'height' o 'width'"
+            )
+
+    elif section == "circular":
+        return 2.0 * A / math.pi
+
+    else:
+        raise ValueError(
+            f"section '{section}' non riconosciuto. "
+            "Valori ammessi: 'I_H_rolled', 'I_H_weld', 'box', 'T', "
+            "'rectangular', 'circular'."
+        )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.2 — VERIFICA VON MISES
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.2.4.1.2",
+    formula="4.2.4",
+    latex=(
+        r"\sqrt{\sigma_x^2 + \sigma_y^2 - \sigma_x\sigma_y + 3\tau^2}"
+        r"\le f_{yk}/\gamma_{M0}"
+    ),
+)
+def steel_von_mises_check(
+    sigma_x: float,
+    sigma_y: float,
+    tau: float,
+    f_yk: float,
+    gamma_M0: float,
+) -> tuple[bool, float]:
+    """Verifica dello stato tensionale equivalente (Von Mises) [-].
+
+    NTC18 §4.2.4.1.2, Formula [4.2.4]:
+        sqrt(σ_x² + σ_y² - σ_x*σ_y + 3*τ²) ≤ f_yk / γ_M0
+
+    Parameters
+    ----------
+    sigma_x : float
+        Tensione normale nella direzione x [N/mm^2].
+    sigma_y : float
+        Tensione normale nella direzione y [N/mm^2].
+    tau : float
+        Tensione tangenziale [N/mm^2].
+    f_yk : float
+        Tensione di snervamento caratteristica [N/mm^2].
+    gamma_M0 : float
+        Coefficiente parziale gamma_M0 [-].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificata, ratio): verificata = True se ratio <= 1.0;
+        ratio = sigma_eq / (f_yk / gamma_M0).
+    """
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    sigma_eq = math.sqrt(sigma_x**2 + sigma_y**2 - sigma_x * sigma_y + 3.0 * tau**2)
+    f_limit = f_yk / gamma_M0
+    ratio = sigma_eq / f_limit
+    return ratio <= 1.0, ratio
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.2.8.1.2 — COLLEGAMENTI CON PERNI
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.2.8.1.2",
+    formula="4.2.75",
+    latex=r"F_{v,Rd} = \frac{0{,}6 \cdot f_{upk} \cdot A}{\gamma_{M2}}",
+)
+def pin_shear_resistance(
+    f_upk: float, A: float, gamma_M2: float
+) -> float:
+    """Resistenza a taglio del perno [N].
+
+    NTC18 §4.2.8.1.2, Formula [4.2.75]:
+        F_v,Rd = 0.6 * f_upk * A / gamma_M2
+
+    Parameters
+    ----------
+    f_upk : float
+        Tensione di rottura caratteristica del perno [N/mm^2].
+    A : float
+        Area della sezione trasversale del perno [mm^2].
+    gamma_M2 : float
+        Coefficiente parziale gamma_M2 [-].
+
+    Returns
+    -------
+    float
+        F_v,Rd: resistenza a taglio del perno [N].
+    """
+    if f_upk <= 0:
+        raise ValueError("f_upk deve essere > 0")
+    if A <= 0:
+        raise ValueError("A deve essere > 0")
+    if gamma_M2 <= 0:
+        raise ValueError("gamma_M2 deve essere > 0")
+    return 0.6 * f_upk * A / gamma_M2
+
+
+@ntc_ref(
+    article="4.2.8.1.2",
+    formula="4.2.76",
+    latex=r"F_{b,Rd} = \frac{1{,}5 \cdot t \cdot d \cdot f_y}{\gamma_{M3}}",
+)
+def pin_bearing_resistance(
+    t: float, d: float, f_y: float, gamma_M3: float
+) -> float:
+    """Resistenza a rifollamento del foro del perno [N].
+
+    NTC18 §4.2.8.1.2, Formula [4.2.76]:
+        F_b,Rd = 1.5 * t * d * f_y / gamma_M3
+
+    Parameters
+    ----------
+    t : float
+        Spessore della piastra [mm].
+    d : float
+        Diametro del perno [mm].
+    f_y : float
+        Tensione di snervamento della piastra [N/mm^2].
+    gamma_M3 : float
+        Coefficiente parziale gamma_M3 [-].
+
+    Returns
+    -------
+    float
+        F_b,Rd: resistenza a rifollamento [N].
+    """
+    if t <= 0:
+        raise ValueError("t deve essere > 0")
+    if d <= 0:
+        raise ValueError("d deve essere > 0")
+    if f_y <= 0:
+        raise ValueError("f_y deve essere > 0")
+    if gamma_M3 <= 0:
+        raise ValueError("gamma_M3 deve essere > 0")
+    return 1.5 * t * d * f_y / gamma_M3

@@ -14,6 +14,9 @@ from pyntc.checks.timber import (
     timber_biaxial_bending_check,
     timber_tension_bending_check,
     timber_compression_bending_check,
+    timber_tension_check,
+    timber_compression_check,
+    timber_compression_perp_check,
     timber_shear_check,
     timber_torsion_shape_factor,
     timber_torsion_check,
@@ -781,3 +784,93 @@ class TestTimberStraightnessLimit:
         ref = get_ntc_ref(timber_straightness_limit)
         assert ref is not None
         assert ref.article == "4.4.15"
+
+
+# ---------------------------------------------------------------------------
+# 21. timber_tension_check — [4.4.2]
+# ---------------------------------------------------------------------------
+class TestTimberTensionCheck:
+    """NTC18 [4.4.2] — Verifica a trazione parallela."""
+
+    def test_safe(self):
+        ok, ratio = timber_tension_check(8.0, 10.0)
+        assert ok is True
+        assert_allclose(ratio, 0.8, rtol=1e-6)
+
+    def test_limit(self):
+        ok, ratio = timber_tension_check(10.0, 10.0)
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_unsafe(self):
+        ok, ratio = timber_tension_check(12.0, 10.0)
+        assert ok is False
+        assert_allclose(ratio, 1.2, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(timber_tension_check)
+        assert ref is not None
+        assert ref.article == "4.4.8.1.1"
+        assert ref.formula == "4.4.2"
+
+
+# ---------------------------------------------------------------------------
+# 22. timber_compression_check — [4.4.3]
+# ---------------------------------------------------------------------------
+class TestTimberCompressionCheck:
+    """NTC18 [4.4.3] — Verifica a compressione parallela."""
+
+    def test_safe(self):
+        ok, ratio = timber_compression_check(15.0, 20.0)
+        assert ok is True
+        assert_allclose(ratio, 0.75, rtol=1e-6)
+
+    def test_limit(self):
+        ok, ratio = timber_compression_check(20.0, 20.0)
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_unsafe(self):
+        ok, ratio = timber_compression_check(25.0, 20.0)
+        assert ok is False
+        assert_allclose(ratio, 1.25, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(timber_compression_check)
+        assert ref is not None
+        assert ref.article == "4.4.8.1.3"
+        assert ref.formula == "4.4.3"
+
+
+# ---------------------------------------------------------------------------
+# 23. timber_compression_perp_check — [4.4.4]
+# ---------------------------------------------------------------------------
+class TestTimberCompressionPerpCheck:
+    """NTC18 [4.4.4] — Verifica a compressione perpendicolare."""
+
+    def test_safe_default_kc90(self):
+        ok, ratio = timber_compression_perp_check(2.0, 3.0)
+        assert ok is True
+        assert_allclose(ratio, 2.0 / 3.0, rtol=1e-6)
+
+    def test_safe_with_kc90(self):
+        # sigma=2.5, f=2.0, kc90=1.5 → ratio = 2.5/(1.5*2.0) = 0.833
+        ok, ratio = timber_compression_perp_check(2.5, 2.0, k_c_90=1.5)
+        assert ok is True
+        assert_allclose(ratio, 2.5 / 3.0, rtol=1e-6)
+
+    def test_unsafe(self):
+        ok, ratio = timber_compression_perp_check(4.0, 3.0, k_c_90=1.0)
+        assert ok is False
+        assert_allclose(ratio, 4.0 / 3.0, rtol=1e-6)
+
+    def test_limit(self):
+        ok, ratio = timber_compression_perp_check(3.0, 2.0, k_c_90=1.5)
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(timber_compression_perp_check)
+        assert ref is not None
+        assert ref.article == "4.4.8.1.4"
+        assert ref.formula == "4.4.4"

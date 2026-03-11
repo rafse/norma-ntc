@@ -6,16 +6,20 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pyntc.checks.masonry import (
+    masonry_combined_eccentricity,
     masonry_design_compressive_strength,
     masonry_design_shear_strength,
+    masonry_eccentricity_check,
     masonry_eccentricity_coefficient,
     masonry_effective_height,
+    masonry_horizontal_eccentricity,
     masonry_lateral_restraint_factor,
     masonry_partial_safety_factor,
     masonry_reduced_strength,
     masonry_reduction_factor,
     masonry_simplified_check,
     masonry_slenderness,
+    masonry_vertical_load_eccentricity,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -433,3 +437,135 @@ class TestMasonrySimplifiedCheck:
         ref = get_ntc_ref(masonry_simplified_check)
         assert ref is not None
         assert ref.article == "4.5.6.4"
+
+
+# ── [4.5.7] — Eccentricità carichi verticali ────────────────────────────────
+
+
+class TestMasonryVerticalLoadEccentricity:
+    """NTC18 §4.5.6.2, Formula [4.5.7]."""
+
+    def test_symmetric(self):
+        # N1=100, d1=50, N2=100, d2=50 → e_s1 = 100*50/200 = 25, e_s2 = 25
+        e_s1, e_s2 = masonry_vertical_load_eccentricity(100.0, 50.0, 100.0, 50.0)
+        assert_allclose(e_s1, 25.0, rtol=1e-6)
+        assert_allclose(e_s2, 25.0, rtol=1e-6)
+
+    def test_only_wall_load(self):
+        # N1=200, d1=30, N2=0, d2=0 → e_s1 = 200*30/200 = 30, e_s2 = 0
+        e_s1, e_s2 = masonry_vertical_load_eccentricity(200.0, 30.0, 0.0, 0.0)
+        assert_allclose(e_s1, 30.0, rtol=1e-6)
+        assert_allclose(e_s2, 0.0, atol=1e-9)
+
+    def test_negative_eccentricity(self):
+        # d1=-20, N1=150, N2=50 → e_s1 = 150*(-20)/200 = -15
+        e_s1, e_s2 = masonry_vertical_load_eccentricity(150.0, -20.0, 50.0, 0.0)
+        assert_allclose(e_s1, -15.0, rtol=1e-6)
+        assert_allclose(e_s2, 0.0, atol=1e-9)
+
+    def test_zero_total_raises(self):
+        with pytest.raises(ValueError):
+            masonry_vertical_load_eccentricity(0.0, 10.0, 0.0, 10.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_vertical_load_eccentricity)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+        assert ref.formula == "4.5.7"
+
+
+# ── [4.5.9] — Eccentricità da azioni orizzontali ────────────────────────────
+
+
+class TestMasonryHorizontalEccentricity:
+    """NTC18 §4.5.6.2, Formula [4.5.9]."""
+
+    def test_basic(self):
+        # M_s=600e3 N·mm, N=10000 N → e_s = 60 mm
+        assert_allclose(masonry_horizontal_eccentricity(600e3, 10000.0), 60.0, rtol=1e-6)
+
+    def test_sign_preserved(self):
+        # M negativo
+        assert_allclose(masonry_horizontal_eccentricity(-300e3, 10000.0), -30.0, rtol=1e-6)
+
+    def test_zero_N_raises(self):
+        with pytest.raises(ValueError):
+            masonry_horizontal_eccentricity(100.0, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_horizontal_eccentricity)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+        assert ref.formula == "4.5.9"
+
+
+# ── [4.5.10] — Combinazione eccentricità ────────────────────────────────────
+
+
+class TestMasonryCombinedEccentricity:
+    """NTC18 §4.5.6.2, Formula [4.5.10]."""
+
+    def test_positive_both(self):
+        # e_x=30, e_y=20 → e1 = 30+20=50, e2 = 25+20=45
+        e1, e2 = masonry_combined_eccentricity(30.0, 20.0)
+        assert_allclose(e1, 50.0, rtol=1e-6)
+        assert_allclose(e2, 45.0, rtol=1e-6)
+
+    def test_negative_ex(self):
+        # e_x=-40, e_y=10 → e1 = 40+10=50, e2 = 25+10=35
+        e1, e2 = masonry_combined_eccentricity(-40.0, 10.0)
+        assert_allclose(e1, 50.0, rtol=1e-6)
+        assert_allclose(e2, 35.0, rtol=1e-6)
+
+    def test_zero_ex(self):
+        # e_x=0, e_y=15 → e1=15, e2=7.5+15=22.5
+        e1, e2 = masonry_combined_eccentricity(0.0, 15.0)
+        assert_allclose(e1, 15.0, rtol=1e-6)
+        assert_allclose(e2, 22.5, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_combined_eccentricity)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+        assert ref.formula == "4.5.10"
+
+
+# ── [4.5.11] — Verifica limiti eccentricità ──────────────────────────────────
+
+
+class TestMasonryEccentricityCheck:
+    """NTC18 §4.5.6.2, Formula [4.5.11]."""
+
+    def test_safe(self):
+        # e1=30, e2=25, t=200 → limit=66, max_ratio=30/66≈0.455
+        ok, ratio = masonry_eccentricity_check(30.0, 25.0, 200.0)
+        assert ok is True
+        assert_allclose(ratio, 30.0 / (0.33 * 200.0), rtol=1e-6)
+
+    def test_limit_exactly(self):
+        # e1=e2=0.33*t → ratio=1.0
+        t = 300.0
+        ok, ratio = masonry_eccentricity_check(0.33 * t, 0.33 * t, t)
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_unsafe_e1(self):
+        # e1 supera il limite
+        ok, ratio = masonry_eccentricity_check(80.0, 20.0, 200.0)
+        assert ok is False
+        assert ratio > 1.0
+
+    def test_unsafe_e2(self):
+        # e2 supera il limite
+        ok, ratio = masonry_eccentricity_check(20.0, 80.0, 200.0)
+        assert ok is False
+
+    def test_zero_t_raises(self):
+        with pytest.raises(ValueError):
+            masonry_eccentricity_check(10.0, 10.0, 0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_eccentricity_check)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+        assert ref.formula == "4.5.11"
