@@ -10,8 +10,8 @@ pip install norma-ntc
 
 ## Caratteristiche
 
-- **Tracciabilità normativa**: ogni funzione pubblica riporta il riferimento a articolo, tabella e formula NTC18 tramite il decoratore `@ntc_ref`
-- **Test-driven**: 1142 test, copertura completa delle tabelle normative
+- **Tracciabilità normativa**: ogni funzione pubblica riporta il riferimento a articolo, tabella, formula e LaTeX tramite il decoratore `@ntc_ref`
+- **Test-driven**: 1186 test, copertura completa delle tabelle normative
 - **Pipeline chiara**: pyntc produce gli input al solutore (azioni) e verifica gli output (checks) — non è un solutore FEM
 - **Dipendenze minime**: solo NumPy (core), SciPy (opzionale)
 
@@ -35,7 +35,7 @@ pip install norma-ntc
 | `checks.composite` | §4.3 | Verifiche acciaio-calcestruzzo |
 | `checks.timber` | §4.4 | Verifiche legno |
 | `checks.masonry` | §4.5 | Verifiche muratura |
-| `checks.bridges` | Cap. 5 | Carichi sui ponti |
+| `actions.bridges` | Cap. 5 | Carichi sui ponti |
 | `checks.geotechnical` | Cap. 6 | Verifiche geotecniche |
 | `checks.seismic_design` | Cap. 7 | Progettazione sismica |
 | `checks.existing_buildings` | Cap. 8 | Edifici esistenti |
