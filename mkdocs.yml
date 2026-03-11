@@ -71,7 +71,11 @@ nav:
     - Legno: checks/timber.md
     - Muratura: checks/masonry.md
     - Geotecnica: checks/geotechnical.md
-    - Progettazione sismica: checks/seismic_design.md
+    - Sismica C.A. (§7.4): checks/seismic_design.md
+    - Sismica acciaio (§7.5): checks/seismic_steel.md
+    - Sismica legno (§7.7): checks/seismic_timber.md
+    - Sismica ponti (§7.9): checks/seismic_bridges.md
+    - Fondazioni sismiche (§7.9–§7.10): checks/seismic_foundations.md
     - Edifici esistenti: checks/existing_buildings.md
   - Esempi:
     - Calcolo carichi e combinazioni: examples/carichi_combinazioni.md
