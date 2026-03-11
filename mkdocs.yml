@@ -55,7 +55,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Azioni (Cap. 2-3):
+  - Azioni (Cap. 2-5):
     - Carichi: actions/loads.md
     - Vento: actions/wind.md
     - Neve: actions/snow.md
@@ -63,13 +63,13 @@ nav:
     - Temperatura: actions/temperature.md
     - Incendio: actions/fire.md
     - Combinazioni: actions/combinations.md
+    - Ponti: actions/bridges.md
   - Verifiche (Cap. 4-8):
     - Cemento armato: checks/concrete.md
     - Acciaio: checks/steel.md
     - Composito: checks/composite.md
     - Legno: checks/timber.md
     - Muratura: checks/masonry.md
-    - Ponti: actions/bridges.md
     - Geotecnica: checks/geotechnical.md
     - Progettazione sismica: checks/seismic_design.md
     - Edifici esistenti: checks/existing_buildings.md
