@@ -6,6 +6,10 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pyntc.checks.steel import (
+    bolt_bearing_resistance,
+    bolt_friction_resistance,
+    bolt_friction_tension_resistance,
+    bolt_punching_resistance,
     bolt_shear_resistance,
     bolt_shear_tension_interaction,
     bolt_tension_resistance,
@@ -607,6 +611,149 @@ class TestBoltShearTensionInteraction:
 
     def test_ntc_ref(self):
         ref = get_ntc_ref(bolt_shear_tension_interaction)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.1"
+
+
+# ── [4.2.67] — Resistenza a rifollamento ────────────────────────────────────
+
+
+class TestBoltBearingResistance:
+    """NTC18 §4.2.8.1.1, Formula [4.2.67]."""
+
+    def test_edge_bolt(self):
+        """Bullone di bordo: esempio dal quaderno FPA (IPE430, M20, piastra 12mm).
+
+        k1 = min(2.8*30/22 - 1.7, 2.5) = 2.12
+        alpha_b = min(40/(3*22), 800/430, 1.0) = 0.61
+        F_b,Rd = 2.12 * 0.61 * 430 * 20 * 12 / 1.25 = 107 kN
+        """
+        k1 = min(2.8 * 30 / 22 - 1.7, 2.5)
+        alpha_b = min(40 / (3 * 22), 800 / 430, 1.0)
+        result = bolt_bearing_resistance(
+            k1=k1, alpha_b=alpha_b, f_u=430.0, d=20.0, t=12.0, gamma_M2=1.25
+        )
+        assert_allclose(result, k1 * alpha_b * 430.0 * 20.0 * 12.0 / 1.25, rtol=1e-3)
+
+    def test_inner_bolt(self):
+        """Bullone interno: esempio dal quaderno FPA (IPE430, M20, piastra 12mm).
+
+        k1 = min(2.8*30/22 - 1.7, 2.5) = 2.12
+        alpha_b = min(70/(3*22) - 0.25, 800/430, 1.0) = 0.81
+        F_b,Rd = 2.12 * 0.81 * 430 * 20 * 12 / 1.25 = 142 kN
+        """
+        k1 = min(2.8 * 30 / 22 - 1.7, 2.5)
+        alpha_b = min(70 / (3 * 22) - 0.25, 800 / 430, 1.0)
+        result = bolt_bearing_resistance(
+            k1=k1, alpha_b=alpha_b, f_u=430.0, d=20.0, t=12.0, gamma_M2=1.25
+        )
+        assert_allclose(result, k1 * alpha_b * 430.0 * 20.0 * 12.0 / 1.25, rtol=1e-3)
+
+    def test_invalid_k1_raises(self):
+        with pytest.raises(ValueError, match="k1"):
+            bolt_bearing_resistance(k1=0.0, alpha_b=0.6, f_u=430.0, d=20.0, t=12.0, gamma_M2=1.25)
+
+    def test_invalid_alpha_b_raises(self):
+        with pytest.raises(ValueError, match="alpha_b"):
+            bolt_bearing_resistance(k1=2.5, alpha_b=0.0, f_u=430.0, d=20.0, t=12.0, gamma_M2=1.25)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bolt_bearing_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.1"
+
+
+# ── [4.2.70] — Resistenza a punzonamento ────────────────────────────────────
+
+
+class TestBoltPunchingResistance:
+    """NTC18 §4.2.8.1.1, Formula [4.2.70]."""
+
+    def test_basic(self):
+        """F_p,Rd = 0.6 * pi * d_m * t_p * f_u / gamma_M2."""
+        result = bolt_punching_resistance(
+            d_m=32.0, t_p=12.0, f_u=430.0, gamma_M2=1.25
+        )
+        expected = 0.6 * math.pi * 32.0 * 12.0 * 430.0 / 1.25
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_invalid_dm_raises(self):
+        with pytest.raises(ValueError, match="d_m"):
+            bolt_punching_resistance(d_m=0.0, t_p=12.0, f_u=430.0, gamma_M2=1.25)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bolt_punching_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.1"
+
+
+# ── [4.2.72] — Resistenza allo scorrimento (attrito) ────────────────────────
+
+
+class TestBoltFrictionResistance:
+    """NTC18 §4.2.8.1.1, Formula [4.2.72]."""
+
+    def test_basic(self):
+        """M20 cl.8.8: F_p,Cd = 0.7*800*245 = 137200 N, mu=0.5, n=1."""
+        F_p_Cd = 0.7 * 800.0 * 245.0
+        result = bolt_friction_resistance(
+            n=1, mu=0.5, F_p_Cd=F_p_Cd, gamma_M3=1.25
+        )
+        expected = 1 * 0.5 * F_p_Cd / 1.25
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_two_surfaces(self):
+        """Due superfici di attrito: n=2."""
+        F_p_Cd = 0.7 * 800.0 * 245.0
+        result = bolt_friction_resistance(
+            n=2, mu=0.4, F_p_Cd=F_p_Cd, gamma_M3=1.25
+        )
+        expected = 2 * 0.4 * F_p_Cd / 1.25
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_invalid_mu_raises(self):
+        with pytest.raises(ValueError, match="mu"):
+            bolt_friction_resistance(n=1, mu=0.0, F_p_Cd=100000.0, gamma_M3=1.25)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bolt_friction_resistance)
+        assert ref is not None
+        assert ref.article == "4.2.8.1.1"
+
+
+# ── [4.2.73] — Resistenza allo scorrimento con trazione ─────────────────────
+
+
+class TestBoltFrictionTensionResistance:
+    """NTC18 §4.2.8.1.1, Formula [4.2.73]."""
+
+    def test_basic(self):
+        """F_s,Rd = n * mu * (F_p,Cd - 0.8 * F_t,Ed) / gamma_M3."""
+        F_p_Cd = 0.7 * 800.0 * 245.0
+        F_t_Ed = 50000.0
+        result = bolt_friction_tension_resistance(
+            n=1, mu=0.5, F_p_Cd=F_p_Cd, F_t_Ed=F_t_Ed, gamma_M3=1.25
+        )
+        expected = 1 * 0.5 * (F_p_Cd - 0.8 * F_t_Ed) / 1.25
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_zero_tension(self):
+        """Senza trazione: equivale a [4.2.72]."""
+        F_p_Cd = 0.7 * 800.0 * 245.0
+        result = bolt_friction_tension_resistance(
+            n=1, mu=0.5, F_p_Cd=F_p_Cd, F_t_Ed=0.0, gamma_M3=1.25
+        )
+        expected = 1 * 0.5 * F_p_Cd / 1.25
+        assert_allclose(result, expected, rtol=1e-3)
+
+    def test_invalid_tension_raises(self):
+        with pytest.raises(ValueError, match="F_t_Ed"):
+            bolt_friction_tension_resistance(
+                n=1, mu=0.5, F_p_Cd=100000.0, F_t_Ed=-1.0, gamma_M3=1.25
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bolt_friction_tension_resistance)
         assert ref is not None
         assert ref.article == "4.2.8.1.1"
 

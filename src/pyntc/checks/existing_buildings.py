@@ -27,7 +27,7 @@ _FC_TABLE: dict[str, float] = {
 }
 
 
-@ntc_ref(article="8.5.4")
+@ntc_ref(article="8.5.4", latex=r"\text{Tab.\,C8.5.IV — }FC")
 def confidence_factor(knowledge_level: str) -> float:
     """Fattore di confidenza FC per costruzioni esistenti [-].
 
@@ -61,7 +61,7 @@ def confidence_factor(knowledge_level: str) -> float:
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="8.3")
+@ntc_ref(article="8.3", latex=r"\zeta_E = \frac{PGA_{C}}{PGA_{D}}")
 def safety_ratio_seismic(
     capacity_action: float, demand_action: float
 ) -> float:
@@ -91,7 +91,7 @@ def safety_ratio_seismic(
     return capacity_action / demand_action
 
 
-@ntc_ref(article="8.3")
+@ntc_ref(article="8.3", latex=r"\zeta_v = \frac{Q_{C}}{Q_{D}}")
 def safety_ratio_vertical(
     capacity_load: float, demand_load: float
 ) -> float:
@@ -127,7 +127,7 @@ def safety_ratio_vertical(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="8.4.2")
+@ntc_ref(article="8.4.2", latex=r"\zeta_E \ge \zeta_{E,\min}")
 def improvement_check(
     zeta_E_post: float,
     use_class: int,
@@ -206,7 +206,7 @@ _ADEQUACY_THRESHOLDS: dict[str, float] = {
 }
 
 
-@ntc_ref(article="8.4.3")
+@ntc_ref(article="8.4.3", latex=r"\zeta_E \ge \zeta_{E,\min}")
 def adequacy_check(
     zeta_E: float, intervention_case: str
 ) -> tuple[bool, float]:
@@ -240,7 +240,7 @@ def adequacy_check(
     return zeta_E >= threshold, threshold
 
 
-@ntc_ref(article="8.4.3")
+@ntc_ref(article="8.4.3", latex=r"\frac{Q_{post}}{Q_{pre}} > 1{,}10")
 def adequacy_required_load_increase(
     load_pre: float, load_post: float
 ) -> bool:
@@ -276,7 +276,7 @@ def adequacy_required_load_increase(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="8.7.2")
+@ntc_ref(article="8.7.2", latex=r"f_d = \frac{f_{mean}}{FC}")
 def existing_design_strength_ductile(
     f_mean: float, FC: float
 ) -> float:
@@ -307,7 +307,7 @@ def existing_design_strength_ductile(
     return f_mean / FC
 
 
-@ntc_ref(article="8.7.2")
+@ntc_ref(article="8.7.2", latex=r"f_d = \frac{f_{mean}}{\gamma_m \cdot FC}")
 def existing_design_strength_brittle(
     f_mean: float, gamma_m: float, FC: float
 ) -> float:

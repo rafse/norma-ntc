@@ -25,7 +25,8 @@ _IMPACT_FORCES: dict[str, float] = {
 
 # ── [3.6.2] — Curva nominale standard ISO 834 ───────────────────────────────
 
-@ntc_ref(article="3.6.1.5.1", formula="3.6.2")
+@ntc_ref(article="3.6.1.5.1", formula="3.6.2",
+         latex=r"\theta = 20 + 345 \log_{10}(8t + 1)")
 def fire_standard_curve(t: float | np.ndarray) -> float | np.ndarray:
     """Curva nominale standard di incendio ISO 834 [°C].
 
@@ -63,7 +64,8 @@ def fire_standard_curve(t: float | np.ndarray) -> float | np.ndarray:
 
 # ── [3.6.3] — Curva nominale idrocarburi ─────────────────────────────────────
 
-@ntc_ref(article="3.6.1.5.1", formula="3.6.3")
+@ntc_ref(article="3.6.1.5.1", formula="3.6.3",
+         latex=r"\theta = 1080\,(1 - 0{,}325\,e^{-0{,}167\,t} - 0{,}675\,e^{-2{,}5\,t}) + 20")
 def fire_hydrocarbon_curve(t: float | np.ndarray) -> float | np.ndarray:
     """Curva nominale di incendio per idrocarburi [°C].
 
@@ -102,7 +104,8 @@ def fire_hydrocarbon_curve(t: float | np.ndarray) -> float | np.ndarray:
 
 # ── [3.6.4] — Curva nominale esterna ─────────────────────────────────────────
 
-@ntc_ref(article="3.6.1.5.1", formula="3.6.4")
+@ntc_ref(article="3.6.1.5.1", formula="3.6.4",
+         latex=r"\theta = 660\,(1 - 0{,}687\,e^{-0{,}32\,t} - 0{,}313\,e^{-3{,}8\,t}) + 20")
 def fire_external_curve(t: float | np.ndarray) -> float | np.ndarray:
     """Curva nominale di incendio esterna [°C].
 
@@ -141,7 +144,8 @@ def fire_external_curve(t: float | np.ndarray) -> float | np.ndarray:
 
 # ── [3.6.1] — Carico d'incendio specifico di progetto ───────────────────────
 
-@ntc_ref(article="3.6.1.1", formula="3.6.1")
+@ntc_ref(article="3.6.1.1", formula="3.6.1",
+         latex=r"q_{f,d} = q_f \cdot \delta_{q1} \cdot \delta_{q2} \cdot \delta_n")
 def fire_design_load(
     q_f: float,
     delta_q1: float,
@@ -188,7 +192,8 @@ def fire_design_load(
 
 # ── [3.6.5] — Pressione statica equivalente esplosioni ──────────────────────
 
-@ntc_ref(article="3.6.2.3", formula="3.6.5")
+@ntc_ref(article="3.6.2.3", formula="3.6.5",
+         latex=r"p = \max\!\bigl(3 + p_v,\; 3 + \tfrac{p_v}{2} + \tfrac{0{,}04}{(A_v/V)^2}\bigr)")
 def explosion_equivalent_pressure(
     p_v: float,
     A_v: float,
@@ -243,7 +248,8 @@ def explosion_equivalent_pressure(
 
 # ── Tab. 3.6.III + [3.6.7] — Forze urti veicoli ────────────────────────────
 
-@ntc_ref(article="3.6.3.3.1", table="Tab.3.6.III", formula="3.6.7")
+@ntc_ref(article="3.6.3.3.1", table="Tab.3.6.III", formula="3.6.7",
+         latex=r"F_{d,y} = 0{,}5\,F_{d,x} \quad (\text{Tab.\,3.6.III})")
 def impact_vehicle_force(road_type: str) -> tuple[float, float]:
     """Forze statiche equivalenti per urti da traffico veicolare [kN].
 
@@ -284,7 +290,8 @@ def impact_vehicle_force(road_type: str) -> tuple[float, float]:
 
 # ── [3.6.9] — Forza urto carrello elevatore ─────────────────────────────────
 
-@ntc_ref(article="3.6.3.3.1", formula="3.6.9")
+@ntc_ref(article="3.6.3.3.1", formula="3.6.9",
+         latex=r"F = 5\,W")
 def impact_forklift_force(W: float) -> float:
     """Forza statica equivalente per urto da carrello elevatore [kN].
 

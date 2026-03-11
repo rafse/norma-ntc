@@ -16,7 +16,7 @@ from pyntc.core.reference import ntc_ref
 # ============================================================================
 
 
-@ntc_ref(article="4.3.2.3", formula="4.3.2")
+@ntc_ref(article="4.3.2.3", formula="4.3.2", latex=r"b_{\mathrm{eff}} = b_0 + b_{e1} + b_{e2}, \quad b_{ei} = \min\!\left(\frac{L_0}{8},\, b_i\right)")
 def composite_effective_width(
     b_0: float, L_0: float, b_1: float, b_2: float
 ) -> float:
@@ -63,7 +63,7 @@ _REDISTRIBUTION_LIMITS: dict[tuple[int, str], float] = {
 }
 
 
-@ntc_ref(article="4.3.2.2.1", table="Tab.4.3.I")
+@ntc_ref(article="4.3.2.2.1", table="Tab.4.3.I", latex=r"\text{Tab.\,4.3.I}")
 def composite_moment_redistribution_limits(
     section_class: int, analysis_type: str
 ) -> float:
@@ -95,7 +95,7 @@ def composite_moment_redistribution_limits(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.4.3.1.2", formula="4.3.11")
+@ntc_ref(article="4.3.4.3.1.2", formula="4.3.11", latex=r"\alpha = \begin{cases} 0{,}2\left(\dfrac{h_{wc}}{d}+1\right) & 3 \le \dfrac{h_{wc}}{d} \le 4 \\ 1{,}0 & \dfrac{h_{wc}}{d} > 4 \end{cases}")
 def composite_stud_alpha(h_wc: float, d: float) -> float:
     """Coefficiente alpha per connettori a piolo [-].
 
@@ -126,7 +126,7 @@ def composite_stud_alpha(h_wc: float, d: float) -> float:
 # ============================================================================
 
 
-@ntc_ref(article="4.3.4.3.1.2", formula="4.3.9")
+@ntc_ref(article="4.3.4.3.1.2", formula="4.3.9", latex=r"P_{Rd} = \min\!\left(\frac{0{,}8\,f_u\,\pi\,d^2/4}{\gamma_V},\;\frac{0{,}29\,\alpha\,d^2\sqrt{f_{ck}\,E_{cm}}}{\gamma_V}\right)")
 def composite_stud_resistance(
     d: float,
     h_wc: float,
@@ -180,7 +180,7 @@ def composite_stud_resistance(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.4.3.1.2", formula="4.3.13")
+@ntc_ref(article="4.3.4.3.1.2", formula="4.3.13", latex=r"k_1 = \min\!\left(0{,}6\,\frac{b_0\,(h_{wc}-h_p)}{h_p^2},\;1{,}0\right)")
 def composite_profiled_sheet_reduction(
     b_0: float,
     h_wc: float,
@@ -232,7 +232,7 @@ def composite_profiled_sheet_reduction(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.4.3.1.1", formula="4.3.7")
+@ntc_ref(article="4.3.4.3.1.1", formula="4.3.7", latex=r"\eta_{\min} = \max\!\left(1 - \frac{355}{f_{yk}}\left(1{,}0 - 0{,}04\,L_c\right),\;0{,}4\right)")
 def composite_minimum_connection_degree(
     f_yk: float, L_c: float, *, stud_type: str = "standard"
 ) -> float:
@@ -276,7 +276,7 @@ def composite_minimum_connection_degree(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.3.1", formula="4.3.21")
+@ntc_ref(article="4.3.5.3.1", formula="4.3.21", latex=r"N_{pl,Rd} = \frac{A_a\,f_{yk}}{\gamma_A} + \alpha_{cc}\,\frac{A_c\,f_{ck}}{\gamma_C} + \frac{A_s\,f_{sk}}{\gamma_S}")
 def composite_column_plastic_resistance(
     A_a: float,
     f_yk: float,
@@ -332,7 +332,7 @@ def composite_column_plastic_resistance(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.3.1", formula="4.3.25")
+@ntc_ref(article="4.3.5.3.1", formula="4.3.25", latex=r"N_{pm,Rd} = 0{,}85\,\frac{f_{ck}}{\gamma_C}\,A_c")
 def composite_concrete_part_resistance(
     A_c: float, f_ck: float, gamma_C: float
 ) -> float:
@@ -362,7 +362,7 @@ def composite_concrete_part_resistance(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.2", formula="4.3.15")
+@ntc_ref(article="4.3.5.2", formula="4.3.15", latex=r"\delta = \frac{A_a\,f_{yk}}{\gamma_A\,N_{pl,Rd}}, \quad 0{,}2 \le \delta \le 0{,}9")
 def composite_steel_contribution_ratio(
     A_a: float, f_yk: float, gamma_A: float, N_pl_Rd: float
 ) -> float:
@@ -404,7 +404,7 @@ def composite_steel_contribution_ratio(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.2", formula="4.3.16")
+@ntc_ref(article="4.3.5.2", formula="4.3.16", latex=r"(EI)_{\mathrm{eff}} = E_a I_a + E_s I_s + 0{,}6\,E_{c,\mathrm{eff}}\,I_c, \quad E_{c,\mathrm{eff}} = \frac{E_{cm}}{1 + \varphi_t\,N_{G,Ed}/N_{Ed}}")
 def composite_column_effective_stiffness(
     E_a: float,
     I_a: float,
@@ -461,7 +461,7 @@ def composite_column_effective_stiffness(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.2", formula="4.3.18")
+@ntc_ref(article="4.3.5.2", formula="4.3.18", latex=r"\bar{\lambda} = \sqrt{\frac{N_{pl,Rk}}{N_{cr}}}")
 def composite_column_slenderness(N_pl_Rk: float, N_cr: float) -> float:
     """Snellezza normalizzata della colonna composta [-].
 
@@ -505,7 +505,7 @@ _BUCKLING_CURVES: dict[str, dict[str, tuple[str, float]]] = {
 }
 
 
-@ntc_ref(article="4.3.5.4.1", table="Tab.4.3.III")
+@ntc_ref(article="4.3.5.4.1", table="Tab.4.3.III", latex=r"\text{Tab.\,4.3.III}")
 def composite_column_buckling_curve(
     section_type: str, axis: str, rho_s: float = 0.0
 ) -> tuple[str, float]:
@@ -550,7 +550,7 @@ def composite_column_buckling_curve(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.4.1", formula="4.3.29")
+@ntc_ref(article="4.3.5.4.1", formula="4.3.29", latex=r"\chi = \frac{1}{\Phi + \sqrt{\Phi^2 - \bar{\lambda}^2}} \le 1{,}0, \quad N_{b,Rd} = \chi\,N_{pl,Rd}")
 def composite_column_buckling_resistance(
     lambda_bar: float, alpha: float, N_pl_Rd: float
 ) -> tuple[float, float]:
@@ -585,7 +585,7 @@ def composite_column_buckling_resistance(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.3.1", formula="4.3.23")
+@ntc_ref(article="4.3.5.3.1", formula="4.3.23", latex=r"\eta_a = 0{,}25\,(3 + 2\,\bar{\lambda}), \quad \eta_c = 4{,}9 - 18{,}5\,\bar{\lambda} + 17\,\bar{\lambda}^2")
 def composite_confinement_coefficients(
     lambda_bar: float, e_d: float
 ) -> tuple[float, float]:
@@ -632,7 +632,7 @@ def composite_confinement_coefficients(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.4.2", formula="4.3.31")
+@ntc_ref(article="4.3.5.4.2", formula="4.3.31", latex=r"\frac{d}{t} \le 90\,\frac{235}{f_y} \;\text{(circ.)}, \quad \frac{d}{t} \le 52\sqrt{\frac{235}{f_y}} \;\text{(rett.)}")
 def composite_column_local_buckling_check(
     section_type: str, d_or_b: float, t: float, f_y: float
 ) -> tuple[bool, float]:
@@ -679,7 +679,7 @@ def composite_column_local_buckling_check(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.4.3", formula="4.3.35")
+@ntc_ref(article="4.3.5.4.3", formula="4.3.35", latex=r"M_{Ed} \le \alpha_M\,\mu_d\,M_{pl,Rd}")
 def composite_column_bending_check(
     M_Ed: float, mu_d: float, M_pl_Rd: float, alpha_M: float
 ) -> tuple[bool, float]:
@@ -713,7 +713,7 @@ def composite_column_bending_check(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.4.3", formula="4.3.36")
+@ntc_ref(article="4.3.5.4.3", formula="4.3.36", latex=r"k = \frac{\beta}{1 - N_{Ed}/N_{cr,\mathrm{eff}}} \ge 1{,}0")
 def composite_moment_amplification(
     N_Ed: float,
     N_cr_eff: float,
@@ -763,7 +763,7 @@ def composite_moment_amplification(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.3.1", formula="4.3.27")
+@ntc_ref(article="4.3.5.3.1", formula="4.3.27", latex=r"\frac{M_{y,Ed}}{\mu_{dy}\,M_{pl,y,Rd}} + \frac{M_{z,Ed}}{\mu_{dz}\,M_{pl,z,Rd}} \le 1{,}0")
 def composite_column_biaxial_check(
     M_y_Ed: float,
     M_z_Ed: float,
@@ -822,7 +822,7 @@ def composite_column_biaxial_check(
 # ============================================================================
 
 
-@ntc_ref(article="4.3.5.3.2", formula="4.3.28")
+@ntc_ref(article="4.3.5.3.2", formula="4.3.28", latex=r"V_{a,Ed} = V_{Ed}\,\frac{M_{pl,a,Rd}}{M_{pl,Rd}}")
 def composite_beam_shear_distribution(
     V_Ed: float, M_pl_a_Rd: float, M_pl_Rd: float
 ) -> tuple[float, float]:
@@ -862,7 +862,7 @@ _BOND_STRESS_LIMITS: dict[str, float] = {
 }
 
 
-@ntc_ref(article="4.3.5.5.1")
+@ntc_ref(article="4.3.5.5.1", latex=r"\tau_{Rd} \;\text{(§4.3.5.5.1)}")
 def composite_bond_stress_limit(section_type: str) -> float:
     """Tensione tangenziale limite di aderenza all'interfaccia [N/mm²].
 

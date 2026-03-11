@@ -73,3 +73,6 @@ diagramma_vettoriale.svg
 test_3.1.py
 test_vento.py
 .agents/
+local/
+scripts/
+CLAUDE.md

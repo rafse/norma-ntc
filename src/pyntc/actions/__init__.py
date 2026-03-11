@@ -46,6 +46,26 @@ from pyntc.actions.fire import (
     impact_forklift_force,
     impact_vehicle_force,
 )
+from pyntc.actions.bridges import (
+    bridge_braking_force_rail,
+    bridge_braking_force_road,
+    bridge_centrifugal_force_rail,
+    bridge_centrifugal_force_road,
+    bridge_centrifugal_reduction_factor,
+    bridge_conventional_lanes,
+    bridge_curvature_radius,
+    bridge_dynamic_coefficient,
+    bridge_frequency_limits,
+    bridge_lm71_axle_loads,
+    bridge_load_scheme_1,
+    bridge_long_span_load,
+    bridge_natural_frequency,
+    bridge_rail_psi_coefficients,
+    bridge_reduced_dynamic_coefficient,
+    bridge_road_psi_coefficients,
+    bridge_starting_force_rail,
+    bridge_sw_load,
+)
 from pyntc.actions.combinations import (
     combination_coefficients,
     exceptional_combination,

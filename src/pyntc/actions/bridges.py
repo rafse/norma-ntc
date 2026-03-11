@@ -25,7 +25,11 @@ from pyntc.core.reference import ntc_ref
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="5.1.3.3.2", table="Tab.5.1.I")
+@ntc_ref(
+    article="5.1.3.3.2",
+    table="Tab.5.1.I",
+    latex=r"n = \lfloor w / 3 \rfloor, \quad w_r = w - 3n",
+)
 def bridge_conventional_lanes(w: float) -> tuple[int, float, float]:
     """Corsie convenzionali da larghezza superficie carrabile [m].
 
@@ -52,7 +56,15 @@ def bridge_conventional_lanes(w: float) -> tuple[int, float, float]:
         return n, 3.00, w - 3.00 * n
 
 
-@ntc_ref(article="5.1.3.3.3", table="Tab.5.1.II")
+@ntc_ref(
+    article="5.1.3.3.3",
+    table="Tab.5.1.II",
+    latex=(
+        r"\text{Corsia 1: } Q_{1k}=300\,\text{kN},\; q_{1k}=9{,}0\,\text{kN/m}^2 \\"
+        r"\text{Corsia 2: } Q_{2k}=200\,\text{kN},\; q_{2k}=2{,}5\,\text{kN/m}^2 \\"
+        r"\text{Corsia 3: } Q_{3k}=100\,\text{kN},\; q_{3k}=2{,}5\,\text{kN/m}^2"
+    ),
+)
 def bridge_load_scheme_1(lane: int) -> tuple[float, float]:
     """Carichi dello Schema di Carico 1 per corsia [kN, kN/m^2].
 
@@ -80,7 +92,15 @@ def bridge_load_scheme_1(lane: int) -> tuple[float, float]:
         return 0.0, 2.5
 
 
-@ntc_ref(article="5.1.3.3.3", formula="5.1.1")
+@ntc_ref(
+    article="5.1.3.3.3",
+    formula="5.1.1",
+    latex=(
+        r"q_{L,t} = 128{,}95 \left(\frac{1}{L}\right)^{0{,}25} \quad "
+        r"q_{L,b} = 88{,}71 \left(\frac{1}{L}\right)^{0{,}38} \quad "
+        r"q_{L,c} = 77{,}12 \left(\frac{1}{L}\right)^{0{,}38}"
+    ),
+)
 def bridge_long_span_load(L: float, load_type: str) -> float:
     """Carico distribuito per ponti di luce > 300 m [kN/m].
 
@@ -114,7 +134,11 @@ def bridge_long_span_load(L: float, load_type: str) -> float:
         raise ValueError(f"load_type deve essere 't', 'b' o 'c', ricevuto '{load_type}'")
 
 
-@ntc_ref(article="5.1.3.5", formula="5.1.4")
+@ntc_ref(
+    article="5.1.3.5",
+    formula="5.1.4",
+    latex=r"180 \leq q_3 = 0{,}6 \cdot 2Q_{1k} + 0{,}10 \cdot q_{1k} \cdot w_1 \cdot L \leq 900 \; [\text{kN}]",
+)
 def bridge_braking_force_road(
     Q_1k: float, q_1k: float, w_1: float, L: float
 ) -> float:
@@ -143,7 +167,15 @@ def bridge_braking_force_road(
     return max(180.0, min(q_3, 900.0))
 
 
-@ntc_ref(article="5.1.3.6", table="Tab.5.1.III")
+@ntc_ref(
+    article="5.1.3.6",
+    table="Tab.5.1.III",
+    latex=(
+        r"q_s = \begin{cases} 0{,}2\,Q_s & R < 200 \\ "
+        r"\dfrac{40\,Q_s}{R} & 200 \leq R \leq 1500 \\ "
+        r"0 & R > 1500 \end{cases}"
+    ),
+)
 def bridge_centrifugal_force_road(R: float, Q_s: float) -> float:
     """Forza centrifuga per ponti stradali in curva [kN].
 
@@ -172,7 +204,11 @@ def bridge_centrifugal_force_road(R: float, Q_s: float) -> float:
         return 0.0
 
 
-@ntc_ref(article="5.1.3.14", table="Tab.5.1.VI")
+@ntc_ref(
+    article="5.1.3.14",
+    table="Tab.5.1.VI",
+    latex=r"\psi_0,\;\psi_1,\;\psi_2 \text{ da Tab.\,5.1.VI}",
+)
 def bridge_road_psi_coefficients(action: str) -> tuple[float, float, float]:
     """Coefficienti psi per ponti stradali e pedonali.
 
@@ -226,7 +262,11 @@ def bridge_road_psi_coefficients(action: str) -> tuple[float, float, float]:
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="5.2.2.2.1.1", formula="5.2.1")
+@ntc_ref(
+    article="5.2.2.2.1.1",
+    formula="5.2.1",
+    latex=r"Q_{vk} = \alpha \cdot 250 \; [\text{kN}], \quad q_{vk} = \alpha \cdot 80 \; [\text{kN/m}]",
+)
 def bridge_lm71_axle_loads(alpha: float = 1.1) -> tuple[float, float]:
     """Carichi del modello LM71 per ferrovie ordinarie [kN, kN/m].
 
@@ -249,7 +289,14 @@ def bridge_lm71_axle_loads(alpha: float = 1.1) -> tuple[float, float]:
     return alpha * 250.0, alpha * 80.0
 
 
-@ntc_ref(article="5.2.2.2.1.2", table="Tab.5.2.I")
+@ntc_ref(
+    article="5.2.2.2.1.2",
+    table="Tab.5.2.I",
+    latex=(
+        r"\text{SW/0: } q_{ak}=\alpha \cdot 133\,\text{kN/m},\; a=15\,\text{m},\; c=5{,}3\,\text{m} \\"
+        r"\text{SW/2: } q_{ak}=\alpha \cdot 150\,\text{kN/m},\; a=25\,\text{m},\; c=7{,}0\,\text{m}"
+    ),
+)
 def bridge_sw_load(
     model: str, alpha: float | None = None
 ) -> tuple[float, float, float]:
@@ -283,7 +330,11 @@ def bridge_sw_load(
     return alpha * q_base, a, c
 
 
-@ntc_ref(article="5.2.2.2.3", formula="5.2.5")
+@ntc_ref(
+    article="5.2.2.2.3",
+    formula="5.2.5",
+    latex=r"n_0 = \frac{17{,}75}{\sqrt{\delta_0}}",
+)
 def bridge_natural_frequency(delta_0: float) -> float:
     """Frequenza propria flessionale di trave semplicemente appoggiata [Hz].
 
@@ -305,7 +356,14 @@ def bridge_natural_frequency(delta_0: float) -> float:
     return 17.75 / math.sqrt(delta_0)
 
 
-@ntc_ref(article="5.2.2.2.3", formula="5.2.6")
+@ntc_ref(
+    article="5.2.2.2.3",
+    formula="5.2.6",
+    latex=(
+        r"\Phi_2 = \frac{1{,}44}{\sqrt{L_\Phi - 0{,}2}} + 0{,}82 \quad "
+        r"\Phi_3 = \frac{2{,}16}{\sqrt{L_\Phi - 0{,}2}} + 0{,}73"
+    ),
+)
 def bridge_dynamic_coefficient(L_0: float, maintenance: str = "high") -> float:
     """Coefficiente di incremento dinamico Phi per ponti ferroviari.
 
@@ -339,7 +397,11 @@ def bridge_dynamic_coefficient(L_0: float, maintenance: str = "high") -> float:
         )
 
 
-@ntc_ref(article="5.2.2.2.3", formula="5.2.8")
+@ntc_ref(
+    article="5.2.2.2.3",
+    formula="5.2.8",
+    latex=r"\Phi_{\text{rid}} = \Phi - \frac{h - 1{,}00}{10} \geq 1{,}0",
+)
 def bridge_reduced_dynamic_coefficient(Phi: float, h: float) -> float:
     """Coefficiente dinamico ridotto per ponti ad arco/scatolari con copertura.
 
@@ -366,7 +428,15 @@ def bridge_reduced_dynamic_coefficient(Phi: float, h: float) -> float:
     return max(phi_rid, 1.0)
 
 
-@ntc_ref(article="5.2.2.2.3", formula="5.2.2")
+@ntc_ref(
+    article="5.2.2.2.3",
+    formula="5.2.2",
+    latex=(
+        r"n_{\max} = 94{,}76 \, L^{-0{,}748} \quad "
+        r"n_{\min} = \begin{cases} 80/L & L \leq 20 \\ "
+        r"23{,}58 \, L^{-0{,}902} & L > 20 \end{cases}"
+    ),
+)
 def bridge_frequency_limits(L: float) -> tuple[float, float]:
     """Limiti del fuso di frequenza per ponti ferroviari [Hz].
 
@@ -396,7 +466,15 @@ def bridge_frequency_limits(L: float) -> tuple[float, float]:
     return n_upper, n_lower
 
 
-@ntc_ref(article="5.2.2.3.1", formula="5.2.10")
+@ntc_ref(
+    article="5.2.2.3.1",
+    formula="5.2.10",
+    latex=(
+        r"f = 1 - \frac{V - 120}{1000} "
+        r"\left(\frac{814}{V} + 1{,}75\right) "
+        r"\left(1 - \sqrt{\frac{2{,}88}{L_t}}\right)"
+    ),
+)
 def bridge_centrifugal_reduction_factor(V: float, L_t: float) -> float:
     """Fattore di riduzione f per forza centrifuga ferroviaria.
 
@@ -426,7 +504,11 @@ def bridge_centrifugal_reduction_factor(V: float, L_t: float) -> float:
     return f
 
 
-@ntc_ref(article="5.2.2.3.1", formula="5.2.9")
+@ntc_ref(
+    article="5.2.2.3.1",
+    formula="5.2.9",
+    latex=r"Q_a = \frac{V^2}{127 \, r} \cdot f \cdot \alpha \cdot Q_{ik}",
+)
 def bridge_centrifugal_force_rail(
     V: float,
     r: float,
@@ -463,7 +545,14 @@ def bridge_centrifugal_force_rail(
     return V**2 / (127.0 * r) * (f * alpha * Q_ik)
 
 
-@ntc_ref(article="5.2.2.3.3")
+@ntc_ref(
+    article="5.2.2.3.3",
+    latex=(
+        r"Q_{hk} = \begin{cases} "
+        r"20 \, \alpha \, L \leq 6000 & \text{LM71, SW/0} \\ "
+        r"35 \, \alpha \, L & \text{SW/2} \end{cases} \; [\text{kN}]"
+    ),
+)
 def bridge_braking_force_rail(
     L: float, model: str = "LM71", alpha: float = 1.1
 ) -> float:
@@ -497,7 +586,10 @@ def bridge_braking_force_rail(
         )
 
 
-@ntc_ref(article="5.2.2.3.3")
+@ntc_ref(
+    article="5.2.2.3.3",
+    latex=r"Q_{ak} = 33 \, \alpha \, L \leq 1000 \; [\text{kN}]",
+)
 def bridge_starting_force_rail(L: float, alpha: float = 1.1) -> float:
     """Forza di avviamento per ponti ferroviari [kN].
 
@@ -519,7 +611,11 @@ def bridge_starting_force_rail(L: float, alpha: float = 1.1) -> float:
     return min(33.0 * L * alpha, 1000.0)
 
 
-@ntc_ref(article="5.2.3.2.2.1", formula="5.2.11")
+@ntc_ref(
+    article="5.2.3.2.2.1",
+    formula="5.2.11",
+    latex=r"R = \frac{L^2}{8 \, \delta_i}",
+)
 def bridge_curvature_radius(L: float, delta_i: float) -> float:
     """Raggio di curvatura orizzontale da freccia per impalcato appoggiato [m].
 
@@ -543,7 +639,11 @@ def bridge_curvature_radius(L: float, delta_i: float) -> float:
     return L**2 / (8.0 * delta_i)
 
 
-@ntc_ref(article="5.2.3.2.2", table="Tab.5.2.VI")
+@ntc_ref(
+    article="5.2.3.2.2",
+    table="Tab.5.2.VI",
+    latex=r"\psi_0,\;\psi_1,\;\psi_2 \text{ da Tab.\,5.2.VI}",
+)
 def bridge_rail_psi_coefficients(
     action: str, n_tracks: int = 1
 ) -> tuple[float, float, float]:

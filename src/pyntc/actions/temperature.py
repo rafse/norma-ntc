@@ -49,7 +49,9 @@ _UNIFORM_VARIATION: dict[str, float] = {
 }
 
 
-@ntc_ref(article="3.5.2", formula="3.5.1-3.5.8")
+@ntc_ref(article="3.5.2", formula="3.5.1-3.5.8",
+         latex=r"T_{\min} = T_{\min,0} - \Delta T_{\min} \cdot \frac{a_s}{1000};\;"
+               r"T_{\max} = T_{\max,0} - \Delta T_{\max} \cdot \frac{a_s}{1000}")
 def temperature_extremes(
     zone: str,
     altitude: float,
@@ -95,7 +97,8 @@ def temperature_extremes(
     return t_min, t_max
 
 
-@ntc_ref(article="3.5.4", table="Tab.3.5.I")
+@ntc_ref(article="3.5.4", table="Tab.3.5.I",
+         latex=r"\text{Tab.\,3.5.I — Incremento irraggiamento solare}")
 def temperature_solar_increment(
     surface: str,
     orientation: str,
@@ -150,7 +153,8 @@ def temperature_solar_increment(
     return _SOLAR_INCREMENT[(surface, orientation)]
 
 
-@ntc_ref(article="3.5.5", table="Tab.3.5.II")
+@ntc_ref(article="3.5.5", table="Tab.3.5.II",
+         latex=r"\text{Tab.\,3.5.II — Variazione termica uniforme } \Delta T_u")
 def temperature_uniform_variation(structure_type: str) -> float:
     """Variazione termica uniforme DeltaT_u per edifici [°C].
 

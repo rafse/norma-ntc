@@ -69,7 +69,7 @@ nav:
     - Composito: checks/composite.md
     - Legno: checks/timber.md
     - Muratura: checks/masonry.md
-    - Ponti: checks/bridges.md
+    - Ponti: actions/bridges.md
     - Geotecnica: checks/geotechnical.md
     - Progettazione sismica: checks/seismic_design.md
     - Edifici esistenti: checks/existing_buildings.md

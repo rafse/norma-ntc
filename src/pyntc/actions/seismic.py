@@ -38,7 +38,7 @@ _TOPO_FACTORS: dict[str, float] = {
 }
 
 
-@ntc_ref(article="3.2.1", formula="3.2.0")
+@ntc_ref(article="3.2.1", formula="3.2.0", latex=r"T_R = -\frac{V_R}{\ln(1 - P_{VR})}")
 def seismic_return_period(v_r: float, p_vr: float) -> float:
     """Periodo di ritorno del sisma T_R [anni].
 
@@ -73,7 +73,7 @@ def seismic_return_period(v_r: float, p_vr: float) -> float:
     return -v_r / math.log(1.0 - p_vr)
 
 
-@ntc_ref(article="3.2.3.2.1", formula="3.2.4")
+@ntc_ref(article="3.2.3.2.1", formula="3.2.4", latex=r"\eta = \sqrt{\frac{10}{5 + \xi}} \geq 0{,}55")
 def seismic_damping_factor(xi: float) -> float:
     """Fattore di smorzamento eta [-].
 
@@ -101,7 +101,7 @@ def seismic_damping_factor(xi: float) -> float:
     return max(math.sqrt(10.0 / (5.0 + xi)), 0.55)
 
 
-@ntc_ref(article="3.2.3.2.1", table="Tab.3.2.IV")
+@ntc_ref(article="3.2.3.2.1", table="Tab.3.2.IV", latex=r"\text{Tab.\,3.2.IV — }S_s,\;C_c")
 def seismic_soil_amplification(
     soil_category: str,
     ag: float,
@@ -156,7 +156,7 @@ def seismic_soil_amplification(
     return ss, cc
 
 
-@ntc_ref(article="3.2.3.2.1", table="Tab.3.2.V")
+@ntc_ref(article="3.2.3.2.1", table="Tab.3.2.V", latex=r"\text{Tab.\,3.2.V — }S_T")
 def seismic_topographic_amplification(topo_category: str) -> float:
     """Coefficiente di amplificazione topografica S_T [-].
 
@@ -186,7 +186,7 @@ def seismic_topographic_amplification(topo_category: str) -> float:
         )
 
 
-@ntc_ref(article="3.2.3.2.1", formula="3.2.2")
+@ntc_ref(article="3.2.3.2.1", formula="3.2.2", latex=r"S_e(T) = a_g \cdot S \cdot \eta \cdot F_0 \cdot \begin{cases} \frac{T}{T_B} + \frac{1}{\eta F_0}\left(1 - \frac{T}{T_B}\right) & 0 \leq T < T_B \\ 1 & T_B \leq T < T_C \\ \frac{T_C}{T} & T_C \leq T < T_D \\ \frac{T_C T_D}{T^2} & T \geq T_D \end{cases}")
 def elastic_response_spectrum(
     T: float | np.ndarray,
     ag: float,

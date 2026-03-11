@@ -34,7 +34,7 @@ _STEEL_GRADES: dict[str, list[tuple[float, float, float]]] = {
 }
 
 
-@ntc_ref(article="4.2.1.1", table="Tab.4.2.I")
+@ntc_ref(article="4.2.1.1", table="Tab.4.2.I", latex=r"\text{Tab.\,4.2.I}")
 def steel_grade_properties(
     grade: str, thickness: float
 ) -> tuple[float, float]:
@@ -77,7 +77,7 @@ def steel_grade_properties(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.2.4.1.2.1", formula="4.2.6")
+@ntc_ref(article="4.2.4.1.2.1", formula="4.2.6", latex=r"N_{pl,Rd} = \frac{A \cdot f_{yk}}{\gamma_{M0}}")
 def steel_tension_resistance(
     A: float,
     f_yk: float,
@@ -136,7 +136,7 @@ def steel_tension_resistance(
     return N_pl_Rd, None
 
 
-@ntc_ref(article="4.2.4.1.2.2", formula="4.2.10")
+@ntc_ref(article="4.2.4.1.2.2", formula="4.2.10", latex=r"N_{c,Rd} = \frac{A \cdot f_{yk}}{\gamma_{M0}}")
 def steel_compression_resistance(
     A: float, f_yk: float, gamma_M0: float
 ) -> float:
@@ -168,7 +168,7 @@ def steel_compression_resistance(
     return A * f_yk / gamma_M0
 
 
-@ntc_ref(article="4.2.4.1.2.3", formula="4.2.12")
+@ntc_ref(article="4.2.4.1.2.3", formula="4.2.12", latex=r"M_{c,Rd} = \frac{W \cdot f_{yk}}{\gamma_{M0}}")
 def steel_bending_resistance(
     W: float, f_yk: float, gamma_M0: float
 ) -> float:
@@ -203,7 +203,7 @@ def steel_bending_resistance(
     return W * f_yk / gamma_M0
 
 
-@ntc_ref(article="4.2.4.1.2.4", formula="4.2.17")
+@ntc_ref(article="4.2.4.1.2.4", formula="4.2.17", latex=r"V_{c,Rd} = \frac{A_v \cdot f_{yk}}{\sqrt{3} \cdot \gamma_{M0}}")
 def steel_shear_resistance(
     A_v: float, f_yk: float, gamma_M0: float
 ) -> float:
@@ -240,7 +240,7 @@ def steel_shear_resistance(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.2.4.1.2.6", formula="4.2.31")
+@ntc_ref(article="4.2.4.1.2.6", formula="4.2.31", latex=r"\rho = \left(\frac{2 V_{Ed}}{V_{c,Rd}} - 1\right)^2")
 def steel_bending_shear_reduction(
     V_Ed: float, V_c_Rd: float
 ) -> float:
@@ -278,7 +278,7 @@ def steel_bending_shear_reduction(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.2.4.1.2.7", formula="4.2.33")
+@ntc_ref(article="4.2.4.1.2.7", formula="4.2.33", latex=r"M_{N,y,Rd} = M_{pl,y,Rd} \cdot \frac{1 - n}{1 - 0{,}5\,a}")
 def steel_NM_resistance_y(
     n: float, a: float, M_pl_y_Rd: float
 ) -> float:
@@ -313,7 +313,7 @@ def steel_NM_resistance_y(
     return min(M_N_y_Rd, M_pl_y_Rd)
 
 
-@ntc_ref(article="4.2.4.1.2.7", formula="4.2.34")
+@ntc_ref(article="4.2.4.1.2.7", formula="4.2.34", latex=r"M_{N,z,Rd} = M_{pl,z,Rd} \cdot \left[1 - \left(\frac{n - a}{1 - a}\right)^2\right]")
 def steel_NM_resistance_z(
     n: float, a: float, M_pl_z_Rd: float
 ) -> float:
@@ -355,7 +355,7 @@ def steel_NM_resistance_z(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.2.4.1.28", formula="4.2.38")
+@ntc_ref(article="4.2.4.1.28", formula="4.2.38", latex=r"\left(\frac{M_{y,Ed}}{M_{N,y,Rd}}\right)^2 + \left(\frac{M_{z,Ed}}{M_{N,z,Rd}}\right)^{5n} \le 1")
 def steel_biaxial_check(
     M_y_Ed: float,
     M_z_Ed: float,
@@ -423,7 +423,7 @@ _IMPERFECTION_FACTORS: dict[str, float] = {
 }
 
 
-@ntc_ref(article="4.2.4.1.3.1", table="Tab.4.2.VIII")
+@ntc_ref(article="4.2.4.1.3.1", table="Tab.4.2.VIII", latex=r"\text{Tab.\,4.2.VIII}")
 def steel_buckling_imperfection(curve: str) -> float:
     """Fattore di imperfezione alpha da Tab. 4.2.VIII [-].
 
@@ -449,7 +449,7 @@ def steel_buckling_imperfection(curve: str) -> float:
     return _IMPERFECTION_FACTORS[key]
 
 
-@ntc_ref(article="4.2.4.1.3.1", formula="4.2.44")
+@ntc_ref(article="4.2.4.1.3.1", formula="4.2.44", latex=r"\chi = \frac{1}{\Phi + \sqrt{\Phi^2 - \bar{\lambda}^2}}")
 def steel_buckling_reduction(
     lambda_bar: float, alpha: float
 ) -> float:
@@ -487,7 +487,7 @@ def steel_buckling_reduction(
     return min(chi, 1.0)
 
 
-@ntc_ref(article="4.2.4.1.3.1", formula="4.2.42")
+@ntc_ref(article="4.2.4.1.3.1", formula="4.2.42", latex=r"N_{b,Rd} = \frac{\chi \cdot A \cdot f_{yk}}{\gamma_{M1}}")
 def steel_buckling_resistance(
     chi: float, A: float, f_yk: float, gamma_M1: float
 ) -> float:
@@ -528,7 +528,7 @@ def steel_buckling_resistance(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.2.4.1.3.2", formula="4.2.50")
+@ntc_ref(article="4.2.4.1.3.2", formula="4.2.50", latex=r"\chi_{LT} = \frac{1}{\Phi_{LT} + \sqrt{\Phi_{LT}^2 - \bar{\lambda}_{LT}^2}}")
 def steel_lt_buckling_reduction(
     lambda_LT_bar: float, alpha_LT: float
 ) -> float:
@@ -566,7 +566,7 @@ def steel_lt_buckling_reduction(
     return min(chi_LT, 1.0)
 
 
-@ntc_ref(article="4.2.4.1.3.2", formula="4.2.49")
+@ntc_ref(article="4.2.4.1.3.2", formula="4.2.49", latex=r"M_{b,Rd} = \frac{\chi_{LT} \cdot W_y \cdot f_{yk}}{\gamma_{M1}}")
 def steel_lt_buckling_resistance(
     chi_LT: float, W_y: float, f_yk: float, gamma_M1: float
 ) -> float:
@@ -617,7 +617,7 @@ _BOLT_SHEAR_COEFFICIENTS: dict[str, float] = {
 }
 
 
-@ntc_ref(article="4.2.8.1.1", formula="4.2.63")
+@ntc_ref(article="4.2.8.1.1", formula="4.2.63", latex=r"F_{v,Rd} = \frac{\alpha_v \cdot f_{ub} \cdot A_s}{\gamma_{M2}}")
 def bolt_shear_resistance(
     f_ub: float, A_s: float, bolt_class: str, gamma_M2: float
 ) -> float:
@@ -661,7 +661,7 @@ def bolt_shear_resistance(
     return alpha_v * f_ub * A_s / gamma_M2
 
 
-@ntc_ref(article="4.2.8.1.1", formula="4.2.68")
+@ntc_ref(article="4.2.8.1.1", formula="4.2.68", latex=r"F_{t,Rd} = \frac{0{,}9 \cdot f_{ub} \cdot A_s}{\gamma_{M2}}")
 def bolt_tension_resistance(
     f_ub: float, A_s: float, gamma_M2: float
 ) -> float:
@@ -693,7 +693,7 @@ def bolt_tension_resistance(
     return 0.9 * f_ub * A_s / gamma_M2
 
 
-@ntc_ref(article="4.2.8.1.1", formula="4.2.71")
+@ntc_ref(article="4.2.8.1.1", formula="4.2.71", latex=r"\frac{F_{v,Ed}}{F_{v,Rd}} + \frac{F_{t,Ed}}{F_{t,Rd}} \le 1{,}0")
 def bolt_shear_tension_interaction(
     F_v_Ed: float, F_t_Ed: float, F_v_Rd: float, F_t_Rd: float
 ) -> tuple[bool, float]:
@@ -733,12 +733,185 @@ def bolt_shear_tension_interaction(
     return utilization <= 1.0, utilization
 
 
+@ntc_ref(article="4.2.8.1.1", formula="4.2.67", latex=r"F_{b,Rd} = \frac{k_1 \cdot \alpha_b \cdot f_u \cdot d \cdot t}{\gamma_{M2}}")
+def bolt_bearing_resistance(
+    k1: float, alpha_b: float, f_u: float, d: float, t: float, gamma_M2: float
+) -> float:
+    """Resistenza a rifollamento del piatto dell'unione [N].
+
+    NTC18 §4.2.8.1.1, Formula [4.2.67]:
+        F_b,Rd = k1 * alpha_b * f_u * d * t / gamma_M2
+
+    I coefficienti k1 e alpha_b dipendono dalla posizione del bullone:
+
+    alpha_b (direzione del carico):
+        bordo:   min(e1 / (3*d0),  f_ub/f_u,  1.0)
+        interno: min(p1 / (3*d0) - 1/4,  f_ub/f_u,  1.0)
+
+    k1 (direzione perpendicolare al carico):
+        bordo:   min(2.8 * e2/d0 - 1.7,  2.5)
+        interno: min(1.4 * p2/d0 - 1.7,  2.5)
+
+    Parameters
+    ----------
+    k1 : float
+        Coefficiente k1 [-].
+    alpha_b : float
+        Coefficiente alpha_b [-].
+    f_u : float
+        Tensione di rottura dell'acciaio del piatto [N/mm^2].
+    d : float
+        Diametro nominale del bullone [mm].
+    t : float
+        Spessore del piatto collegato [mm].
+    gamma_M2 : float
+        Coefficiente parziale gamma_M2 [-].
+
+    Returns
+    -------
+    float
+        F_b,Rd: resistenza a rifollamento [N].
+    """
+    if k1 <= 0:
+        raise ValueError("k1 deve essere > 0")
+    if alpha_b <= 0:
+        raise ValueError("alpha_b deve essere > 0")
+    if f_u <= 0:
+        raise ValueError("f_u deve essere > 0")
+    if d <= 0:
+        raise ValueError("d deve essere > 0")
+    if t <= 0:
+        raise ValueError("t deve essere > 0")
+    if gamma_M2 <= 0:
+        raise ValueError("gamma_M2 deve essere > 0")
+    return k1 * alpha_b * f_u * d * t / gamma_M2
+
+
+@ntc_ref(article="4.2.8.1.1", formula="4.2.70", latex=r"F_{p,Rd} = \frac{0{,}6 \cdot \pi \cdot d_m \cdot t_p \cdot f_u}{\gamma_{M2}}")
+def bolt_punching_resistance(
+    d_m: float, t_p: float, f_u: float, gamma_M2: float
+) -> float:
+    """Resistenza a punzonamento del piatto collegato [N].
+
+    NTC18 §4.2.8.1.1, Formula [4.2.70]:
+        F_p,Rd = 0.6 * pi * d_m * t_p * f_u / gamma_M2
+
+    Parameters
+    ----------
+    d_m : float
+        Minimo tra diametro del dado e diametro medio della testa
+        del bullone [mm].
+    t_p : float
+        Spessore del piatto [mm].
+    f_u : float
+        Tensione di rottura dell'acciaio del piatto [N/mm^2].
+    gamma_M2 : float
+        Coefficiente parziale gamma_M2 [-].
+
+    Returns
+    -------
+    float
+        F_p,Rd: resistenza a punzonamento [N].
+    """
+    if d_m <= 0:
+        raise ValueError("d_m deve essere > 0")
+    if t_p <= 0:
+        raise ValueError("t_p deve essere > 0")
+    if f_u <= 0:
+        raise ValueError("f_u deve essere > 0")
+    if gamma_M2 <= 0:
+        raise ValueError("gamma_M2 deve essere > 0")
+    return 0.6 * math.pi * d_m * t_p * f_u / gamma_M2
+
+
+@ntc_ref(article="4.2.8.1.1", formula="4.2.72", latex=r"F_{s,Rd} = \frac{n \cdot \mu \cdot F_{p,Cd}}{\gamma_{M3}}")
+def bolt_friction_resistance(
+    n: int, mu: float, F_p_Cd: float, gamma_M3: float
+) -> float:
+    """Resistenza allo scorrimento di un bullone precaricato [N].
+
+    NTC18 §4.2.8.1.1, Formula [4.2.72]:
+        F_s,Rd = n * mu * F_p,Cd / gamma_M3
+
+    Valori tipici di mu:
+        0.5 — superfici sabbiate, esenti da ruggine
+        0.4 — superfici sabbiate e verniciate (Al o Zn)
+        0.3 — superfici spazzolate o alla fiamma
+        0.2 — superfici non trattate
+
+    Parameters
+    ----------
+    n : int
+        Numero di superfici di attrito [-].
+    mu : float
+        Coefficiente di attrito [-].
+    F_p_Cd : float
+        Forza di precarico del bullone [N].
+    gamma_M3 : float
+        Coefficiente parziale gamma_M3 [-].
+
+    Returns
+    -------
+    float
+        F_s,Rd: resistenza allo scorrimento [N].
+    """
+    if n <= 0:
+        raise ValueError("n deve essere > 0")
+    if mu <= 0:
+        raise ValueError("mu deve essere > 0")
+    if F_p_Cd <= 0:
+        raise ValueError("F_p_Cd deve essere > 0")
+    if gamma_M3 <= 0:
+        raise ValueError("gamma_M3 deve essere > 0")
+    return n * mu * F_p_Cd / gamma_M3
+
+
+@ntc_ref(article="4.2.8.1.1", formula="4.2.73", latex=r"F_{s,Rd} = \frac{n \cdot \mu \cdot (F_{p,Cd} - 0{,}8 \cdot F_{t,Ed})}{\gamma_{M3}}")
+def bolt_friction_tension_resistance(
+    n: int, mu: float, F_p_Cd: float, F_t_Ed: float, gamma_M3: float
+) -> float:
+    """Resistenza allo scorrimento con trazione concomitante [N].
+
+    NTC18 §4.2.8.1.1, Formula [4.2.73]:
+        F_s,Rd = n * mu * (F_p,Cd - 0.8 * F_t,Ed) / gamma_M3
+
+    Parameters
+    ----------
+    n : int
+        Numero di superfici di attrito [-].
+    mu : float
+        Coefficiente di attrito [-].
+    F_p_Cd : float
+        Forza di precarico del bullone [N].
+    F_t_Ed : float
+        Trazione di progetto sul bullone [N].
+    gamma_M3 : float
+        Coefficiente parziale gamma_M3 [-].
+
+    Returns
+    -------
+    float
+        F_s,Rd: resistenza allo scorrimento ridotta [N].
+    """
+    if n <= 0:
+        raise ValueError("n deve essere > 0")
+    if mu <= 0:
+        raise ValueError("mu deve essere > 0")
+    if F_p_Cd <= 0:
+        raise ValueError("F_p_Cd deve essere > 0")
+    if F_t_Ed < 0:
+        raise ValueError("F_t_Ed deve essere >= 0")
+    if gamma_M3 <= 0:
+        raise ValueError("gamma_M3 deve essere > 0")
+    return n * mu * (F_p_Cd - 0.8 * F_t_Ed) / gamma_M3
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # §4.2.8.2.4 — SALDATURE A CORDONI D'ANGOLO
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.2.8.2.4", formula="4.2.83")
+@ntc_ref(article="4.2.8.2.4", formula="4.2.83", latex=r"F_{w,Rd} = \frac{a \cdot f_{tk}}{\sqrt{3} \cdot \beta_w \cdot \gamma_{M2}}")
 def weld_fillet_resistance(
     a: float, f_tk: float, beta_w: float, gamma_M2: float
 ) -> float:

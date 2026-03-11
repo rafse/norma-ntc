@@ -59,7 +59,7 @@ _VARIABLE_LOADS: dict[str, tuple[float, float, float]] = {
 }
 
 
-@ntc_ref(article="3.1.2", table="Tab.3.1.I")
+@ntc_ref(article="3.1.2", table="Tab.3.1.I", latex=r"\text{Tab.\,3.1.I}")
 def unit_weight(material: str) -> float:
     """Peso unita' di volume di un materiale strutturale [kN/m^3].
 
@@ -90,7 +90,7 @@ def unit_weight(material: str) -> float:
         )
 
 
-@ntc_ref(article="3.1.3")
+@ntc_ref(article="3.1.3", latex=r"G_2 = \begin{cases} 0{,}40 & g \le 1{,}00 \\ 0{,}80 & g \le 2{,}00 \\ 1{,}20 & g \le 3{,}00 \\ 1{,}60 & g \le 4{,}00 \\ 2{,}00 & g \le 5{,}00 \end{cases}")
 def partition_equivalent_load(weight_per_meter: float) -> float:
     """Carico equivalente distribuito delle partizioni interne [kN/m^2].
 
@@ -133,7 +133,7 @@ def partition_equivalent_load(weight_per_meter: float) -> float:
     return 2.00
 
 
-@ntc_ref(article="3.1.4", table="Tab.3.1.II")
+@ntc_ref(article="3.1.4", table="Tab.3.1.II", latex=r"\text{Tab.\,3.1.II}")
 def variable_load(category: str) -> tuple[float, float, float]:
     """Sovraccarichi per categoria d'uso [kN/m^2, kN, kN/m].
 
@@ -166,7 +166,7 @@ def variable_load(category: str) -> tuple[float, float, float]:
         )
 
 
-@ntc_ref(article="3.1.4.1", formula="3.1.1")
+@ntc_ref(article="3.1.4.1", formula="3.1.1", latex=r"\alpha_A = \frac{5}{7}\,\psi_0 + \frac{10}{A} \le 1{,}0")
 def area_reduction_factor(
     area: float,
     psi_0: float,
@@ -213,7 +213,7 @@ def area_reduction_factor(
     return alpha_a
 
 
-@ntc_ref(article="3.1.4.1", formula="3.1.2")
+@ntc_ref(article="3.1.4.1", formula="3.1.2", latex=r"\alpha_n = \frac{2 + (n - 2)\,\psi_0}{n}")
 def floor_reduction_factor(n_floors: int, psi_0: float) -> float:
     """Coefficiente riduttivo per numero di piani alpha_n [-].
 

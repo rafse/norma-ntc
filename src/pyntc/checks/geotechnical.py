@@ -147,7 +147,7 @@ _ANCHOR_XI_PROFILES: dict[int, tuple[float, float]] = {
 # ============================================================================
 
 
-@ntc_ref(article="6.2.4.1.1", table="Tab.6.2.1")
+@ntc_ref(article="6.2.4.1.1", table="Tab.6.2.1", latex=r"\text{Tab.\,6.2.I}")
 def geo_action_partial_factors(
     load_type: str,
     effect: str,
@@ -195,7 +195,7 @@ def geo_action_partial_factors(
     return _ACTION_FACTORS[key]
 
 
-@ntc_ref(article="6.2.4.1.2", table="Tab.6.2.II")
+@ntc_ref(article="6.2.4.1.2", table="Tab.6.2.II", latex=r"\text{Tab.\,6.2.II}")
 def geo_material_partial_factors(parameter: str, group: str) -> float:
     """Coefficiente parziale per i parametri geotecnici del terreno [-].
 
@@ -232,7 +232,7 @@ def geo_material_partial_factors(parameter: str, group: str) -> float:
     return _MATERIAL_FACTORS[key]
 
 
-@ntc_ref(article="6.2.4.2", table="Tab.6.2.III")
+@ntc_ref(article="6.2.4.2", table="Tab.6.2.III", latex=r"\text{Tab.\,6.2.III}")
 def geo_uplift_partial_factors(load_type: str, effect: str) -> float:
     """Coefficiente parziale per verifiche al sollevamento (UPL) [-].
 
@@ -267,7 +267,7 @@ def geo_uplift_partial_factors(load_type: str, effect: str) -> float:
     return _UPLIFT_FACTORS[key]
 
 
-@ntc_ref(article="6.2.4.2", formula="6.2.4")
+@ntc_ref(article="6.2.4.2", formula="6.2.4", latex=r"V_{\mathrm{inst},d} \le G_{\mathrm{stb},d} + R_d")
 def geo_uplift_check(
     V_inst_d: float,
     G_stb_d: float,
@@ -300,7 +300,7 @@ def geo_uplift_check(
     return ratio <= 1.0, ratio
 
 
-@ntc_ref(article="6.2.4.2")
+@ntc_ref(article="6.2.4.2", latex=r"i \le \frac{i_c}{\gamma_R}")
 def geo_sifonamento_check(
     value: float,
     critical: float,
@@ -345,7 +345,7 @@ def geo_sifonamento_check(
     return ratio <= 1.0, ratio
 
 
-@ntc_ref(article="6.2.4.1.2", formula="6.2.3")
+@ntc_ref(article="6.2.4.1.2", formula="6.2.3", latex=r"R_d = \frac{R_k}{\gamma_R}")
 def geo_design_resistance(R_k: float, gamma_R: float) -> float:
     """Resistenza di progetto geotecnica [kN].
 
@@ -370,7 +370,7 @@ def geo_design_resistance(R_k: float, gamma_R: float) -> float:
     return R_k / gamma_R
 
 
-@ntc_ref(article="6.2.4.1", formula="6.2.1")
+@ntc_ref(article="6.2.4.1", formula="6.2.1", latex=r"E_d \le R_d")
 def geo_design_check(E_d: float, R_d: float) -> tuple[bool, float]:
     """Verifica geotecnica E_d <= R_d [6.2.1].
 
@@ -394,7 +394,7 @@ def geo_design_check(E_d: float, R_d: float) -> tuple[bool, float]:
     return ratio <= 1.0, ratio
 
 
-@ntc_ref(article="6.4.2.1", table="Tab.6.4.1")
+@ntc_ref(article="6.4.2.1", table="Tab.6.4.1", latex=r"\text{Tab.\,6.4.I}")
 def geo_shallow_foundation_factors(verification: str) -> float:
     """Coefficiente parziale R3 per fondazioni superficiali [-].
 
@@ -420,7 +420,7 @@ def geo_shallow_foundation_factors(verification: str) -> float:
     return factors[verification]
 
 
-@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.II")
+@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.II", latex=r"\text{Tab.\,6.4.II}")
 def geo_pile_resistance_factors(resistance: str, pile_type: str) -> float:
     """Coefficiente parziale R3 per resistenza assiale dei pali [-].
 
@@ -458,7 +458,7 @@ def geo_pile_resistance_factors(resistance: str, pile_type: str) -> float:
     return _PILE_FACTORS[key]
 
 
-@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.III")
+@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.III", latex=r"\text{Tab.\,6.4.III} \;\to\; (\xi_1,\,\xi_2)")
 def geo_pile_correlation_static(n_tests: int) -> tuple[float, float]:
     """Fattori di correlazione xi per prove di carico statiche su pali.
 
@@ -507,7 +507,7 @@ def _interpolate_pile_profiles(
     return table[keys[-1]]  # pragma: no cover
 
 
-@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.IV")
+@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.IV", latex=r"\text{Tab.\,6.4.IV} \;\to\; (\xi_3,\,\xi_4)")
 def geo_pile_correlation_profiles(n_profiles: int) -> tuple[float, float]:
     """Fattori di correlazione xi per verticali di indagine su pali.
 
@@ -530,7 +530,7 @@ def geo_pile_correlation_profiles(n_profiles: int) -> tuple[float, float]:
     return _interpolate_pile_profiles(n_profiles, _PILE_XI_PROFILES)
 
 
-@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.V")
+@ntc_ref(article="6.4.3.1.1", table="Tab.6.4.V", latex=r"\text{Tab.\,6.4.V} \;\to\; (\xi_5,\,\xi_6)")
 def geo_pile_correlation_dynamic(n_tests: int) -> tuple[float, float]:
     """Fattori di correlazione xi per prove dinamiche su pali.
 
@@ -556,7 +556,7 @@ def geo_pile_correlation_dynamic(n_tests: int) -> tuple[float, float]:
     return _PILE_XI_DYNAMIC[-1][1:]  # pragma: no cover
 
 
-@ntc_ref(article="6.4.3.1.1", formula="6.4.1")
+@ntc_ref(article="6.4.3.1.1", formula="6.4.1", latex=r"R_{c,k} = \min\!\left(\frac{R_{c,\mathrm{medio}}}{\xi_1},\;\frac{R_{c,\min}}{\xi_2}\right)")
 def geo_pile_characteristic_resistance(
     R_values: list[float],
     method: str,
@@ -603,7 +603,7 @@ def geo_pile_characteristic_resistance(
         )
 
 
-@ntc_ref(article="6.4.3.1.2", table="Tab.6.4.VI")
+@ntc_ref(article="6.4.3.1.2", table="Tab.6.4.VI", latex=r"\gamma_T = 1{,}3")
 def geo_pile_transverse_factor() -> float:
     """Coefficiente parziale R3 per pali soggetti a carichi trasversali [-].
 
@@ -617,7 +617,7 @@ def geo_pile_transverse_factor() -> float:
     return 1.3
 
 
-@ntc_ref(article="6.5.3.1.1", table="Tab.6.5.1")
+@ntc_ref(article="6.5.3.1.1", table="Tab.6.5.1", latex=r"\text{Tab.\,6.5.I}")
 def geo_retaining_wall_factors(verification: str) -> float:
     """Coefficiente parziale R3 per muri di sostegno [-].
 
@@ -649,7 +649,7 @@ def geo_retaining_wall_factors(verification: str) -> float:
     return factors[verification]
 
 
-@ntc_ref(article="6.6.2", table="Tab.6.6.1")
+@ntc_ref(article="6.6.2", table="Tab.6.6.1", latex=r"\text{Tab.\,6.6.I}")
 def geo_anchor_resistance_factors(anchor_type: str) -> float:
     """Coefficiente parziale per la resistenza degli ancoraggi [-].
 
@@ -674,7 +674,7 @@ def geo_anchor_resistance_factors(anchor_type: str) -> float:
     return factors[anchor_type]
 
 
-@ntc_ref(article="6.6.2", table="Tab.6.6.II")
+@ntc_ref(article="6.6.2", table="Tab.6.6.II", latex=r"\text{Tab.\,6.6.II} \;\to\; (\xi_{a1},\,\xi_{a2})")
 def geo_anchor_correlation_tests(n_tests: int) -> tuple[float, float]:
     """Fattori di correlazione xi per prove di progetto su ancoraggi.
 
@@ -697,7 +697,7 @@ def geo_anchor_correlation_tests(n_tests: int) -> tuple[float, float]:
     return _ANCHOR_XI_TESTS[n_tests]
 
 
-@ntc_ref(article="6.6.2", table="Tab.6.6.III")
+@ntc_ref(article="6.6.2", table="Tab.6.6.III", latex=r"\text{Tab.\,6.6.III} \;\to\; (\xi_{a3},\,\xi_{a4})")
 def geo_anchor_correlation_profiles(n_profiles: int) -> tuple[float, float]:
     """Fattori di correlazione xi per profili di indagine per ancoraggi.
 
@@ -722,7 +722,7 @@ def geo_anchor_correlation_profiles(n_profiles: int) -> tuple[float, float]:
     return _ANCHOR_XI_PROFILES[n_profiles]
 
 
-@ntc_ref(article="6.6.2", formula="6.6.1")
+@ntc_ref(article="6.6.2", formula="6.6.1", latex=r"R_{a,k} = \min\!\left(\frac{R_{a,\mathrm{medio}}}{\xi_{a1}},\;\frac{R_{a,\min}}{\xi_{a2}}\right)")
 def geo_anchor_characteristic_resistance(
     R_values: list[float],
     method: str,
@@ -765,7 +765,7 @@ def geo_anchor_characteristic_resistance(
         )
 
 
-@ntc_ref(article="6.8.2", table="Tab.6.8.1")
+@ntc_ref(article="6.8.2", table="Tab.6.8.1", latex=r"\gamma_R = 1{,}1")
 def geo_embankment_resistance_factor() -> float:
     """Coefficiente parziale R2 per opere di materiali sciolti e fronti di scavo [-].
 

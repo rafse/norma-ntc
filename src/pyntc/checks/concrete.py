@@ -22,7 +22,7 @@ from pyntc.core.reference import ntc_ref
 # ── Resistenze di progetto dei materiali ──────────────────────────────────────
 
 
-@ntc_ref(article="4.1.2.1.1.1", formula="4.1.3")
+@ntc_ref(article="4.1.2.1.1.1", formula="4.1.3", latex=r"f_{cd} = \alpha_{cc} \cdot \frac{f_{ck}}{\gamma_c}")
 def concrete_design_compressive_strength(
     f_ck: float,
     gamma_c: float = 1.5,
@@ -51,7 +51,7 @@ def concrete_design_compressive_strength(
     return alpha_cc * f_ck / gamma_c
 
 
-@ntc_ref(article="4.1.2.1.1.2", formula="4.1.4")
+@ntc_ref(article="4.1.2.1.1.2", formula="4.1.4", latex=r"f_{ctd} = \frac{f_{ctk}}{\gamma_c}")
 def concrete_design_tensile_strength(
     f_ctk: float,
     gamma_c: float = 1.5,
@@ -77,7 +77,7 @@ def concrete_design_tensile_strength(
     return f_ctk / gamma_c
 
 
-@ntc_ref(article="4.1.2.1.1.3", formula="4.1.5")
+@ntc_ref(article="4.1.2.1.1.3", formula="4.1.5", latex=r"f_{yd} = \frac{f_{yk}}{\gamma_s}")
 def steel_design_strength(
     f_yk: float,
     gamma_s: float = 1.15,
@@ -103,7 +103,7 @@ def steel_design_strength(
     return f_yk / gamma_s
 
 
-@ntc_ref(article="4.1.2.1.1.4", formula="4.1.6")
+@ntc_ref(article="4.1.2.1.1.4", formula="4.1.6", latex=r"f_{bd} = 2{,}25 \cdot \eta_1 \cdot \eta_2 \cdot \frac{f_{ctk}}{\gamma_c}")
 def bond_design_strength(
     f_ctk: float,
     eta_1: float = 1.0,
@@ -138,7 +138,7 @@ def bond_design_strength(
 # ── Limiti di deformazione ────────────────────────────────────────────────────
 
 
-@ntc_ref(article="4.1.2.1.2.1")
+@ntc_ref(article="4.1.2.1.2.1", latex=r"\text{Tab.\,4.1.I — Deformazioni limite } \varepsilon_{c2},\,\varepsilon_{cu2},\,\varepsilon_{c3},\,\varepsilon_{cu3}")
 def concrete_strain_limits(
     f_ck: float,
 ) -> tuple[float, float, float, float]:
@@ -175,7 +175,7 @@ def concrete_strain_limits(
     return eps_c2, eps_cu2, eps_c3, eps_cu3
 
 
-@ntc_ref(article="4.1.2.1.2.1", formula="4.1.8")
+@ntc_ref(article="4.1.2.1.2.1", formula="4.1.8", latex=r"f_{ck,c} = f_{ck}\!\left(1 + 5\,\frac{\sigma_2}{f_{ck}}\right) \;\text{se } \sigma_2 \le 0{,}05\,f_{ck}")
 def concrete_confined_strength(
     f_ck: float,
     sigma_2: float,
@@ -223,7 +223,7 @@ def concrete_confined_strength(
 # ── Limiti di tensione SLE ────────────────────────────────────────────────────
 
 
-@ntc_ref(article="4.1.2.2.5.1", formula="4.1.15")
+@ntc_ref(article="4.1.2.2.5.1", formula="4.1.15", latex=r"\sigma_c \le 0{,}60\,f_{ck} \;\text{(rara)};\quad \sigma_c \le 0{,}45\,f_{ck} \;\text{(quasi perm.)}")
 def concrete_stress_limit(
     f_ck: float,
     combination: str = "characteristic",
@@ -258,7 +258,7 @@ def concrete_stress_limit(
         )
 
 
-@ntc_ref(article="4.1.2.2.5.2", formula="4.1.17")
+@ntc_ref(article="4.1.2.2.5.2", formula="4.1.17", latex=r"\sigma_s \le 0{,}80\,f_{yk}")
 def steel_stress_limit(f_yk: float) -> float:
     """Tensione massima ammissibile nell'acciaio SLE [MPa].
 
@@ -282,7 +282,7 @@ def steel_stress_limit(f_yk: float) -> float:
 # ── Verifica a taglio ─────────────────────────────────────────────────────────
 
 
-@ntc_ref(article="4.1.2.3.5.1", formula="4.1.23")
+@ntc_ref(article="4.1.2.3.5.1", formula="4.1.23", latex=r"V_{Rd} = \max\!\bigl[\bigl(C_{Rd,c}\,k\,(100\,\rho_l\,f_{ck})^{1/3} + 0{,}15\,\sigma_{cp}\bigr)\,b_w\,d;\; (v_{\min} + 0{,}15\,\sigma_{cp})\,b_w\,d\bigr]")
 def shear_resistance_no_stirrups(
     f_ck: float,
     d: float,
@@ -350,7 +350,7 @@ def _alpha_c_coefficient(sigma_cp: float, f_cd: float) -> float:
         return 0.0  # sigma_cp >= f_cd, sezione completamente compressa
 
 
-@ntc_ref(article="4.1.2.3.5.2", formula="4.1.27")
+@ntc_ref(article="4.1.2.3.5.2", formula="4.1.27", latex=r"V_{Rd} = \min(V_{Rsd},\,V_{Rcd})")
 def shear_resistance_with_stirrups(
     d: float,
     bw: float,
@@ -419,7 +419,7 @@ def shear_resistance_with_stirrups(
 # ── Verifica a torsione ──────────────────────────────────────────────────────
 
 
-@ntc_ref(article="4.1.2.3.6", formula="4.1.35")
+@ntc_ref(article="4.1.2.3.6", formula="4.1.35", latex=r"T_{Rd} = \min(T_{Rcd},\,T_{Rsd},\,T_{Rld})")
 def torsion_resistance(
     A: float,
     t: float,
@@ -486,7 +486,7 @@ def torsion_resistance(
     return min(T_Rcd, T_Rsd, T_Rld)
 
 
-@ntc_ref(article="4.1.2.3.6", formula="4.1.40")
+@ntc_ref(article="4.1.2.3.6", formula="4.1.40", latex=r"\frac{T_{Ed}}{T_{Rcd}} + \frac{V_{Ed}}{V_{Rcd}} \le 1{,}0")
 def torsion_shear_interaction(
     T_Ed: float,
     T_Rcd: float,
@@ -541,7 +541,7 @@ def _biaxial_alpha(nu: float, section: str) -> float:
         return 2.0
 
 
-@ntc_ref(article="4.1.2.3.4.2", formula="4.1.19")
+@ntc_ref(article="4.1.2.3.4.2", formula="4.1.19", latex=r"\left(\frac{M_{Edy}}{M_{Rdy}}\right)^{\!\alpha} + \left(\frac{M_{Edz}}{M_{Rdz}}\right)^{\!\alpha} \le 1{,}0")
 def biaxial_bending_check(
     M_Edy: float,
     M_Rdy: float,

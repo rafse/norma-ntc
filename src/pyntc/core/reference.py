@@ -17,6 +17,7 @@ class NtcReference:
     article: str
     table: str | None = None
     formula: str | None = None
+    latex: str | None = None
     norm: str = "NTC18"
 
     def __str__(self) -> str:
@@ -32,6 +33,7 @@ def ntc_ref(
     article: str,
     table: str | None = None,
     formula: str | None = None,
+    latex: str | None = None,
     norm: str = "NTC18",
 ):
     """Decoratore per tracciabilita' normativa.
@@ -57,7 +59,7 @@ def ntc_ref(
     ...     ...
     """
 
-    ref = NtcReference(article=article, table=table, formula=formula, norm=norm)
+    ref = NtcReference(article=article, table=table, formula=formula, latex=latex, norm=norm)
 
     def decorator(func):
         func._ntc_ref = ref

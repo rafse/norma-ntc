@@ -30,7 +30,7 @@ _GAMMA_M_TABLE: dict[tuple[int, str], dict[int, float]] = {
 }
 
 
-@ntc_ref(article="4.5.6.1", table="Tab.4.5.II")
+@ntc_ref(article="4.5.6.1", table="Tab.4.5.II", latex=r"\text{Tab.\,4.5.II}")
 def masonry_partial_safety_factor(
     element_category: int, mortar_type: str, execution_class: int
 ) -> float:
@@ -73,7 +73,7 @@ def masonry_partial_safety_factor(
     return _GAMMA_M_TABLE[(element_category, mortar_type)][execution_class]
 
 
-@ntc_ref(article="4.5.6.1", formula="4.5.2")
+@ntc_ref(article="4.5.6.1", formula="4.5.2", latex=r"f_d = \frac{f_k}{\gamma_M}")
 def masonry_design_compressive_strength(
     f_k: float, gamma_M: float
 ) -> float:
@@ -101,7 +101,7 @@ def masonry_design_compressive_strength(
     return f_k / gamma_M
 
 
-@ntc_ref(article="4.5.6.1", formula="4.5.3")
+@ntc_ref(article="4.5.6.1", formula="4.5.3", latex=r"f_{vd} = \frac{f_{vk}}{\gamma_M}")
 def masonry_design_shear_strength(
     f_vk: float, gamma_M: float
 ) -> float:
@@ -134,7 +134,7 @@ def masonry_design_shear_strength(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.5.4", formula="4.5.1")
+@ntc_ref(article="4.5.4", formula="4.5.1", latex=r"\lambda = \frac{h_0}{t}")
 def masonry_slenderness(h_0: float, t: float) -> float:
     """Snellezza convenzionale della parete [-].
 
@@ -174,7 +174,7 @@ def masonry_slenderness(h_0: float, t: float) -> float:
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.5.6.2", table="Tab.4.5.IV")
+@ntc_ref(article="4.5.6.2", table="Tab.4.5.IV", latex=r"\rho = \begin{cases} 1 & h/a \le 0{,}5 \\ \frac{3}{2} - \frac{h}{a} & 0{,}5 < h/a \le 1 \\ \frac{1}{1+(h/a)^2} & h/a > 1 \end{cases}")
 def masonry_lateral_restraint_factor(h: float, a: float) -> float:
     """Fattore laterale di vincolo rho (= q in [4.5.5]) [-].
 
@@ -210,7 +210,7 @@ def masonry_lateral_restraint_factor(h: float, a: float) -> float:
         return 1.0 / (1.0 + ratio ** 2)
 
 
-@ntc_ref(article="4.5.6.2", formula="4.5.5")
+@ntc_ref(article="4.5.6.2", formula="4.5.5", latex=r"h_0 = \rho \cdot h")
 def masonry_effective_height(rho: float, h: float) -> float:
     """Lunghezza libera d'inflessione della parete [mm].
 
@@ -238,7 +238,7 @@ def masonry_effective_height(rho: float, h: float) -> float:
     return rho * h
 
 
-@ntc_ref(article="4.5.6.2", formula="4.5.6")
+@ntc_ref(article="4.5.6.2", formula="4.5.6", latex=r"m = \frac{6\,e}{t}")
 def masonry_eccentricity_coefficient(e: float, t: float) -> float:
     """Coefficiente di eccentricita' m [-].
 
@@ -286,7 +286,7 @@ def _phi_value(i_lam: int, j_m: int) -> float | None:
     return None
 
 
-@ntc_ref(article="4.5.6.2", table="Tab.4.5.III")
+@ntc_ref(article="4.5.6.2", table="Tab.4.5.III", latex=r"\Phi = f(\lambda,\,m) \quad \text{Tab.\,4.5.III}")
 def masonry_reduction_factor(lambda_: float, m: float) -> float:
     """Coefficiente di riduzione Phi della resistenza [-].
 
@@ -388,7 +388,7 @@ def masonry_reduction_factor(lambda_: float, m: float) -> float:
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.5.6.2", formula="4.5.4")
+@ntc_ref(article="4.5.6.2", formula="4.5.4", latex=r"f_{d,\text{rid}} = \Phi \cdot f_d")
 def masonry_reduced_strength(Phi: float, f_d: float) -> float:
     """Resistenza unitaria di progetto ridotta [N/mm^2].
 
@@ -419,7 +419,7 @@ def masonry_reduced_strength(Phi: float, f_d: float) -> float:
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="4.5.6.4", formula="4.5.12")
+@ntc_ref(article="4.5.6.4", formula="4.5.12", latex=r"\sigma = \frac{N}{0{,}65\,A} \le \frac{f_k}{\gamma_M}")
 def masonry_simplified_check(
     N: float, A: float, f_k: float, gamma_M: float
 ) -> tuple[bool, float]:

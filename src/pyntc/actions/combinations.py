@@ -49,7 +49,7 @@ _GAMMA_INDEX: dict[str, tuple[int, int]] = {
 
 # ── Tab. 2.5.1 — Lookup ψ ───────────────────────────────────────────────────
 
-@ntc_ref(article="2.5.2", table="Tab.2.5.1")
+@ntc_ref(article="2.5.2", table="Tab.2.5.1", latex=r"\text{Tab.\,2.5.1} \to (\psi_0,\;\psi_1,\;\psi_2)")
 def combination_coefficients(category: str) -> tuple[float, float, float]:
     """Coefficienti di combinazione ψ_0, ψ_1, ψ_2 [-].
 
@@ -90,7 +90,7 @@ def combination_coefficients(category: str) -> tuple[float, float, float]:
 
 # ── Tab. 2.6.1 — Lookup γ ───────────────────────────────────────────────────
 
-@ntc_ref(article="2.6.1", table="Tab.2.6.1")
+@ntc_ref(article="2.6.1", table="Tab.2.6.1", latex=r"\text{Tab.\,2.6.1} \to \gamma_F")
 def partial_safety_factors(
     load_type: str,
     favorable: bool,
@@ -151,7 +151,7 @@ def _validate_Q_categories(
 
 # ── [2.5.1] — Combinazione fondamentale SLU ─────────────────────────────────
 
-@ntc_ref(article="2.5.3", formula="2.5.1")
+@ntc_ref(article="2.5.3", formula="2.5.1", latex=r"F_d = \gamma_{G1} G_1 + \gamma_{G2} G_2 + \gamma_P P + \gamma_{Q1} Q_{k1} + \sum_{i>1} \gamma_{Qi} \psi_{0i} Q_{ki}")
 def slu_combination(
     G1: float,
     G2: float,
@@ -221,7 +221,7 @@ def slu_combination(
 
 # ── [2.5.2] — Combinazione caratteristica (rara) SLE ────────────────────────
 
-@ntc_ref(article="2.5.3", formula="2.5.2")
+@ntc_ref(article="2.5.3", formula="2.5.2", latex=r"F_d = G_1 + G_2 + P + Q_{k1} + \sum_{i>1} \psi_{0i} Q_{ki}")
 def sle_characteristic_combination(
     G1: float,
     G2: float,
@@ -273,7 +273,7 @@ def sle_characteristic_combination(
 
 # ── [2.5.3] — Combinazione frequente SLE ────────────────────────────────────
 
-@ntc_ref(article="2.5.3", formula="2.5.3")
+@ntc_ref(article="2.5.3", formula="2.5.3", latex=r"F_d = G_1 + G_2 + P + \psi_{11} Q_{k1} + \sum_{i>1} \psi_{2i} Q_{ki}")
 def sle_frequent_combination(
     G1: float,
     G2: float,
@@ -327,7 +327,7 @@ def sle_frequent_combination(
 
 # ── [2.5.4] — Combinazione quasi permanente SLE ─────────────────────────────
 
-@ntc_ref(article="2.5.3", formula="2.5.4")
+@ntc_ref(article="2.5.3", formula="2.5.4", latex=r"F_d = G_1 + G_2 + P + \sum_i \psi_{2i} Q_{ki}")
 def sle_quasi_permanent_combination(
     G1: float,
     G2: float,
@@ -370,7 +370,7 @@ def sle_quasi_permanent_combination(
 
 # ── [2.5.5] — Combinazione sismica ──────────────────────────────────────────
 
-@ntc_ref(article="2.5.3", formula="2.5.5")
+@ntc_ref(article="2.5.3", formula="2.5.5", latex=r"F_d = E + G_1 + G_2 + P + \sum_i \psi_{2i} Q_{ki}")
 def seismic_combination(
     E: float,
     G1: float,
@@ -416,7 +416,7 @@ def seismic_combination(
 
 # ── [2.5.6] — Combinazione eccezionale ──────────────────────────────────────
 
-@ntc_ref(article="2.5.3", formula="2.5.6")
+@ntc_ref(article="2.5.3", formula="2.5.6", latex=r"F_d = G_1 + G_2 + P + A_d + \sum_i \psi_{2i} Q_{ki}")
 def exceptional_combination(
     G1: float,
     G2: float,
@@ -462,7 +462,7 @@ def exceptional_combination(
 
 # ── [2.5.7] — Masse sismiche ────────────────────────────────────────────────
 
-@ntc_ref(article="2.5.3", formula="2.5.7")
+@ntc_ref(article="2.5.3", formula="2.5.7", latex=r"W = G_1 + G_2 + \sum_i \psi_{2i} Q_{ki}")
 def seismic_masses(
     G1: float,
     G2: float,

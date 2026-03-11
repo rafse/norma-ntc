@@ -33,7 +33,7 @@ _EXPOSURE_COEFFICIENTS: dict[str, float] = {
 }
 
 
-@ntc_ref(article="3.4.2")
+@ntc_ref(article="3.4.2", latex=r"q_{sk} = c \left[1 + \left(\frac{a_s}{d}\right)^2\right]")
 def snow_ground_load(zone: str, altitude: float) -> float:
     """Carico di riferimento della neve al suolo q_sk [kN/m^2].
 
@@ -81,7 +81,7 @@ def snow_ground_load(zone: str, altitude: float) -> float:
     return coeff * (1.0 + (altitude / divisore) ** esponente)
 
 
-@ntc_ref(article="3.4.3", table="Tab.3.4.II")
+@ntc_ref(article="3.4.3", table="Tab.3.4.II", latex=r"\mu_1 = 0{,}8 \cdot \frac{60 - \alpha}{30}")
 def snow_shape_coefficient(alpha: float) -> float:
     """Coefficiente di forma della copertura mu_1 [-].
 
@@ -116,7 +116,7 @@ def snow_shape_coefficient(alpha: float) -> float:
     return 0.0
 
 
-@ntc_ref(article="3.4.4", table="Tab.3.4.I")
+@ntc_ref(article="3.4.4", table="Tab.3.4.I", latex=r"\text{Tab.\,3.4.I}")
 def snow_exposure_coefficient(topography: str) -> float:
     """Coefficiente di esposizione C_E [-].
 
@@ -147,7 +147,7 @@ def snow_exposure_coefficient(topography: str) -> float:
         )
 
 
-@ntc_ref(article="3.4.1", formula="3.4.1")
+@ntc_ref(article="3.4.1", formula="3.4.1", latex=r"q_s = q_{sk} \cdot \mu_i \cdot C_E \cdot C_t")
 def snow_roof_load(
     q_sk: float,
     mu_i: float,

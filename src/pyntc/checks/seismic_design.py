@@ -26,7 +26,7 @@ from pyntc.core.reference import ntc_ref
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="7.2.3", formula="7.2.1")
+@ntc_ref(article="7.2.3", formula="7.2.1", latex=r"F_a = \frac{S_a \cdot W_a}{q_a}")
 def seismic_force_nonstructural(
     S_a: float, W_a: float, q_a: float
 ) -> float:
@@ -208,7 +208,7 @@ _Q0_TABLE: dict[str, dict[str, tuple[float, str | None]]] = {
 }
 
 
-@ntc_ref(article="7.3.1", table="Tab.7.3.II")
+@ntc_ref(article="7.3.1", table="Tab.7.3.II", latex=r"\text{Tab.\,7.3.II}")
 def behavior_factor_base(
     structural_type: str,
     ductility_class: str = "B",
@@ -256,7 +256,7 @@ def behavior_factor_base(
         return q0_base
 
 
-@ntc_ref(article="7.3.1", formula="7.3.1")
+@ntc_ref(article="7.3.1", formula="7.3.1", latex=r"q = q_0 \cdot K_R")
 def behavior_factor(
     q_0: float, regular_in_height: bool = True
 ) -> float:
@@ -284,7 +284,7 @@ def behavior_factor(
     return q_0 * K_R
 
 
-@ntc_ref(article="7.3.1", formula="7.3.2")
+@ntc_ref(article="7.3.1", formula="7.3.2", latex=r"1 \le q_{ND} = \frac{2}{3}\,q_{CD\text{B}} \le 1{,}5")
 def behavior_factor_nondissipative(q_cdb: float) -> float:
     """Fattore di comportamento per strutture non dissipative [-].
 
@@ -312,7 +312,7 @@ def behavior_factor_nondissipative(q_cdb: float) -> float:
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="7.3.1", formula="7.3.3")
+@ntc_ref(article="7.3.1", formula="7.3.3", latex=r"\theta = \frac{P \cdot d_r}{V \cdot h}")
 def pdelta_sensitivity(
     P: float, d_r: float, V: float, h: float
 ) -> tuple[float, str, float]:
@@ -377,7 +377,7 @@ def _cqc_correlation(beta: float, xi: float) -> float:
     return num / den
 
 
-@ntc_ref(article="7.3.3.1", formula="7.3.4")
+@ntc_ref(article="7.3.3.1", formula="7.3.4", latex=r"E = \sqrt{\sum_i \sum_j \rho_{ij}\,E_i\,E_j}")
 def cqc_modal_combination(
     effects: np.ndarray,
     periods: np.ndarray,
@@ -439,7 +439,7 @@ def cqc_modal_combination(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="7.3.3.2", formula="7.3.6")
+@ntc_ref(article="7.3.3.2", formula="7.3.6", latex=r"T_1 = 2\,\sqrt{d}")
 def approximate_period(d: float) -> float:
     """Periodo fondamentale approssimato [s].
 
@@ -464,7 +464,7 @@ def approximate_period(d: float) -> float:
 _G = 9.81  # accelerazione di gravita' [m/s^2]
 
 
-@ntc_ref(article="7.3.3.2", formula="7.3.7")
+@ntc_ref(article="7.3.3.2", formula="7.3.7", latex=r"F_i = F_h \,\frac{z_i \, W_i}{\sum_j z_j \, W_j}")
 def equivalent_static_forces(
     S_d_T1: float,
     weights: np.ndarray,
@@ -525,7 +525,7 @@ def equivalent_static_forces(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="7.3.3.3", formula="7.3.8")
+@ntc_ref(article="7.3.3.3", formula="7.3.8", latex=r"\mu_d = \begin{cases} q & T_1 \ge T_C \\ 1 + (q-1)\,\frac{T_C}{T_1} & T_1 < T_C \end{cases}")
 def displacement_ductility(
     q: float, T_1: float, T_c: float
 ) -> float:
@@ -570,7 +570,7 @@ def displacement_ductility(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="7.3.5", formula="7.3.10")
+@ntc_ref(article="7.3.5", formula="7.3.10", latex=r"1{,}00\,E_x + 0{,}30\,E_y + 0{,}30\,E_z")
 def seismic_directional_combination(
     E_x: float, E_y: float, E_z: float = 0.0
 ) -> tuple[float, float, float]:
@@ -608,7 +608,7 @@ def seismic_directional_combination(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="7.4.4.1.2", formula="7.4.3")
+@ntc_ref(article="7.4.4.1.2", formula="7.4.3", latex=r"\mu_{\varphi,0} = \begin{cases} 1{,}2\,(2\,q_0 - 1) & T_1 \ge T_C \\ 1 + 2\,(q_0 - 1)\,\frac{T_C}{T_1} & T_1 < T_C \end{cases}")
 def curvature_ductility_demand(
     q_0: float, T_1: float, T_c: float
 ) -> float:
@@ -643,7 +643,7 @@ def curvature_ductility_demand(
         return 1.0 + 2.0 * (q_0 - 1.0) * T_c / T_1
 
 
-@ntc_ref(article="7.4.4.2.1", formula="7.4.4")
+@ntc_ref(article="7.4.4.2.1", formula="7.4.4", latex=r"\sum M_{c,Rd} \ge \gamma_{Rd} \sum M_{b,Rd}")
 def capacity_design_columns(
     M_c: np.ndarray,
     M_b: np.ndarray,
@@ -684,7 +684,7 @@ def capacity_design_columns(
 # ══════════════════════════════════════════════════════════════════════════════
 
 
-@ntc_ref(article="7.11.3.5.2", formula="7.11.3")
+@ntc_ref(article="7.11.3.5.2", formula="7.11.3", latex=r"k_h = \beta_s \,\frac{a_{max}}{g}, \quad k_v = 0{,}5\,k_h, \quad a_{max} = S_S \, S_T \, a_g")
 def pseudostatic_coefficients(
     a_g: float,
     S_s: float,

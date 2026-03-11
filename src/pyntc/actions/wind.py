@@ -42,7 +42,8 @@ _EXPOSURE_CATEGORIES: dict[int, tuple[float, float, float]] = {
 _RHO_AIR = 1.25
 
 
-@ntc_ref(article="3.3.1", table="Tab.3.3.I", formula="3.3.1")
+@ntc_ref(article="3.3.1", table="Tab.3.3.I", formula="3.3.1",
+         latex=r"v_b = v_{b,0} \cdot c_a \quad c_a = 1 + k_s \left(\frac{a_s}{a_0} - 1\right)")
 def wind_base_velocity(zone: int, altitude: float = 0.0) -> float:
     """Velocita' base di riferimento del vento v_b [m/s].
 
@@ -92,7 +93,8 @@ def wind_base_velocity(zone: int, altitude: float = 0.0) -> float:
     return vb0 * c_a
 
 
-@ntc_ref(article="3.3.2", formula="3.3.3")
+@ntc_ref(article="3.3.2", formula="3.3.3",
+         latex=r"c_r = 0{,}75 \sqrt{1 - 0{,}2 \ln\!\bigl[-\ln\!\bigl(1 - \tfrac{1}{T_R}\bigr)\bigr]}")
 def wind_return_coefficient(return_period: float) -> float:
     """Coefficiente di ritorno c_r [-].
 
@@ -126,7 +128,8 @@ def wind_return_coefficient(return_period: float) -> float:
     )
 
 
-@ntc_ref(article="3.3.2", formula="3.3.2")
+@ntc_ref(article="3.3.2", formula="3.3.2",
+         latex=r"v_r = v_b \cdot c_r")
 def wind_reference_velocity(
     zone: int,
     altitude: float = 0.0,
@@ -156,7 +159,8 @@ def wind_reference_velocity(
     return v_b * c_r
 
 
-@ntc_ref(article="3.3.6", formula="3.3.6")
+@ntc_ref(article="3.3.6", formula="3.3.6",
+         latex=r"q_b = \tfrac{1}{2}\,\rho\,v_r^2")
 def wind_kinetic_pressure(v_r: float) -> float:
     """Pressione cinetica di riferimento q_b [kN/m^2].
 
@@ -187,7 +191,8 @@ def wind_kinetic_pressure(v_r: float) -> float:
     return 0.5 * _RHO_AIR * v_r**2 / 1000.0
 
 
-@ntc_ref(article="3.3.7", table="Tab.3.3.II", formula="3.3.7")
+@ntc_ref(article="3.3.7", table="Tab.3.3.II", formula="3.3.7",
+         latex=r"c_e(z) = k_r^2 \, c_t \, \ln\!\tfrac{z}{z_0}\,\bigl[7 + c_t \, \ln\!\tfrac{z}{z_0}\bigr]")
 def wind_exposure_coefficient(
     z: float,
     exposure_category: int,
@@ -234,7 +239,8 @@ def wind_exposure_coefficient(
     return kr**2 * c_t * ln_z * (7.0 + c_t * ln_z)
 
 
-@ntc_ref(article="3.3.4", formula="3.3.4")
+@ntc_ref(article="3.3.4", formula="3.3.4",
+         latex=r"p = q_b \, c_e \, c_p \, c_d")
 def wind_pressure(
     q_b: float,
     c_e: float,
@@ -265,7 +271,8 @@ def wind_pressure(
     return q_b * c_e * c_p * c_d
 
 
-@ntc_ref(article="3.3.5", formula="3.3.5")
+@ntc_ref(article="3.3.5", formula="3.3.5",
+         latex=r"p_f = q_b \, c_e \, c_f")
 def wind_friction_action(
     q_b: float,
     c_e: float,

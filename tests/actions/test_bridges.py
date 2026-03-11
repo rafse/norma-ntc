@@ -6,7 +6,7 @@ import pytest
 import numpy as np
 from numpy.testing import assert_allclose
 
-from pyntc.checks.bridges import (
+from pyntc.actions.bridges import (
     bridge_conventional_lanes,
     bridge_load_scheme_1,
     bridge_long_span_load,

@@ -137,7 +137,7 @@ _VALID_SERVICE_CLASSES = {1, 2, 3}
 # 1. timber_partial_safety_factor — Tab.4.4.III
 # ===========================================================================
 
-@ntc_ref(article="4.4.6", table="4.4.III")
+@ntc_ref(article="4.4.6", table="4.4.III", latex=r"\text{Tab.\,4.4.III}")
 def timber_partial_safety_factor(
     material: str, *, controlled: bool = False
 ) -> float:
@@ -171,7 +171,7 @@ def timber_partial_safety_factor(
 # 2. timber_kmod — Tab.4.4.IV
 # ===========================================================================
 
-@ntc_ref(article="4.4.6", table="4.4.IV")
+@ntc_ref(article="4.4.6", table="4.4.IV", latex=r"\text{Tab.\,4.4.IV}")
 def timber_kmod(material: str, service_class: int, load_duration: str) -> float:
     """Coefficiente di correzione k_mod [-].
 
@@ -218,7 +218,7 @@ def timber_kmod(material: str, service_class: int, load_duration: str) -> float:
 # 3. timber_kdef — Tab.4.4.V
 # ===========================================================================
 
-@ntc_ref(article="4.4.7", table="4.4.V")
+@ntc_ref(article="4.4.7", table="4.4.V", latex=r"\text{Tab.\,4.4.V}")
 def timber_kdef(material: str, service_class: int) -> float:
     """Coefficiente di deformazione k_def [-].
 
@@ -255,7 +255,7 @@ def timber_kdef(material: str, service_class: int) -> float:
 # 4. timber_design_strength — [4.4.1]
 # ===========================================================================
 
-@ntc_ref(article="4.4.6", formula="4.4.1")
+@ntc_ref(article="4.4.6", formula="4.4.1", latex=r"X_d = k_{\mathrm{mod}} \cdot \frac{X_k}{\gamma_M}")
 def timber_design_strength(X_k: float, k_mod: float, gamma_M: float) -> float:
     """Resistenza di progetto X_d = k_mod * X_k / gamma_M [N/mm^2].
 
@@ -286,7 +286,7 @@ def timber_design_strength(X_k: float, k_mod: float, gamma_M: float) -> float:
 # 5. timber_long_term_modulus — §4.4.7
 # ===========================================================================
 
-@ntc_ref(article="4.4.7")
+@ntc_ref(article="4.4.7", latex=r"E_{\mathrm{fin}} = \frac{E_{\mathrm{mean}}}{1 + k_{\mathrm{def}}}")
 def timber_long_term_modulus(E_mean: float, k_def: float) -> float:
     """Modulo elastico a lungo termine E_fin = E_mean / (1 + k_def) [N/mm^2].
 
@@ -311,7 +311,7 @@ def timber_long_term_modulus(E_mean: float, k_def: float) -> float:
 # 6. timber_km_factor — §4.4.8.1.6
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.6")
+@ntc_ref(article="4.4.8.1.6", latex=r"k_m = 0{,}7 \;\text{(rett.)},\; 1{,}0 \;\text{(altro)}")
 def timber_km_factor(section: str) -> float:
     """Coefficiente k_m per flessione deviata [-].
 
@@ -341,7 +341,7 @@ def timber_km_factor(section: str) -> float:
 # 7. timber_biaxial_bending_check — [4.4.5a/b]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.6", formula="4.4.5")
+@ntc_ref(article="4.4.8.1.6", formula="4.4.5", latex=r"\frac{\sigma_{m,y,d}}{f_{m,y,d}} + k_m \frac{\sigma_{m,z,d}}{f_{m,z,d}} \le 1")
 def timber_biaxial_bending_check(
     sigma_m_y_d: float,
     f_m_y_d: float,
@@ -379,7 +379,7 @@ def timber_biaxial_bending_check(
 # 8. timber_tension_bending_check — [4.4.6a/b]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.7", formula="4.4.6")
+@ntc_ref(article="4.4.8.1.7", formula="4.4.6", latex=r"\frac{\sigma_{t,0,d}}{f_{t,0,d}} + \frac{\sigma_{m,y,d}}{f_{m,y,d}} + k_m \frac{\sigma_{m,z,d}}{f_{m,z,d}} \le 1")
 def timber_tension_bending_check(
     sigma_t_0_d: float,
     f_t_0_d: float,
@@ -424,7 +424,7 @@ def timber_tension_bending_check(
 # 9. timber_compression_bending_check — [4.4.7a/b]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.8", formula="4.4.7")
+@ntc_ref(article="4.4.8.1.8", formula="4.4.7", latex=r"\left(\frac{\sigma_{c,0,d}}{f_{c,0,d}}\right)^2 + \frac{\sigma_{m,y,d}}{f_{m,y,d}} + k_m \frac{\sigma_{m,z,d}}{f_{m,z,d}} \le 1")
 def timber_compression_bending_check(
     sigma_c_0_d: float,
     f_c_0_d: float,
@@ -469,7 +469,7 @@ def timber_compression_bending_check(
 # 10. timber_shear_check — [4.4.8]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.9", formula="4.4.8")
+@ntc_ref(article="4.4.8.1.9", formula="4.4.8", latex=r"\tau_d \le f_{v,d}")
 def timber_shear_check(tau_d: float, f_v_d: float) -> tuple[bool, float]:
     """Verifica a taglio [-].
 
@@ -495,7 +495,7 @@ def timber_shear_check(tau_d: float, f_v_d: float) -> tuple[bool, float]:
 # 11. timber_torsion_shape_factor — §4.4.8.1.10
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.10")
+@ntc_ref(article="4.4.8.1.10", latex=r"k_{\mathrm{sh}} = \min\!\left(1 + 0{,}15\,\frac{h}{b},\; 2{,}0\right)")
 def timber_torsion_shape_factor(
     section: str, *, h: float | None = None, b: float | None = None
 ) -> float:
@@ -540,7 +540,7 @@ def timber_torsion_shape_factor(
 # 12. timber_torsion_check — [4.4.9]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.10", formula="4.4.9")
+@ntc_ref(article="4.4.8.1.10", formula="4.4.9", latex=r"\tau_{\mathrm{tor},d} \le k_{\mathrm{sh}} \, f_{v,d}")
 def timber_torsion_check(
     tau_tor_d: float, f_v_d: float, k_sh: float
 ) -> tuple[bool, float]:
@@ -570,7 +570,7 @@ def timber_torsion_check(
 # 13. timber_shear_torsion_interaction — [4.4.10]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.1.11", formula="4.4.10")
+@ntc_ref(article="4.4.8.1.11", formula="4.4.10", latex=r"\left(\frac{\tau_{\mathrm{tor},d}}{k_{\mathrm{sh}} \, f_{v,d}}\right)^2 + \left(\frac{\tau_d}{f_{v,d}}\right)^2 \le 1")
 def timber_shear_torsion_interaction(
     tau_d: float, f_v_d: float, tau_tor_d: float, k_sh: float
 ) -> tuple[bool, float]:
@@ -603,7 +603,7 @@ def timber_shear_torsion_interaction(
 # 14. timber_beam_critical_factor — [4.4.12]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.2.1", formula="4.4.12")
+@ntc_ref(article="4.4.8.2.1", formula="4.4.12", latex=r"k_{\mathrm{crit}} = \begin{cases} 1{,}0 & \lambda_{\mathrm{rel}} \le 0{,}75 \\ 1{,}56 - 0{,}75\,\lambda_{\mathrm{rel}} & 0{,}75 < \lambda_{\mathrm{rel}} \le 1{,}4 \\ 1/\lambda_{\mathrm{rel}}^2 & \lambda_{\mathrm{rel}} > 1{,}4 \end{cases}")
 def timber_beam_critical_factor(lambda_rel_m: float) -> float:
     """Coefficiente riduttivo k_crit,m per instabilita' di trave [-].
 
@@ -635,7 +635,7 @@ def timber_beam_critical_factor(lambda_rel_m: float) -> float:
 # 15. timber_beam_stability_check — [4.4.11]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.2.1", formula="4.4.11")
+@ntc_ref(article="4.4.8.2.1", formula="4.4.11", latex=r"\frac{\sigma_{m,d}}{k_{\mathrm{crit}} \, f_{m,d}} \le 1")
 def timber_beam_stability_check(
     sigma_m_d: float, f_m_d: float, lambda_rel_m: float
 ) -> tuple[bool, float]:
@@ -666,7 +666,7 @@ def timber_beam_stability_check(
 # 16. timber_column_relative_slenderness — [4.4.14]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.2.2", formula="4.4.14")
+@ntc_ref(article="4.4.8.2.2", formula="4.4.14", latex=r"\lambda_{\mathrm{rel},c} = \frac{\lambda}{\pi} \sqrt{\frac{f_{c,0,k}}{E_{0,05}}}")
 def timber_column_relative_slenderness(
     lambda_val: float, f_c_0_k: float, E_005: float
 ) -> float:
@@ -697,7 +697,7 @@ def timber_column_relative_slenderness(
 # 17. timber_column_critical_factor — [4.4.15]/[4.4.16]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.2.2", formula="4.4.15")
+@ntc_ref(article="4.4.8.2.2", formula="4.4.15", latex=r"k_{\mathrm{crit},c} = \frac{1}{k + \sqrt{k^2 - \lambda_{\mathrm{rel}}^2}}")
 def timber_column_critical_factor(
     lambda_rel_c: float, *, material: str = "solid"
 ) -> float:
@@ -742,7 +742,7 @@ def timber_column_critical_factor(
 # 18. timber_column_stability_check — [4.4.13]
 # ===========================================================================
 
-@ntc_ref(article="4.4.8.2.2", formula="4.4.13")
+@ntc_ref(article="4.4.8.2.2", formula="4.4.13", latex=r"\frac{\sigma_{c,0,d}}{k_{\mathrm{crit},c} \, f_{c,0,d}} \le 1")
 def timber_column_stability_check(
     sigma_c_0_d: float, f_c_0_d: float, k_crit_c: float
 ) -> tuple[bool, float]:
@@ -772,7 +772,7 @@ def timber_column_stability_check(
 # 19. timber_deflection_limits — §4.4.7
 # ===========================================================================
 
-@ntc_ref(article="4.4.7")
+@ntc_ref(article="4.4.7", latex=r"\delta_{\max} = L/300 \;\text{(ist.)},\; L/200 \;\text{(fin.)}")
 def timber_deflection_limits(
     L: float, check_type: str, *, cantilever: bool = False
 ) -> float:
@@ -815,7 +815,7 @@ def timber_deflection_limits(
 # 20. timber_straightness_limit — §4.4.15
 # ===========================================================================
 
-@ntc_ref(article="4.4.15")
+@ntc_ref(article="4.4.15", latex=r"e_{\max} = L/500 \;\text{(lamellare)},\; L/300 \;\text{(massiccio)}")
 def timber_straightness_limit(L: float, material: str) -> float:
     """Limite di rettilineita' per membrature compresse [mm].
 

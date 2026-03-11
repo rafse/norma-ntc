@@ -235,7 +235,7 @@ class NTC18Index:
             "pyntc.checks.masonry",
             "pyntc.checks.composite",
             "pyntc.checks.geotechnical",
-            "pyntc.checks.bridges",
+            "pyntc.actions.bridges",
             "pyntc.checks.seismic_design",
             "pyntc.checks.existing_buildings",
         ]
