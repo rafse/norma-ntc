@@ -1225,3 +1225,84 @@ def bridge_rail_psi_coefficients(
             psi_0 = 0.40
 
     return psi_0, psi_1, psi_2
+
+@ntc_ref(
+    article="5.2.4",
+    table="Tab.5.2.VII",
+    latex=r"\text{Tab.\,5.2.VII}",
+)
+def bridge_rail_sle_combination_factors(load_type: str) -> dict[str, float]:
+    """Coefficienti psi per combinazioni SLE ferroviario [Tab. 5.2.VII].
+
+    NTC18 §5.2.4, Tab. 5.2.VII — Ulteriori coefficienti di combinazione psi
+    delle azioni per ponti ferroviari (SLE).
+
+    Parameters
+    ----------
+    load_type : str
+        Tipo di carico. Valori ammessi:
+        "LM71", "SW/0", "SW/2", "traction_braking", "centrifugal",
+        "nosing", "wind", "thermal".
+
+    Returns
+    -------
+    dict[str, float]
+        Dizionario con chiavi "psi_0", "psi_1", "psi_2".
+    """
+    _table: dict[str, dict[str, float]] = {
+        "LM71":             {"psi_0": 0.80, "psi_1": 0.50, "psi_2": 0.0},
+        "SW/0":             {"psi_0": 0.80, "psi_1": 0.80, "psi_2": 0.0},
+        "SW/2":             {"psi_0": 0.00, "psi_1": 0.80, "psi_2": 0.0},
+        "traction_braking": {"psi_0": 0.80, "psi_1": 0.50, "psi_2": 0.2},
+        "centrifugal":      {"psi_0": 0.80, "psi_1": 0.50, "psi_2": 0.2},
+        "nosing":           {"psi_0": 1.00, "psi_1": 0.80, "psi_2": 0.0},
+        "wind":             {"psi_0": 0.60, "psi_1": 0.50, "psi_2": 0.0},
+        "thermal":          {"psi_0": 0.60, "psi_1": 0.60, "psi_2": 0.5},
+    }
+    if load_type not in _table:
+        valid = ", ".join(sorted(_table.keys()))
+        raise ValueError(
+            f"load_type '{load_type}' non valido. Valori ammessi: {valid}"
+        )
+    return dict(_table[load_type])
+
+
+@ntc_ref(
+    article="5.2.2",
+    formula="5.2.3",
+    latex=r"\phi_2 = \frac{1.44}{\sqrt{L_\phi}-0.2}+0.82",
+)
+def bridge_dynamic_factor(L_phi: float, track_type: str = "standard") -> float:
+    """Coefficiente dinamico phi per ponti ferroviari.
+
+    NTC18 §5.2.2 — phi_2 (binario ben mantenuto) e phi_3 (binario normale).
+
+    Parameters
+    ----------
+    L_phi : float
+        Lunghezza di riferimento [m] (da Tab. 5.2.II), 2 <= L_phi <= 20.
+    track_type : str
+        Tipo di binario: ``"maintained"`` (ben mantenuto, phi_2) o
+        ``"standard"`` (normale, phi_3).
+
+    Returns
+    -------
+    float
+        Coefficiente dinamico phi (clampato in [1.0, 2.0]).
+    """
+    if L_phi < 2.0 or L_phi > 20.0:
+        raise ValueError(
+            f"L_phi deve essere in [2, 20] m, ricevuto {L_phi}"
+        )
+    if track_type == "maintained":
+        phi = 1.44 / (math.sqrt(L_phi) - 0.2) + 0.82
+    elif track_type == "standard":
+        phi = 2.16 / (math.sqrt(L_phi) - 0.2) + 0.73
+    else:
+        raise ValueError(
+            f"track_type deve essere 'maintained' o 'standard', "
+            f"ricevuto '{track_type}'"
+        )
+    return max(1.0, min(phi, 2.0))
+
+

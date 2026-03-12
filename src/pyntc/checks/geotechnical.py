@@ -802,6 +802,102 @@ def geo_destabilising_force(C_inst_d: float, Q_inst_d: float) -> float:
     return C_inst_d + Q_inst_d
 
 
+@ntc_ref(article="6.4.2", latex=r"s = q B (1-\nu^2) I_s / E_s")
+def geo_settlement_elastic(
+    q: float,
+    B: float,
+    E_s: float,
+    nu: float = 0.3,
+    I_s: float = 0.8,
+) -> float:
+    """Cedimento elastico di fondazione superficiale [m].
+
+    NTC18 §6.4.2 — Formula di Janbu/Schmertmann semplificata.
+
+    Parameters
+    ----------
+    q : float
+        Pressione di contatto [kPa].
+    B : float
+        Dimensione caratteristica della fondazione [m].
+    E_s : float
+        Modulo elastico del terreno [kPa].
+    nu : float
+        Coefficiente di Poisson (default 0.3).
+    I_s : float
+        Fattore di forma (default 0.8 per fondazione flessibile quadrata).
+
+    Returns
+    -------
+    float
+        Cedimento elastico s [m].
+    """
+    if q < 0:
+        raise ValueError(f"q deve essere >= 0, ricevuto {q}")
+    if B <= 0:
+        raise ValueError(f"B deve essere > 0, ricevuto {B}")
+    if E_s <= 0:
+        raise ValueError(f"E_s deve essere > 0, ricevuto {E_s}")
+    if not (0.0 <= nu < 0.5):
+        raise ValueError(f"nu deve essere in [0, 0.5), ricevuto {nu}")
+    return q * B * (1.0 - nu**2) / E_s * I_s
+
+
+@ntc_ref(article="6.4.2", latex=r"s_c = m_v \Delta\sigma_v H")
+def geo_consolidation_settlement(mv: float, sigma_v_inc: float, H: float) -> float:
+    """Cedimento di consolidazione primaria [m].
+
+    NTC18 §6.4.2 — s_c = mv * sigma_v_inc * H.
+
+    Parameters
+    ----------
+    mv : float
+        Coefficiente di compressibilita' volumetrica [1/kPa].
+    sigma_v_inc : float
+        Incremento di tensione verticale efficace [kPa].
+    H : float
+        Spessore dello strato compressibile [m].
+
+    Returns
+    -------
+    float
+        Cedimento di consolidazione s_c [m].
+    """
+    if mv <= 0:
+        raise ValueError(f"mv deve essere > 0, ricevuto {mv}")
+    if sigma_v_inc < 0:
+        raise ValueError(f"sigma_v_inc deve essere >= 0, ricevuto {sigma_v_inc}")
+    if H <= 0:
+        raise ValueError(f"H deve essere > 0, ricevuto {H}")
+    return mv * sigma_v_inc * H
+
+
+@ntc_ref(article="6.4.2", latex=r"s \le s_{lim}")
+def geo_settlement_check(s_calc: float, s_lim: float) -> tuple[bool, float]:
+    """Verifica del cedimento calcolato rispetto al limite ammissibile.
+
+    NTC18 §6.4.2 — s_calc <= s_lim.
+
+    Parameters
+    ----------
+    s_calc : float
+        Cedimento calcolato [m o mm].
+    s_lim : float
+        Cedimento limite ammissibile [m o mm].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificato, ratio = s_calc / s_lim).
+    """
+    if s_calc < 0:
+        raise ValueError(f"s_calc deve essere >= 0, ricevuto {s_calc}")
+    if s_lim <= 0:
+        raise ValueError(f"s_lim deve essere > 0, ricevuto {s_lim}")
+    ratio = s_calc / s_lim
+    return ratio <= 1.0, ratio
+
+
 @ntc_ref(article="6.8.2", table="Tab.6.8.1", latex=r"\gamma_R = 1{,}1")
 def geo_embankment_resistance_factor() -> float:
     """Coefficiente parziale R2 per opere di materiali sciolti e fronti di scavo [-].

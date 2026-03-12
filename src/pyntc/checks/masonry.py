@@ -808,3 +808,275 @@ def masonry_simplified_check(
     sigma = N / (0.65 * A)
     f_d = f_k / gamma_M
     return sigma <= f_d, sigma
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.5.7 — MURATURA ARMATA
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.5.7.3", latex=r"M_{Rd} = A_s f_{yd}(d - 0.4x)")
+def masonry_reinforced_flexural_resistance(
+    b: float, d: float, A_s: float, f_yd: float, f_k: float, gamma_M: float
+) -> float:
+    """Momento resistente di progetto per muratura armata [N·mm].
+
+    NTC18 §4.5.7.3 — Analogia con il calcestruzzo armato:
+        F_s  = A_s * f_yd
+        f_d  = f_k / gamma_M
+        x    = F_s / (0.8 * b * f_d)
+        M_Rd = F_s * (d - 0.4 * x)
+
+    Parameters
+    ----------
+    b : float
+        Larghezza della sezione [mm].
+    d : float
+        Altezza utile della sezione [mm].
+    A_s : float
+        Area dell'armatura tesa [mm²].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [N/mm²].
+    f_k : float
+        Resistenza caratteristica a compressione della muratura [N/mm²].
+    gamma_M : float
+        Coefficiente parziale di sicurezza per la muratura [-].
+
+    Returns
+    -------
+    float
+        M_Rd: momento resistente di progetto [N·mm].
+    """
+    if b <= 0:
+        raise ValueError("b deve essere > 0")
+    if d <= 0:
+        raise ValueError("d deve essere > 0")
+    if A_s <= 0:
+        raise ValueError("A_s deve essere > 0")
+    if f_yd <= 0:
+        raise ValueError("f_yd deve essere > 0")
+    if f_k <= 0:
+        raise ValueError("f_k deve essere > 0")
+    if gamma_M <= 0:
+        raise ValueError("gamma_M deve essere > 0")
+
+    f_d = f_k / gamma_M
+    F_s = A_s * f_yd
+    x = F_s / (0.8 * b * f_d)
+    if x > d:
+        raise ValueError(
+            f"Asse neutro x = {x:.2f} mm supera l'altezza utile d = {d:.2f} mm: "
+            f"sezione sovra-armata"
+        )
+    return F_s * (d - 0.4 * x)
+
+
+@ntc_ref(article="4.5.7.4", latex=r"V_{Rd} = V_{Rd1} + V_{Rd2}")
+def masonry_reinforced_shear_resistance(
+    b: float,
+    d: float,
+    A_sw: float,
+    s: float,
+    f_ywk: float,
+    gamma_s: float = 1.15,
+    f_vk0: float = 0.3,
+    gamma_M: float = 2.0,
+) -> float:
+    """Taglio resistente di progetto per muratura armata [N].
+
+    NTC18 §4.5.7.4:
+        V_Rd1 = f_vk0 / gamma_M * b * d          (contributo muratura)
+        V_Rd2 = 0.9 * d * A_sw/s * f_ywk/gamma_s (contributo armatura)
+        V_Rd  = V_Rd1 + V_Rd2
+
+    Parameters
+    ----------
+    b : float
+        Larghezza della sezione [mm].
+    d : float
+        Altezza utile della sezione [mm].
+    A_sw : float
+        Area dell'armatura trasversale in una staffa [mm²].
+    s : float
+        Passo delle staffe [mm].
+    f_ywk : float
+        Resistenza caratteristica dell'armatura trasversale [N/mm²].
+    gamma_s : float, optional
+        Coefficiente parziale per l'acciaio (default 1.15).
+    f_vk0 : float, optional
+        Resistenza caratteristica a taglio in assenza di sforzo normale [N/mm²]
+        (default 0.3 MPa).
+    gamma_M : float, optional
+        Coefficiente parziale di sicurezza per la muratura (default 2.0).
+
+    Returns
+    -------
+    float
+        V_Rd: taglio resistente di progetto [N].
+    """
+    if b <= 0:
+        raise ValueError("b deve essere > 0")
+    if d <= 0:
+        raise ValueError("d deve essere > 0")
+    if A_sw <= 0:
+        raise ValueError("A_sw deve essere > 0")
+    if s <= 0:
+        raise ValueError("s deve essere > 0")
+    if f_ywk <= 0:
+        raise ValueError("f_ywk deve essere > 0")
+    if gamma_s <= 0:
+        raise ValueError("gamma_s deve essere > 0")
+    if f_vk0 < 0:
+        raise ValueError("f_vk0 deve essere >= 0")
+    if gamma_M <= 0:
+        raise ValueError("gamma_M deve essere > 0")
+
+    V_Rd1 = f_vk0 / gamma_M * b * d
+    V_Rd2 = 0.9 * d * (A_sw / s) * (f_ywk / gamma_s)
+    return V_Rd1 + V_Rd2
+
+
+@ntc_ref(article="4.5.7.2", latex=r"N_{Ed} \le b d f_d + A_s f_{yd}")
+def masonry_reinforced_axial_check(
+    N_Ed: float,
+    b: float,
+    d: float,
+    A_s: float,
+    f_yd: float,
+    f_k: float,
+    gamma_M: float,
+) -> tuple[bool, float]:
+    """Verifica a pressoflessione/compressione per muratura armata [-].
+
+    NTC18 §4.5.7.2:
+        N_Rd  = b * d * f_d + A_s * f_yd
+        ratio = N_Ed / N_Rd  (<= 1 se verifica passa)
+
+    Parameters
+    ----------
+    N_Ed : float
+        Sforzo normale di progetto [N].
+    b : float
+        Larghezza della sezione [mm].
+    d : float
+        Altezza utile della sezione [mm].
+    A_s : float
+        Area dell'armatura [mm²].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [N/mm²].
+    f_k : float
+        Resistenza caratteristica a compressione della muratura [N/mm²].
+    gamma_M : float
+        Coefficiente parziale di sicurezza per la muratura [-].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_superata, ratio):
+        - verifica_superata: True se N_Ed <= N_Rd
+        - ratio: N_Ed / N_Rd
+    """
+    if N_Ed < 0:
+        raise ValueError("N_Ed deve essere >= 0")
+    if b <= 0:
+        raise ValueError("b deve essere > 0")
+    if d <= 0:
+        raise ValueError("d deve essere > 0")
+    if A_s <= 0:
+        raise ValueError("A_s deve essere > 0")
+    if f_yd <= 0:
+        raise ValueError("f_yd deve essere > 0")
+    if f_k <= 0:
+        raise ValueError("f_k deve essere > 0")
+    if gamma_M <= 0:
+        raise ValueError("gamma_M deve essere > 0")
+
+    f_d = f_k / gamma_M
+    N_Rd = b * d * f_d + A_s * f_yd
+    ratio = N_Ed / N_Rd
+    return ratio <= 1.0, ratio
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.5.8 — MURATURA CONFINATA
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.5.8.2", latex=r"V_{Rd} = f_{vk}/\gamma_M \cdot l \cdot t")
+def masonry_confined_shear_resistance(
+    l: float,
+    t: float,
+    f_vk0: float,
+    gamma_M: float,
+    sigma_n: float = 0.0,
+) -> float:
+    """Taglio resistente di progetto per muratura confinata [N].
+
+    NTC18 §4.5.8.2:
+        f_vk  = f_vk0 + 0.4 * sigma_n
+        V_Rd  = f_vk / gamma_M * l * t
+
+    Parameters
+    ----------
+    l : float
+        Lunghezza del pannello [mm].
+    t : float
+        Spessore del pannello [mm].
+    f_vk0 : float
+        Resistenza caratteristica a taglio in assenza di sforzo normale [N/mm²].
+    gamma_M : float
+        Coefficiente parziale di sicurezza per la muratura [-].
+    sigma_n : float, optional
+        Tensione normale agente sul pannello [N/mm²] (default 0.0).
+
+    Returns
+    -------
+    float
+        V_Rd: taglio resistente di progetto [N].
+    """
+    if l <= 0:
+        raise ValueError("l deve essere > 0")
+    if t <= 0:
+        raise ValueError("t deve essere > 0")
+    if f_vk0 < 0:
+        raise ValueError("f_vk0 deve essere >= 0")
+    if gamma_M <= 0:
+        raise ValueError("gamma_M deve essere > 0")
+    if sigma_n < 0:
+        raise ValueError("sigma_n deve essere >= 0")
+
+    f_vk = f_vk0 + 0.4 * sigma_n
+    return f_vk / gamma_M * l * t
+
+
+@ntc_ref(article="4.5.8.3", latex=r"M_{Rd} = A_s f_{yd} z")
+def masonry_confined_bending_resistance(
+    A_s: float, f_yd: float, z: float
+) -> float:
+    """Momento resistente di progetto per muratura confinata [N·mm].
+
+    NTC18 §4.5.8.3 — Armatura nei cordoli verticali:
+        M_Rd = A_s * f_yd * z
+
+    Parameters
+    ----------
+    A_s : float
+        Area dell'armatura nei cordoli [mm²].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [N/mm²].
+    z : float
+        Braccio tra i cordoli opposti [mm].
+
+    Returns
+    -------
+    float
+        M_Rd: momento resistente di progetto [N·mm].
+    """
+    if A_s <= 0:
+        raise ValueError("A_s deve essere > 0")
+    if f_yd <= 0:
+        raise ValueError("f_yd deve essere > 0")
+    if z <= 0:
+        raise ValueError("z deve essere > 0")
+
+    return A_s * f_yd * z

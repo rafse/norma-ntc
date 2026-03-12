@@ -519,3 +519,318 @@ def seismic_isolation_torsional_radius(
         )
 
     return math.sqrt(numerator / denominator)
+
+
+# ── Metodo di Mononobe-Okabe ──────────────────────────────────────────────────
+# Metodo di Mononobe-Okabe per il calcolo della spinta sismica attiva e passiva
+# e verifiche a scorrimento e ribaltamento di muri di sostegno in condizioni
+# sismiche.
+
+
+# ============================================================================
+# Coefficienti di spinta sismica — Mononobe-Okabe
+# ============================================================================
+
+
+@ntc_ref(article="7.11.6", latex=r"K_{ae} = \text{Mononobe-Okabe}")
+def seismic_active_pressure_coefficient(
+    phi: float,
+    delta: float,
+    beta: float,
+    theta: float,
+    kh: float,
+    kv: float = 0.0,
+) -> float:
+    """Coefficiente di spinta attiva sismica (Mononobe-Okabe) [-].
+
+    NTC18 art.7.11.6 - Metodo di Mononobe-Okabe per la spinta attiva.
+
+    Parameters
+    ----------
+    phi : float
+        Angolo di resistenza al taglio interno del terreno [rad].
+    delta : float
+        Angolo di attrito muro-terreno [rad].
+    beta : float
+        Inclinazione della parete rispetto alla verticale [rad]
+        (positivo se la parete si inclina verso il terrapieno).
+    theta : float
+        Inclinazione della superficie del terreno rispetto
+        all'orizzontale [rad] (positivo verso l'alto).
+    kh : float
+        Coefficiente sismico orizzontale [-] (frazione di g).
+    kv : float, optional
+        Coefficiente sismico verticale [-] (frazione di g). Default 0.0.
+
+    Returns
+    -------
+    float
+        Coefficiente di spinta attiva sismica K_ae [-].
+
+    Raises
+    ------
+    ValueError
+        Se l'argomento della radice quadrata e' negativo (condizione
+        geometrica non ammissibile).
+    """
+    if kv >= 1.0:
+        raise ValueError(f"kv deve essere < 1.0: {kv}")
+    psi = math.atan(kh / (1.0 - kv))
+
+    arg = (
+        math.sin(phi + delta) * math.sin(phi - psi - theta)
+    ) / (
+        math.cos(delta + beta + psi) * math.cos(beta - theta)
+    )
+    if arg < 0:
+        raise ValueError(
+            f"Argomento della radice quadrata negativo ({arg:.4f}): "
+            "combinazione di parametri non ammissibile per Mononobe-Okabe attivo."
+        )
+
+    num = math.cos(phi - psi - beta) ** 2
+    denom = (
+        math.cos(psi)
+        * math.cos(beta) ** 2
+        * math.cos(delta + beta + psi)
+        * (1.0 + math.sqrt(arg)) ** 2
+    )
+    return num / denom
+
+
+@ntc_ref(
+    article="7.11.6",
+    latex=r"E_{ae} = 0.5\,\gamma_s H^2 K_{ae}(1-k_v)",
+)
+def seismic_active_earth_pressure(
+    gamma_s: float,
+    H: float,
+    K_ae: float,
+    kv: float = 0.0,
+) -> float:
+    """Spinta attiva sismica totale per unita' di lunghezza [kN/m].
+
+    NTC18 §7.11.6 — E_ae = 0.5 * gamma_s * H^2 * K_ae * (1 - kv).
+
+    Parameters
+    ----------
+    gamma_s : float
+        Peso dell'unita' di volume del terreno [kN/m³].
+    H : float
+        Altezza del muro [m].
+    K_ae : float
+        Coefficiente di spinta attiva sismica [-].
+    kv : float, optional
+        Coefficiente sismico verticale [-] (frazione di g). Default 0.0.
+
+    Returns
+    -------
+    float
+        Spinta attiva sismica totale E_ae [kN/m].
+
+    Raises
+    ------
+    ValueError
+        Se gamma_s, H o K_ae sono non positivi.
+    """
+    if gamma_s <= 0:
+        raise ValueError(f"gamma_s deve essere positivo: {gamma_s}")
+    if H <= 0:
+        raise ValueError(f"H deve essere positivo: {H}")
+    if K_ae <= 0:
+        raise ValueError(f"K_ae deve essere positivo: {K_ae}")
+    return 0.5 * gamma_s * H ** 2 * K_ae * (1.0 - kv)
+
+
+@ntc_ref(
+    article="7.11.6",
+    latex=r"K_{pe} = \text{Mononobe-Okabe passivo}",
+)
+def seismic_passive_pressure_coefficient(
+    phi: float,
+    delta: float,
+    beta: float,
+    theta: float,
+    kh: float,
+    kv: float = 0.0,
+) -> float:
+    """Coefficiente di spinta passiva sismica (Mononobe-Okabe) [-].
+
+    NTC18 §7.11.6 — Metodo di Mononobe-Okabe per la spinta passiva.
+
+    Parameters
+    ----------
+    phi : float
+        Angolo di resistenza al taglio interno del terreno [rad].
+    delta : float
+        Angolo di attrito muro-terreno [rad].
+    beta : float
+        Inclinazione della parete rispetto alla verticale [rad].
+    theta : float
+        Inclinazione della superficie del terreno rispetto
+        all'orizzontale [rad].
+    kh : float
+        Coefficiente sismico orizzontale [-] (frazione di g).
+    kv : float, optional
+        Coefficiente sismico verticale [-] (frazione di g). Default 0.0.
+
+    Returns
+    -------
+    float
+        Coefficiente di spinta passiva sismica K_pe [-].
+
+    Raises
+    ------
+    ValueError
+        Se l'argomento della radice quadrata e' negativo (condizione
+        geometrica non ammissibile).
+    """
+    if kv >= 1.0:
+        raise ValueError(f"kv deve essere < 1.0: {kv}")
+    psi = math.atan(kh / (1.0 - kv))
+
+    arg = (
+        math.sin(phi + delta) * math.sin(phi + psi + theta)
+    ) / (
+        math.cos(delta - beta + psi) * math.cos(beta - theta)
+    )
+    if arg < 0:
+        raise ValueError(
+            f"Argomento della radice quadrata negativo ({arg:.4f}): "
+            "combinazione di parametri non ammissibile per Mononobe-Okabe passivo."
+        )
+    if arg > 1.0:
+        raise ValueError(
+            f"Argomento della radice quadrata > 1 ({arg:.4f}): "
+            "la formula passiva non e' applicabile per questa combinazione di parametri."
+        )
+
+    num = math.cos(phi + psi - beta) ** 2
+    denom = (
+        math.cos(psi)
+        * math.cos(beta) ** 2
+        * math.cos(delta - beta + psi)
+        * (1.0 - math.sqrt(arg)) ** 2
+    )
+    if denom == 0:
+        raise ValueError(
+            "Denominatore nullo: argomento della radice pari a 1, "
+            "K_pe non definito per questa combinazione di parametri."
+        )
+    return num / denom
+
+
+# ============================================================================
+# Verifiche muri di sostegno in condizioni sismiche
+# ============================================================================
+
+
+@ntc_ref(article="7.11.6", latex=r"E_{ae} \le R_d")
+def seismic_wall_sliding_check(
+    E_ae: float,
+    W_wall: float,
+    phi_base: float,
+    c_base: float = 0.0,
+    gamma_R: float = 1.1,
+) -> tuple[bool, float]:
+    """Verifica a scorrimento del muro di sostegno in condizioni sismiche.
+
+    NTC18 §7.11.6 — La spinta orizzontale sismica deve essere inferiore
+    alla resistenza a scorrimento alla base.
+
+    Parameters
+    ----------
+    E_ae : float
+        Spinta attiva sismica totale [kN/m].
+    W_wall : float
+        Peso totale del muro (struttura + terreno) per unita' di lunghezza
+        [kN/m].
+    phi_base : float
+        Angolo di resistenza al taglio alla base del muro [rad].
+    c_base : float, optional
+        Coesione alla base del muro [kPa·m]. Default 0.0.
+    gamma_R : float, optional
+        Coefficiente parziale sulla resistenza [-]. Default 1.1.
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificato, rapporto E_ae / R_d).
+        La verifica e' soddisfatta se il rapporto e' <= 1.0.
+
+    Raises
+    ------
+    ValueError
+        Se E_ae, W_wall sono negativi o gamma_R <= 0.
+    """
+    if E_ae < 0:
+        raise ValueError(f"E_ae non puo' essere negativo: {E_ae}")
+    if W_wall < 0:
+        raise ValueError(f"W_wall non puo' essere negativo: {W_wall}")
+    if gamma_R <= 0:
+        raise ValueError(f"gamma_R deve essere positivo: {gamma_R}")
+
+    R_d = (W_wall * math.tan(phi_base) + c_base) / gamma_R
+    if R_d == 0:
+        raise ValueError(
+            "La resistenza a scorrimento R_d e' nulla: "
+            "verificare phi_base e c_base."
+        )
+    ratio = E_ae / R_d
+    return ratio <= 1.0, ratio
+
+
+@ntc_ref(article="7.11.6", latex=r"M_{rib} \le M_{stab}")
+def seismic_wall_overturning_check(
+    E_ae: float,
+    H: float,
+    W_wall: float,
+    b_base: float,
+    kv: float = 0.0,
+) -> tuple[bool, float]:
+    """Verifica a ribaltamento del muro di sostegno in condizioni sismiche.
+
+    NTC18 §7.11.6 — Il momento ribaltante sismico deve essere inferiore
+    al momento stabilizzante.
+
+    Il punto di applicazione della spinta e' assunto a H/3 dalla base
+    (distribuzione triangolare della pressione).
+
+    Parameters
+    ----------
+    E_ae : float
+        Spinta attiva sismica totale [kN/m].
+    H : float
+        Altezza del muro [m].
+    W_wall : float
+        Peso totale del muro (struttura + terreno) per unita' di lunghezza
+        [kN/m].
+    b_base : float
+        Larghezza della base del muro [m].
+    kv : float, optional
+        Coefficiente sismico verticale [-] (frazione di g). Default 0.0.
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificato, rapporto M_rib / M_stab).
+        La verifica e' soddisfatta se il rapporto e' <= 1.0.
+
+    Raises
+    ------
+    ValueError
+        Se E_ae, H, W_wall o b_base sono non positivi.
+    """
+    if E_ae < 0:
+        raise ValueError(f"E_ae non puo' essere negativo: {E_ae}")
+    if H <= 0:
+        raise ValueError(f"H deve essere positivo: {H}")
+    if W_wall <= 0:
+        raise ValueError(f"W_wall deve essere positivo: {W_wall}")
+    if b_base <= 0:
+        raise ValueError(f"b_base deve essere positivo: {b_base}")
+
+    M_stab = W_wall * b_base / 2.0
+    M_rib = E_ae * H / 3.0
+    ratio = M_rib / M_stab
+    return ratio <= 1.0, ratio

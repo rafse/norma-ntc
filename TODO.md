@@ -1,6 +1,6 @@
 # TODO — Funzioni mancanti pyntc vs NTC18 Vault
 
-Copertura attuale: **~272 / 373 items** (~73%)
+Copertura attuale: **~300 / 373 items** (~80%)
 
 ---
 
@@ -51,7 +51,10 @@ Copertura attuale: **~272 / 373 items** (~73%)
 - [x] `concrete_bending_check` [4.1.19] — verifica flessione M_Ed ≤ M_Rd
 - [x] `concrete_punching_shear_resistance` [4.1.30] — resistenza punzonamento
 - [x] `concrete_punching_shear_check` [4.1.30] — verifica punzonamento
-- [ ] Formule mancanti: instabilita' avanzata, punzonamento con armatura
+- [x] `concrete_punching_shear_resistance_reinforced` [4.1.32] — punzonamento con armatura
+- [x] `concrete_column_effective_length` [4.1.2.3.9.1] — lunghezza efficace pilastro
+- [x] `concrete_column_interaction_check` [4.1.19] — interazione N-M
+- [x] `concrete_min_stirrup_spacing` [4.1.29] — passo massimo staffe
 
 ### §4.2 — Acciaio
 
@@ -99,7 +102,11 @@ Copertura attuale: **~272 / 373 items** (~73%)
 - [x] `masonry_eccentricity_m` [4.5.6] — eccentricita' accidentale
 - [x] `masonry_phi_from_table` [Tab 4.5.III] — coefficiente Φ per interpolazione bilineare
 - [x] `masonry_simplified_axial_check` [4.5.12] — verifica semplificata snellezza
-- [ ] Muratura armata §4.5.7, muratura confinata §4.5.8
+- [x] `masonry_reinforced_flexural_resistance` [4.5.7.3] — flessione muratura armata
+- [x] `masonry_reinforced_shear_resistance` [4.5.7.4] — taglio muratura armata
+- [x] `masonry_reinforced_axial_check` [4.5.7.2] — verifica assiale muratura armata
+- [x] `masonry_confined_shear_resistance` [4.5.8.2] — taglio muratura confinata
+- [x] `masonry_confined_bending_resistance` [4.5.8.3] — momento muratura confinata
 
 ## Cap. 5 — Ponti
 
@@ -109,7 +116,8 @@ Copertura attuale: **~272 / 373 items** (~73%)
 - [x] `bridge_rail_deformation_limits` [Tab 5.2.VIII] — limiti SLE ferroviario
 - [x] `bridge_fatigue_traffic_flow` [Tab 5.1.X] — flusso veicoli pesanti (fatica)
 - [ ] Tab 5.2.II — L_0 per coefficiente dinamico (tabella qualitativa, non numerica)
-- [ ] Tab 5.2.VII — Coefficienti psi SLE ferroviario
+- [x] `bridge_rail_sle_combination_factors` [Tab 5.2.VII] — coefficienti psi SLE ferroviario
+- [x] `bridge_dynamic_factor` [5.2.3] — coefficiente dinamico φ ponti ferroviari
 - [ ] Tab 5.1.VII/VIII — Modelli di fatica 2/4 (veicoli frequenti/equivalenti)
 
 ## Cap. 6 — Geotecnica
@@ -121,7 +129,9 @@ Copertura attuale: **~272 / 373 items** (~73%)
 - [x] `geo_pile_base_resistance` [6.4.3.1] — resistenza di punta palo
 - [x] `geo_pile_total_resistance` [6.4.3.1.1] — resistenza totale palo di progetto
 - [x] `geo_pile_check` [6.4.3.1] — verifica N_Ed ≤ R_c,d
-- [ ] Cedimenti fondazioni superficiali (Boussinesq)
+- [x] `geo_settlement_elastic` [6.4.2] — cedimento elastico (Schmertmann)
+- [x] `geo_consolidation_settlement` [6.4.2] — cedimento consolidazione
+- [x] `geo_settlement_check` [6.4.2] — verifica s ≤ s_lim
 - [ ] Micropali
 
 ## Cap. 7 — Progettazione sismica
@@ -197,5 +207,8 @@ Copertura attuale: **~272 / 373 items** (~73%)
 - [x] `seismic_isolation_displacement` — spostamento sistema isolato
 - [x] `seismic_isolation_torsion_amplification` — amplificazione torsionale
 - [x] `seismic_isolation_torsional_radius` — raggio torsionale
-- [ ] Verifica a scorrimento e ribaltamento muri
-- [ ] Spinta sismica (Mononobe-Okabe)
+- [x] `seismic_active_pressure_coefficient` [7.11.6] — Mononobe-Okabe attivo K_ae
+- [x] `seismic_active_earth_pressure` [7.11.6] — spinta attiva sismica E_ae
+- [x] `seismic_passive_pressure_coefficient` [7.11.6] — Mononobe-Okabe passivo K_pe
+- [x] `seismic_wall_sliding_check` [7.11.6] — verifica a scorrimento muro
+- [x] `seismic_wall_overturning_check` [7.11.6] — verifica a ribaltamento muro

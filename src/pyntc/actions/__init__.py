@@ -66,6 +66,8 @@ from pyntc.actions.bridges import (
     bridge_road_psi_coefficients,
     bridge_starting_force_rail,
     bridge_sw_load,
+    bridge_rail_sle_combination_factors,
+    bridge_dynamic_factor,
 )
 from pyntc.actions.combinations import (
     combination_coefficients,

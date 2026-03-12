@@ -7,6 +7,8 @@ from numpy.testing import assert_allclose
 
 from pyntc.checks.masonry import (
     masonry_combined_eccentricity,
+    masonry_confined_bending_resistance,
+    masonry_confined_shear_resistance,
     masonry_design_compressive_strength,
     masonry_design_shear_strength,
     masonry_eccentricity_check,
@@ -19,6 +21,9 @@ from pyntc.checks.masonry import (
     masonry_phi_from_table,
     masonry_reduced_strength,
     masonry_reduction_factor,
+    masonry_reinforced_axial_check,
+    masonry_reinforced_flexural_resistance,
+    masonry_reinforced_shear_resistance,
     masonry_simplified_axial_check,
     masonry_simplified_check,
     masonry_slenderness,
@@ -813,3 +818,211 @@ class TestMasonrySimplifiedAxialCheck:
         assert ref is not None
         assert ref.article == "4.5.6.4"
         assert ref.formula == "4.5.12"
+
+
+# ── §4.5.7 — Muratura armata ─────────────────────────────────────────────────
+
+
+class TestMasonryReinforcedFlexuralResistance:
+    """NTC18 §4.5.7.3 — Momento resistente muratura armata."""
+
+    def test_basic(self):
+        """Calcolo manuale:
+        b=300, d=500, A_s=400, f_yd=391.3, f_k=6.0, gamma_M=2.0
+        f_d  = 6.0/2.0 = 3.0 N/mm²
+        F_s  = 400*391.3 = 156520 N
+        x    = 156520/(0.8*300*3.0) = 156520/720 = 217.39 mm
+        M_Rd = 156520*(500 - 0.4*217.39) = 156520*412.956 N·mm
+        """
+        b, d, A_s = 300.0, 500.0, 400.0
+        f_yd, f_k, gamma_M = 391.3, 6.0, 2.0
+        f_d = f_k / gamma_M
+        F_s = A_s * f_yd
+        x = F_s / (0.8 * b * f_d)
+        expected = F_s * (d - 0.4 * x)
+        result = masonry_reinforced_flexural_resistance(b, d, A_s, f_yd, f_k, gamma_M)
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_heavily_reinforced_raises(self):
+        """Sezione sovra-armata: x > d => ValueError."""
+        with pytest.raises(ValueError, match="sovra-armata"):
+            masonry_reinforced_flexural_resistance(
+                b=100.0, d=200.0, A_s=5000.0, f_yd=500.0, f_k=5.0, gamma_M=2.0
+            )
+
+    def test_invalid_b_raises(self):
+        with pytest.raises(ValueError):
+            masonry_reinforced_flexural_resistance(
+                b=0.0, d=500.0, A_s=400.0, f_yd=391.3, f_k=6.0, gamma_M=2.0
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_reinforced_flexural_resistance)
+        assert ref is not None
+        assert ref.article == "4.5.7.3"
+
+
+class TestMasonryReinforcedShearResistance:
+    """NTC18 §4.5.7.4 — Taglio resistente muratura armata."""
+
+    def test_basic(self):
+        """Calcolo manuale:
+        b=300, d=500, A_sw=100, s=200, f_ywk=450
+        gamma_s=1.15, f_vk0=0.3, gamma_M=2.0
+        V_Rd1 = 0.3/2.0 * 300*500 = 22500 N
+        V_Rd2 = 0.9*500*(100/200)*(450/1.15) = 0.9*500*0.5*391.304 N
+        V_Rd  = V_Rd1 + V_Rd2
+        """
+        b, d = 300.0, 500.0
+        A_sw, s, f_ywk = 100.0, 200.0, 450.0
+        gamma_s, f_vk0, gamma_M = 1.15, 0.3, 2.0
+        V_Rd1 = f_vk0 / gamma_M * b * d
+        V_Rd2 = 0.9 * d * (A_sw / s) * (f_ywk / gamma_s)
+        expected = V_Rd1 + V_Rd2
+        result = masonry_reinforced_shear_resistance(
+            b, d, A_sw, s, f_ywk, gamma_s=gamma_s, f_vk0=f_vk0, gamma_M=gamma_M
+        )
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_default_parameters(self):
+        """Verifica che i parametri di default producano lo stesso risultato
+        di una chiamata esplicita."""
+        b, d, A_sw, s, f_ywk = 250.0, 400.0, 78.5, 150.0, 500.0
+        result_default = masonry_reinforced_shear_resistance(b, d, A_sw, s, f_ywk)
+        result_explicit = masonry_reinforced_shear_resistance(
+            b, d, A_sw, s, f_ywk, gamma_s=1.15, f_vk0=0.3, gamma_M=2.0
+        )
+        assert_allclose(result_default, result_explicit, rtol=1e-9)
+
+    def test_invalid_s_raises(self):
+        with pytest.raises(ValueError):
+            masonry_reinforced_shear_resistance(
+                b=300.0, d=500.0, A_sw=100.0, s=0.0, f_ywk=450.0
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_reinforced_shear_resistance)
+        assert ref is not None
+        assert ref.article == "4.5.7.4"
+
+
+class TestMasonryReinforcedAxialCheck:
+    """NTC18 §4.5.7.2 — Verifica assiale muratura armata."""
+
+    def test_passes(self):
+        """Calcolo manuale:
+        N_Ed=500e3, b=300, d=400, A_s=600, f_yd=391.3, f_k=6.0, gamma_M=2.0
+        f_d  = 6.0/2.0 = 3.0 N/mm²
+        N_Rd = 300*400*3.0 + 600*391.3 = 360000 + 234780 = 594780 N
+        ratio = 500000/594780 ≈ 0.840 <= 1.0 → verifica passa
+        """
+        N_Ed = 500e3
+        b, d, A_s = 300.0, 400.0, 600.0
+        f_yd, f_k, gamma_M = 391.3, 6.0, 2.0
+        f_d = f_k / gamma_M
+        N_Rd = b * d * f_d + A_s * f_yd
+        expected_ratio = N_Ed / N_Rd
+        passes, ratio = masonry_reinforced_axial_check(N_Ed, b, d, A_s, f_yd, f_k, gamma_M)
+        assert passes is True
+        assert_allclose(ratio, expected_ratio, rtol=1e-6)
+        assert ratio <= 1.0
+
+    def test_fails(self):
+        """Carico superiore alla resistenza: verifica non passa."""
+        N_Ed = 2_000e3
+        b, d, A_s = 200.0, 300.0, 400.0
+        f_yd, f_k, gamma_M = 391.3, 4.0, 2.0
+        passes, ratio = masonry_reinforced_axial_check(N_Ed, b, d, A_s, f_yd, f_k, gamma_M)
+        assert passes is False
+        assert ratio > 1.0
+
+    def test_invalid_N_Ed_raises(self):
+        with pytest.raises(ValueError):
+            masonry_reinforced_axial_check(
+                N_Ed=-1.0, b=300.0, d=400.0, A_s=600.0,
+                f_yd=391.3, f_k=6.0, gamma_M=2.0
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_reinforced_axial_check)
+        assert ref is not None
+        assert ref.article == "4.5.7.2"
+
+
+# ── §4.5.8 — Muratura confinata ───────────────────────────────────────────────
+
+
+class TestMasonryConfinedShearResistance:
+    """NTC18 §4.5.8.2 — Taglio resistente muratura confinata."""
+
+    def test_without_normal_stress(self):
+        """sigma_n=0 (default):
+        l=3000, t=300, f_vk0=0.2, gamma_M=2.0
+        f_vk = 0.2 + 0.4*0 = 0.2 N/mm²
+        V_Rd = 0.2/2.0 * 3000*300 = 0.1 * 900000 = 90000 N
+        """
+        result = masonry_confined_shear_resistance(
+            l=3000.0, t=300.0, f_vk0=0.2, gamma_M=2.0
+        )
+        expected = 0.2 / 2.0 * 3000.0 * 300.0
+        assert_allclose(result, expected, rtol=1e-9)
+
+    def test_with_normal_stress(self):
+        """sigma_n=0.5 MPa:
+        l=2500, t=250, f_vk0=0.2, gamma_M=2.0, sigma_n=0.5
+        f_vk = 0.2 + 0.4*0.5 = 0.4 N/mm²
+        V_Rd = 0.4/2.0 * 2500*250 = 0.2 * 625000 = 125000 N
+        """
+        result = masonry_confined_shear_resistance(
+            l=2500.0, t=250.0, f_vk0=0.2, gamma_M=2.0, sigma_n=0.5
+        )
+        expected = (0.2 + 0.4 * 0.5) / 2.0 * 2500.0 * 250.0
+        assert_allclose(result, expected, rtol=1e-9)
+
+    def test_invalid_l_raises(self):
+        with pytest.raises(ValueError):
+            masonry_confined_shear_resistance(l=0.0, t=300.0, f_vk0=0.2, gamma_M=2.0)
+
+    def test_negative_sigma_n_raises(self):
+        with pytest.raises(ValueError):
+            masonry_confined_shear_resistance(
+                l=3000.0, t=300.0, f_vk0=0.2, gamma_M=2.0, sigma_n=-0.1
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_confined_shear_resistance)
+        assert ref is not None
+        assert ref.article == "4.5.8.2"
+
+
+class TestMasonryConfinedBendingResistance:
+    """NTC18 §4.5.8.3 — Momento resistente muratura confinata."""
+
+    def test_basic(self):
+        """Calcolo manuale:
+        A_s=400, f_yd=391.3, z=2000
+        M_Rd = 400*391.3*2000 = 313040000 N·mm
+        """
+        A_s, f_yd, z = 400.0, 391.3, 2000.0
+        expected = A_s * f_yd * z
+        result = masonry_confined_bending_resistance(A_s, f_yd, z)
+        assert_allclose(result, expected, rtol=1e-9)
+
+    def test_proportional_to_z(self):
+        """Raddoppiando z, M_Rd raddoppia."""
+        r1 = masonry_confined_bending_resistance(300.0, 350.0, 1500.0)
+        r2 = masonry_confined_bending_resistance(300.0, 350.0, 3000.0)
+        assert_allclose(r2, 2.0 * r1, rtol=1e-9)
+
+    def test_invalid_A_s_raises(self):
+        with pytest.raises(ValueError):
+            masonry_confined_bending_resistance(A_s=0.0, f_yd=391.3, z=2000.0)
+
+    def test_invalid_z_raises(self):
+        with pytest.raises(ValueError):
+            masonry_confined_bending_resistance(A_s=400.0, f_yd=391.3, z=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_confined_bending_resistance)
+        assert ref is not None
+        assert ref.article == "4.5.8.3"

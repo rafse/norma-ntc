@@ -1242,3 +1242,191 @@ def concrete_punching_shear_check(
     V_Rdc = concrete_punching_shear_resistance(f_ck, rho_l, sigma_cp, b_0, d, gamma_c)
     ratio = V_Ed / V_Rdc
     return ratio <= 1.0, ratio
+
+
+# ── Punzonamento con armatura ─────────────────────────────────────────────────
+
+
+@ntc_ref(article="4.1.2.3.7", formula="4.1.32", latex=r"V_{Rd} = 0.75V_{Rd,c} + V_{Rd,s}")
+def concrete_punching_shear_resistance_reinforced(
+    f_ck: float,
+    rho_l: float,
+    sigma_cp: float,
+    b_0: float,
+    d: float,
+    A_sw: float,
+    f_ywd: float,
+    s_r: float,
+    gamma_c: float = 1.5,
+) -> float:
+    """Resistenza a punzonamento con armatura [N].
+
+    NTC18 §4.1.2.3.7 — Formula [4.1.32].
+    V_Rd = 0.75 * V_Rd,c + V_Rd,s
+
+    Parameters
+    ----------
+    f_ck : float
+        Resistenza caratteristica cilindrica [MPa].
+    rho_l : float
+        Rapporto geometrico armatura longitudinale (cappato a 0.02).
+    sigma_cp : float
+        Tensione media di compressione N_Ed/A_c [MPa].
+    b_0 : float
+        Perimetro di controllo [mm].
+    d : float
+        Altezza utile [mm].
+    A_sw : float
+        Area armatura a punzonamento in un perimetro [mm²].
+    f_ywd : float
+        Resistenza di progetto armatura a punzonamento [MPa].
+    s_r : float
+        Distanza radiale tra i cerchi di armatura [mm].
+    gamma_c : float
+        Coefficiente parziale calcestruzzo (default 1.5).
+
+    Returns
+    -------
+    float
+        V_Rd [N].
+    """
+    if A_sw < 0:
+        raise ValueError(f"A_sw deve essere >= 0, ricevuto {A_sw}")
+    if f_ywd <= 0:
+        raise ValueError(f"f_ywd deve essere > 0, ricevuto {f_ywd}")
+
+    V_Rd_c = concrete_punching_shear_resistance(f_ck, rho_l, sigma_cp, b_0, d, gamma_c)
+    V_Rd_c_red = 0.75 * V_Rd_c
+    V_Rd_s = (1.0 / 1.5) * A_sw * f_ywd  # sin(alpha)=1 per staffe verticali
+    return V_Rd_c_red + V_Rd_s
+
+
+# ── Lunghezza efficace pilastro ───────────────────────────────────────────────
+
+
+@ntc_ref(article="4.1.2.3.9.1", latex=r"l_0 = \beta L")
+def concrete_column_effective_length(
+    L: float,
+    condition_top: str,
+    condition_bottom: str,
+) -> float:
+    """Lunghezza efficace del pilastro [mm].
+
+    NTC18 §4.1.2.3.9.1 — l_0 = beta * L
+
+    Parameters
+    ----------
+    L : float
+        Lunghezza geometrica del pilastro [mm].
+    condition_top : str
+        Condizione di vincolo alla sommità: "fixed", "pinned" o "free".
+    condition_bottom : str
+        Condizione di vincolo alla base: "fixed", "pinned" o "free".
+
+    Returns
+    -------
+    float
+        Lunghezza efficace l_0 [mm].
+    """
+    if L <= 0:
+        raise ValueError(f"L deve essere > 0, ricevuto {L}")
+
+    _valid = {"fixed", "pinned", "free"}
+    if condition_top not in _valid:
+        raise ValueError(f"condition_top deve essere in {_valid}, ricevuto '{condition_top}'")
+    if condition_bottom not in _valid:
+        raise ValueError(f"condition_bottom deve essere in {_valid}, ricevuto '{condition_bottom}'")
+
+    _beta_map: dict[tuple[str, str], float] = {
+        ("fixed", "fixed"): 0.5,
+        ("fixed", "pinned"): 0.7,
+        ("pinned", "fixed"): 0.7,
+        ("pinned", "pinned"): 1.0,
+        ("fixed", "free"): 2.0,
+        ("free", "fixed"): 2.0,
+        ("pinned", "free"): 2.0,
+        ("free", "pinned"): 2.0,
+    }
+
+    key = (condition_top, condition_bottom)
+    if key not in _beta_map:
+        raise ValueError(
+            f"Combinazione ('{condition_top}', '{condition_bottom}') non supportata."
+        )
+
+    beta = _beta_map[key]
+    return beta * L
+
+
+# ── Verifica dominio N-M ──────────────────────────────────────────────────────
+
+
+@ntc_ref(article="4.1.2.3.3", formula="4.1.19", latex=r"N_{Ed}/N_{Rd} + M_{Ed}/M_{Rd} \le 1")
+def concrete_column_interaction_check(
+    N_Ed: float,
+    M_Ed: float,
+    N_Rd: float,
+    M_Rd: float,
+) -> tuple[bool, float]:
+    """Verifica dominio N-M (interazione lineare) per pilastro in c.a.
+
+    NTC18 §4.1.2.3.3 — Formula [4.1.19].
+    N_Ed/N_Rd + M_Ed/M_Rd <= 1.0
+
+    Parameters
+    ----------
+    N_Ed : float
+        Sforzo normale di progetto [N].
+    M_Ed : float
+        Momento di progetto [N*mm].
+    N_Rd : float
+        Resistenza assiale di progetto [N].
+    M_Rd : float
+        Resistenza flessionale di progetto [N*mm].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_ok, ratio) dove ratio = N_Ed/N_Rd + M_Ed/M_Rd.
+    """
+    if N_Rd <= 0:
+        raise ValueError(f"N_Rd deve essere > 0, ricevuto {N_Rd}")
+    if M_Rd <= 0:
+        raise ValueError(f"M_Rd deve essere > 0, ricevuto {M_Rd}")
+
+    ratio = N_Ed / N_Rd + M_Ed / M_Rd
+    return ratio <= 1.0, ratio
+
+
+# ── Passo massimo staffe ──────────────────────────────────────────────────────
+
+
+@ntc_ref(article="4.1.2.3.5.3", formula="4.1.29", latex=r"s_{max} = \min(0.75d,\;300\,\text{mm})")
+def concrete_min_stirrup_spacing(
+    d: float,
+    phi_l: float = 0.0,
+    phi_w: float = 0.0,
+) -> float:
+    """Passo massimo staffe trasversali [mm].
+
+    NTC18 §4.1.2.3.5.3 — Formula [4.1.29].
+    Per staffe verticali: s_max = min(0.75*d, 300 mm).
+
+    Parameters
+    ----------
+    d : float
+        Altezza utile della sezione [mm].
+    phi_l : float
+        Diametro barra longitudinale [mm] (non usato nella formula base, incluso per completezza).
+    phi_w : float
+        Diametro staffa [mm] (non usato nella formula base, incluso per completezza).
+
+    Returns
+    -------
+    float
+        Passo massimo s_max [mm].
+    """
+    if d <= 0:
+        raise ValueError(f"d deve essere > 0, ricevuto {d}")
+
+    return min(0.75 * d, 300.0)

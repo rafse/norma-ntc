@@ -12,6 +12,8 @@ from pyntc.checks.concrete import (
     concrete_beam_min_reinforcement,
     concrete_bending_check,
     concrete_bending_resistance,
+    concrete_column_effective_length,
+    concrete_column_interaction_check,
     concrete_column_min_reinforcement,
     concrete_confined_strength,
     concrete_crack_mean_strain,
@@ -20,9 +22,11 @@ from pyntc.checks.concrete import (
     concrete_crack_width_limit,
     concrete_design_compressive_strength,
     concrete_design_tensile_strength,
+    concrete_min_stirrup_spacing,
     concrete_prestress_stress_limits,
     concrete_punching_shear_check,
     concrete_punching_shear_resistance,
+    concrete_punching_shear_resistance_reinforced,
     concrete_slenderness,
     concrete_slenderness_limit,
     concrete_strain_limits,
@@ -1193,3 +1197,171 @@ class TestConcretePunchingShearCheck:
         ref = get_ntc_ref(concrete_punching_shear_check)
         assert ref is not None
         assert ref.article == "4.1.2.3.7"
+
+
+# ── [4.1.32] — Punzonamento con armatura ─────────────────────────────────────
+
+
+class TestConcretePunchingShearResistanceReinforced:
+    """NTC18 §4.1.2.3.7, Formula [4.1.32]."""
+
+    def test_basic(self):
+        """V_Rd = 0.75*V_Rd,c + V_Rd,s."""
+        f_ck, rho_l, sigma_cp = 25.0, 0.01, 2.0
+        b_0, d = 3000.0, 200.0
+        A_sw, f_ywd, s_r = 500.0, 435.0, 100.0
+        result = concrete_punching_shear_resistance_reinforced(
+            f_ck=f_ck, rho_l=rho_l, sigma_cp=sigma_cp,
+            b_0=b_0, d=d, A_sw=A_sw, f_ywd=f_ywd, s_r=s_r,
+        )
+        v_rd_c = concrete_punching_shear_resistance(f_ck, rho_l, sigma_cp, b_0, d)
+        v_rd_s = (1.0 / 1.5) * A_sw * f_ywd
+        expected = 0.75 * v_rd_c + v_rd_s
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_no_stirrups(self):
+        """A_sw=0 → V_Rd = 0.75 * V_Rd,c."""
+        result = concrete_punching_shear_resistance_reinforced(
+            f_ck=30.0, rho_l=0.015, sigma_cp=0.0,
+            b_0=2000.0, d=250.0, A_sw=0.0, f_ywd=435.0, s_r=100.0,
+        )
+        v_rd_c = concrete_punching_shear_resistance(30.0, 0.015, 0.0, 2000.0, 250.0)
+        assert_allclose(result, 0.75 * v_rd_c, rtol=1e-6)
+
+    def test_invalid_A_sw_raises(self):
+        with pytest.raises(ValueError):
+            concrete_punching_shear_resistance_reinforced(
+                f_ck=25.0, rho_l=0.01, sigma_cp=0.0,
+                b_0=3000.0, d=200.0, A_sw=-10.0, f_ywd=435.0, s_r=100.0,
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_punching_shear_resistance_reinforced)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.7"
+        assert ref.formula == "4.1.32"
+
+
+# ── [4.1.2.3.9.1] — Lunghezza efficace pilastro ──────────────────────────────
+
+
+class TestConcreteColumnEffectiveLength:
+    """NTC18 §4.1.2.3.9.1."""
+
+    def test_fixed_fixed(self):
+        assert_allclose(
+            concrete_column_effective_length(4000.0, "fixed", "fixed"), 2000.0
+        )
+
+    def test_fixed_pinned(self):
+        assert_allclose(
+            concrete_column_effective_length(4000.0, "fixed", "pinned"), 2800.0
+        )
+
+    def test_pinned_fixed(self):
+        assert_allclose(
+            concrete_column_effective_length(4000.0, "pinned", "fixed"), 2800.0
+        )
+
+    def test_pinned_pinned(self):
+        assert_allclose(
+            concrete_column_effective_length(4000.0, "pinned", "pinned"), 4000.0
+        )
+
+    def test_fixed_free(self):
+        assert_allclose(
+            concrete_column_effective_length(4000.0, "fixed", "free"), 8000.0
+        )
+
+    def test_pinned_free(self):
+        assert_allclose(
+            concrete_column_effective_length(4000.0, "pinned", "free"), 8000.0
+        )
+
+    def test_invalid_L_raises(self):
+        with pytest.raises(ValueError):
+            concrete_column_effective_length(0.0, "fixed", "fixed")
+
+    def test_invalid_condition_raises(self):
+        with pytest.raises(ValueError):
+            concrete_column_effective_length(4000.0, "fixed", "clamped")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_column_effective_length)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.9.1"
+
+
+# ── [4.1.19] — Verifica dominio N-M ──────────────────────────────────────────
+
+
+class TestConcreteColumnInteractionCheck:
+    """NTC18 §4.1.2.3.3, Formula [4.1.19]."""
+
+    def test_basic_ok(self):
+        """N_Ed/N_Rd + M_Ed/M_Rd <= 1.0 → verifica OK."""
+        ok, ratio = concrete_column_interaction_check(
+            N_Ed=500.0, M_Ed=50e6, N_Rd=2000.0, M_Rd=200e6,
+        )
+        assert_allclose(ratio, 500.0 / 2000.0 + 50e6 / 200e6, rtol=1e-9)
+        assert ok is True
+
+    def test_basic_not_ok(self):
+        """Ratio > 1.0 → verifica NON OK."""
+        ok, ratio = concrete_column_interaction_check(
+            N_Ed=1800.0, M_Ed=180e6, N_Rd=2000.0, M_Rd=200e6,
+        )
+        assert_allclose(ratio, 1.8, rtol=1e-9)
+        assert ok is False
+
+    def test_exact_limit(self):
+        """Ratio esattamente 1.0."""
+        ok, ratio = concrete_column_interaction_check(
+            N_Ed=1000.0, M_Ed=100e6, N_Rd=2000.0, M_Rd=200e6,
+        )
+        assert_allclose(ratio, 1.0, rtol=1e-9)
+        assert ok is True
+
+    def test_invalid_N_Rd_raises(self):
+        with pytest.raises(ValueError):
+            concrete_column_interaction_check(
+                N_Ed=500.0, M_Ed=50e6, N_Rd=0.0, M_Rd=200e6,
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_column_interaction_check)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.3"
+        assert ref.formula == "4.1.19"
+
+
+# ── [4.1.29] — Passo massimo staffe ──────────────────────────────────────────
+
+
+class TestConcreteMinStirrupSpacing:
+    """NTC18 §4.1.2.3.5.3, Formula [4.1.29]."""
+
+    def test_controlled_by_300(self):
+        """d=500 → 0.75*500=375 > 300 → s_max=300."""
+        result = concrete_min_stirrup_spacing(d=500.0)
+        assert_allclose(result, 300.0)
+
+    def test_controlled_by_0_75d(self):
+        """d=300 → 0.75*300=225 < 300 → s_max=225."""
+        result = concrete_min_stirrup_spacing(d=300.0)
+        assert_allclose(result, 225.0)
+
+    def test_boundary(self):
+        """d=400 → 0.75*400=300.0 → s_max=300."""
+        result = concrete_min_stirrup_spacing(d=400.0)
+        assert_allclose(result, 300.0)
+
+    def test_invalid_d_raises(self):
+        with pytest.raises(ValueError):
+            concrete_min_stirrup_spacing(d=-10.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_min_stirrup_spacing)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.5.3"
+        assert ref.formula == "4.1.29"
