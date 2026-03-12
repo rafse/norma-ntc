@@ -782,6 +782,398 @@ def bridge_rail_thermal_variation(
     return 0.0, 0.0
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.1.3.14 — COEFFICIENTI PARZIALI SLU PONTI STRADALI (Tab. 5.1.V)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# (load_type, effect) → (EQU, A1, A2)
+_TABLE_5_1_V: dict[tuple[str, str], tuple[float, float, float]] = {
+    # Azioni permanenti g1, g3
+    ("G1", "favorable"):   (0.90, 1.00, 1.00),
+    ("G1", "unfavorable"): (1.10, 1.35, 1.00),
+    # Azioni permanenti non strutturali g2
+    ("G2", "favorable"):   (0.00, 0.00, 0.00),
+    ("G2", "unfavorable"): (1.50, 1.50, 1.30),
+    # Azioni variabili da traffico
+    ("Q_traffic", "favorable"):   (0.00, 0.00, 0.00),
+    ("Q_traffic", "unfavorable"): (1.35, 1.35, 1.15),
+    # Azioni variabili
+    ("Q", "favorable"):   (0.00, 0.00, 0.00),
+    ("Q", "unfavorable"): (1.50, 1.50, 1.30),
+    # Distorsioni e presollecitazioni di progetto
+    ("prestress", "favorable"):   (0.90, 1.00, 1.00),
+    ("prestress", "unfavorable"): (1.00, 1.00, 1.00),
+    # Ritiro, viscosita', cedimenti vincolari
+    ("creep", "favorable"):   (0.00, 0.00, 0.00),
+    ("creep", "unfavorable"): (1.20, 1.20, 1.00),
+}
+
+_VALID_COMBINATIONS_ROAD = {"EQU", "A1", "A2"}
+_COMBINATION_INDEX: dict[str, int] = {"EQU": 0, "A1": 1, "A2": 2}
+
+
+@ntc_ref(
+    article="5.1.3.14",
+    table="Tab. 5.1.V",
+    latex=r"\gamma_{G1},\;\gamma_{G2},\;\gamma_Q,\;\gamma_{Q1},\;\gamma_{C2} \text{ da Tab.\,5.1.V}",
+)
+def bridge_road_partial_factors(
+    load_type: str, effect: str, combination: str
+) -> float:
+    """Coefficienti parziali di sicurezza agli SLU per ponti stradali.
+
+    NTC18 §5.1.3.14, Tab. 5.1.V.
+
+    Tabella valori:
+    +-----------+------------+------+------+------+
+    | load_type | effect     |  EQU |   A1 |   A2 |
+    +===========+============+======+======+======+
+    | G1        | favorable  | 0.90 | 1.00 | 1.00 |
+    |           | unfavorable| 1.10 | 1.35 | 1.00 |
+    | G2        | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.50 | 1.50 | 1.30 |
+    | Q_traffic | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.35 | 1.35 | 1.15 |
+    | Q         | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.50 | 1.50 | 1.30 |
+    | prestress | favorable  | 0.90 | 1.00 | 1.00 |
+    |           | unfavorable| 1.00 | 1.00 | 1.00 |
+    | creep     | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.20 | 1.20 | 1.00 |
+    +-----------+------------+------+------+------+
+
+    Parameters
+    ----------
+    load_type : str
+        Tipo di azione: "G1" (perm. strutturali), "G2" (perm. non-strutt.),
+        "Q_traffic" (var. traffico), "Q" (var. altre), "prestress"
+        (distorsioni/presollecitazioni), "creep" (ritiro/viscosita').
+    effect : str
+        Effetto dell'azione: "favorable" o "unfavorable".
+    combination : str
+        Combinazione SLU: "EQU", "A1" o "A2".
+
+    Returns
+    -------
+    float
+        Coefficiente parziale gamma.
+    """
+    valid_load_types = {k for k, _ in _TABLE_5_1_V}
+    if load_type not in valid_load_types:
+        raise ValueError(
+            f"load_type '{load_type}' non valido. "
+            f"Valori ammessi: {', '.join(sorted(valid_load_types))}"
+        )
+    if effect not in ("favorable", "unfavorable"):
+        raise ValueError(
+            f"effect '{effect}' non valido. Valori ammessi: 'favorable', 'unfavorable'"
+        )
+    if combination not in _VALID_COMBINATIONS_ROAD:
+        raise ValueError(
+            f"combination '{combination}' non valida. "
+            f"Valori ammessi: {', '.join(sorted(_VALID_COMBINATIONS_ROAD))}"
+        )
+    row = _TABLE_5_1_V[(load_type, effect)]
+    return row[_COMBINATION_INDEX[combination]]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.3.2.1 — COEFFICIENTI PARZIALI SLU PONTI FERROVIARI (Tab. 5.2.V)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# (load_type, effect) → (EQU, A1, A2)
+_TABLE_5_2_V: dict[tuple[str, str], tuple[float, float, float]] = {
+    # Azioni permanenti
+    ("G1", "favorable"):   (0.90, 1.00, 1.00),
+    ("G1", "unfavorable"): (1.10, 1.35, 1.00),
+    # Azioni permanenti non strutturali
+    ("G2", "favorable"):   (0.00, 0.00, 0.00),
+    ("G2", "unfavorable"): (1.50, 1.50, 1.30),
+    # Ballast
+    ("ballast", "favorable"):   (0.90, 1.00, 1.00),
+    ("ballast", "unfavorable"): (1.50, 1.50, 1.30),
+    # Azioni variabili da traffico
+    ("Q_traffic", "favorable"):   (0.00, 0.00, 0.00),
+    ("Q_traffic", "unfavorable"): (1.45, 1.45, 1.25),
+    # Azioni variabili
+    ("Q", "favorable"):   (0.00, 0.00, 0.00),
+    ("Q", "unfavorable"): (1.50, 1.50, 1.30),
+    # Precompressione
+    ("prestress", "favorable"):   (0.90, 1.00, 1.00),
+    ("prestress", "unfavorable"): (1.00, 1.00, 1.00),
+    # Ritiro, viscosita', cedimenti
+    ("creep", "favorable"):   (0.00, 0.00, 0.00),
+    ("creep", "unfavorable"): (1.20, 1.20, 1.00),
+}
+
+
+@ntc_ref(
+    article="5.2.3.2.1",
+    table="Tab. 5.2.V",
+    latex=r"\gamma_{G1},\;\gamma_{G2},\;\gamma_B,\;\gamma_Q,\;\gamma_P,\;\gamma_{Ce} \text{ da Tab.\,5.2.V}",
+)
+def bridge_rail_partial_factors(
+    load_type: str, effect: str, combination: str
+) -> float:
+    """Coefficienti parziali di sicurezza agli SLU per ponti ferroviari.
+
+    NTC18 §5.2.3.2.1, Tab. 5.2.V.
+
+    Tabella valori:
+    +-----------+------------+------+------+------+
+    | load_type | effect     |  EQU |   A1 |   A2 |
+    +===========+============+======+======+======+
+    | G1        | favorable  | 0.90 | 1.00 | 1.00 |
+    |           | unfavorable| 1.10 | 1.35 | 1.00 |
+    | G2        | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.50 | 1.50 | 1.30 |
+    | ballast   | favorable  | 0.90 | 1.00 | 1.00 |
+    |           | unfavorable| 1.50 | 1.50 | 1.30 |
+    | Q_traffic | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.45 | 1.45 | 1.25 |
+    | Q         | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.50 | 1.50 | 1.30 |
+    | prestress | favorable  | 0.90 | 1.00 | 1.00 |
+    |           | unfavorable| 1.00 | 1.00 | 1.00 |
+    | creep     | favorable  | 0.00 | 0.00 | 0.00 |
+    |           | unfavorable| 1.20 | 1.20 | 1.00 |
+    +-----------+------------+------+------+------+
+
+    Parameters
+    ----------
+    load_type : str
+        Tipo di azione: "G1" (perm.), "G2" (non-strutt.), "ballast",
+        "Q_traffic" (var. traffico), "Q" (var. altre), "prestress"
+        (precompressione), "creep" (ritiro/viscosita').
+    effect : str
+        Effetto dell'azione: "favorable" o "unfavorable".
+    combination : str
+        Combinazione SLU: "EQU", "A1" o "A2".
+
+    Returns
+    -------
+    float
+        Coefficiente parziale gamma.
+    """
+    valid_load_types = {k for k, _ in _TABLE_5_2_V}
+    if load_type not in valid_load_types:
+        raise ValueError(
+            f"load_type '{load_type}' non valido. "
+            f"Valori ammessi: {', '.join(sorted(valid_load_types))}"
+        )
+    if effect not in ("favorable", "unfavorable"):
+        raise ValueError(
+            f"effect '{effect}' non valido. Valori ammessi: 'favorable', 'unfavorable'"
+        )
+    if combination not in _VALID_COMBINATIONS_ROAD:
+        raise ValueError(
+            f"combination '{combination}' non valida. "
+            f"Valori ammessi: {', '.join(sorted(_VALID_COMBINATIONS_ROAD))}"
+        )
+    row = _TABLE_5_2_V[(load_type, effect)]
+    return row[_COMBINATION_INDEX[combination]]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.3.1.2 — FATTORI MULTITRACK PONTI FERROVIARI (Tab. 5.2.III)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# (n_tracks_bucket, track_index, traffic_type) → factor
+# n_tracks_bucket: 1, 2, or 3 (meaning >=3)
+_TABLE_5_2_III: dict[tuple[int, int, str], float] = {
+    # 1 binario
+    (1, 1, "normal"): 1.0,
+    (1, 1, "heavy"):  1.0,
+    # 2 binari: primo binario
+    (2, 1, "normal"): 1.0,
+    (2, 1, "heavy"):  1.0,
+    # 2 binari: secondo binario
+    (2, 2, "normal"): 1.0,
+    (2, 2, "heavy"):  0.75,
+    # >=3 binari: primo binario
+    (3, 1, "normal"): 1.0,
+    (3, 1, "heavy"):  1.0,
+    # >=3 binari: secondo binario
+    (3, 2, "normal"): 0.75,
+    (3, 2, "heavy"):  0.75,
+    # >=3 binari: altri binari (3+) — solo traffico normale 0.75, heavy non caricato
+    (3, 3, "normal"): 0.75,
+    (3, 3, "heavy"):  0.0,
+}
+
+
+@ntc_ref(
+    article="5.2.3.1.2",
+    table="Tab. 5.2.III",
+    latex=r"\alpha_{\text{track}} \in \{1{,}0;\; 0{,}75;\; 0{,}0\}",
+)
+def bridge_rail_multitrack_factor(
+    n_tracks: int, track_index: int, traffic_type: str = "normal"
+) -> float:
+    """Fattore di riduzione carichi per piu' binari su ponte ferroviario.
+
+    NTC18 §5.2.3.1.2, Tab. 5.2.III.
+
+    Tabella valori:
+    +----------+-------------+---------+-------+
+    | n_tracks | track_index | normal  | heavy |
+    +==========+=============+=========+=======+
+    | 1        | 1           | 1.0     | 1.0   |
+    | 2        | 1           | 1.0     | 1.0   |
+    | 2        | 2           | 1.0     | 0.75  |
+    | >=3      | 1           | 1.0     | 1.0   |
+    | >=3      | 2           | 0.75    | 0.75  |
+    | >=3      | 3+          | 0.75    | 0.0   |
+    +----------+-------------+---------+-------+
+
+    Per traffico pesante (heavy, SW/2): il secondo binario e oltre non
+    sono considerati caricati contemporaneamente → fattore 0.0 per 3+.
+
+    Parameters
+    ----------
+    n_tracks : int
+        Numero totale di binari presenti sul ponte.
+    track_index : int
+        Indice del binario considerato (1=primo, 2=secondo, 3+=altri).
+    traffic_type : str
+        Tipo di traffico: "normal" (LM71+SW/0) o "heavy" (SW/2).
+
+    Returns
+    -------
+    float
+        Fattore di riduzione (1.0, 0.75 o 0.0).
+    """
+    if n_tracks < 1:
+        raise ValueError(f"n_tracks deve essere >= 1, ricevuto {n_tracks}")
+    if track_index < 1:
+        raise ValueError(f"track_index deve essere >= 1, ricevuto {track_index}")
+    if traffic_type not in ("normal", "heavy"):
+        raise ValueError(
+            f"traffic_type '{traffic_type}' non valido. "
+            "Valori ammessi: 'normal', 'heavy'"
+        )
+
+    # Bucket per n_tracks: cap a 3 per >=3 binari
+    bucket = min(n_tracks, 3)
+    # Bucket per track_index: cap a 3 per terzo binario e oltre
+    idx = min(track_index, 3)
+
+    key = (bucket, idx, traffic_type)
+    if key not in _TABLE_5_2_III:
+        # track_index > n_tracks: binario non esiste
+        raise ValueError(
+            f"track_index {track_index} non valido per n_tracks={n_tracks}"
+        )
+    return _TABLE_5_2_III[key]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.3 — LIMITI SLE DEFORMAZIONE PONTI FERROVIARI (Tab. 5.2.VIII)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# (angular_variation [rad], radius_single [m], radius_multiple [m])
+_TABLE_5_2_VIII: list[tuple[float, float, float, float, float]] = [
+    # (v_min, v_max, angular_variation, radius_single, radius_multiple)
+    (0.0,   120.0, 0.0035, 1700.0,  3500.0),
+    (120.0, 200.0, 0.0020, 6000.0,  9500.0),
+    (200.0, math.inf, 0.0015, 14000.0, 17500.0),
+]
+
+
+@ntc_ref(
+    article="5.2.3",
+    table="Tab. 5.2.VIII",
+    latex=(
+        r"\theta_{\max},\; R_{\min,\text{single}},\; R_{\min,\text{multiple}} "
+        r"\text{ da Tab.\,5.2.VIII}"
+    ),
+)
+def bridge_rail_deformation_limits(speed: float) -> tuple[float, float, float]:
+    """Limiti SLE di deformazione per la sicurezza del traffico ferroviario.
+
+    NTC18 §5.2.3, Tab. 5.2.VIII.
+
+    Tabella valori:
+    +---------------+-------------------+-----------+-----------+
+    | Velocita'     | Var. ang. max     | R_min     | R_min     |
+    | [km/h]        | [rad]             | singola   | piu' camp.|
+    +===============+===================+===========+===========+
+    | V <= 120      | 0.0035            | 1700 m    | 3500 m    |
+    | 120 < V <= 200| 0.0020            | 6000 m    | 9500 m    |
+    | V > 200       | 0.0015            | 14000 m   | 17500 m   |
+    +---------------+-------------------+-----------+-----------+
+
+    Parameters
+    ----------
+    speed : float
+        Velocita' di progetto [km/h].
+
+    Returns
+    -------
+    tuple[float, float, float]
+        (max_angular_variation [rad], min_radius_single [m],
+         min_radius_multiple [m]).
+    """
+    if speed <= 0:
+        raise ValueError(f"speed deve essere > 0, ricevuto {speed}")
+    for v_min, v_max, theta, r_single, r_multi in _TABLE_5_2_VIII:
+        if v_min < speed <= v_max:
+            return theta, r_single, r_multi
+    # speed <= 120 (first row, v_min=0)
+    _, _, theta, r_single, r_multi = _TABLE_5_2_VIII[0]  # fallback first row
+    return theta, r_single, r_multi
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.1.4.3 — FLUSSO ANNUO VEICOLI PESANTI PER FATICA (Tab. 5.1.X)
+# ══════════════════════════════════════════════════════════════════════════════
+
+_TABLE_5_1_X: dict[int, float] = {
+    1: 2.0e6,
+    2: 0.5e6,
+    3: 0.125e6,
+    4: 0.05e6,
+}
+
+
+@ntc_ref(
+    article="5.1.4.3",
+    table="Tab. 5.1.X",
+    latex=r"N_{\text{obs}} \text{ da Tab.\,5.1.X}",
+)
+def bridge_fatigue_traffic_flow(traffic_category: int) -> float:
+    """Flusso annuo di veicoli pesanti per categoria di traffico (fatica).
+
+    NTC18 §5.1.4.3, Tab. 5.1.X.
+
+    Tabella valori:
+    +----------+--------------------------------------------------+------------------+
+    | Cat.     | Descrizione                                      | Flusso [veh/anno]|
+    +==========+==================================================+==================+
+    | 1        | Autostrade/strade >=2 corsie, intenso traffico   | 2.0 x 10^6       |
+    | 2        | Autostrade/strade, traffico medio                | 0.5 x 10^6       |
+    | 3        | Strade principali, traffico medio                | 0.125 x 10^6     |
+    | 4        | Strade locali, traffico molto ridotto            | 0.05 x 10^6      |
+    +----------+--------------------------------------------------+------------------+
+
+    Parameters
+    ----------
+    traffic_category : int
+        Categoria di traffico (1, 2, 3 o 4).
+
+    Returns
+    -------
+    float
+        Flusso annuo di veicoli di peso > 100 kN [veicoli/anno].
+    """
+    if traffic_category not in _TABLE_5_1_X:
+        raise ValueError(
+            f"traffic_category {traffic_category} non valida. "
+            "Valori ammessi: 1, 2, 3, 4"
+        )
+    return _TABLE_5_1_X[traffic_category]
+
+
 @ntc_ref(
     article="5.2.3.2.2",
     table="Tab.5.2.VI",

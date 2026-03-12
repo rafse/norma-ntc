@@ -28,6 +28,11 @@ from pyntc.actions.bridges import (
     bridge_deck_thermal_gradient,
     bridge_hollow_pier_thermal,
     bridge_rail_thermal_variation,
+    bridge_road_partial_factors,
+    bridge_rail_partial_factors,
+    bridge_rail_multitrack_factor,
+    bridge_rail_deformation_limits,
+    bridge_fatigue_traffic_flow,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -811,3 +816,367 @@ class TestBridgeRailThermalVariation:
         ref = get_ntc_ref(bridge_rail_thermal_variation)
         assert ref is not None
         assert ref.article == "5.2.2.4.2"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.1.3.14 — COEFFICIENTI PARZIALI SLU PONTI STRADALI (Tab. 5.1.V)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class TestBridgeRoadPartialFactors:
+    """NTC18 §5.1.3.14, Tab. 5.1.V — Coefficienti parziali ponti stradali."""
+
+    def test_G1_favorable_EQU(self):
+        """G1 favorevole EQU = 0.90."""
+        assert_allclose(bridge_road_partial_factors("G1", "favorable", "EQU"), 0.90)
+
+    def test_G1_unfavorable_A1(self):
+        """G1 sfavorevole A1 = 1.35."""
+        assert_allclose(bridge_road_partial_factors("G1", "unfavorable", "A1"), 1.35)
+
+    def test_G1_unfavorable_A2(self):
+        """G1 sfavorevole A2 = 1.00."""
+        assert_allclose(bridge_road_partial_factors("G1", "unfavorable", "A2"), 1.00)
+
+    def test_G2_favorable_all_zero(self):
+        """G2 favorevole = 0.00 per tutte le combinazioni."""
+        for combo in ("EQU", "A1", "A2"):
+            assert_allclose(
+                bridge_road_partial_factors("G2", "favorable", combo), 0.00
+            )
+
+    def test_G2_unfavorable_EQU(self):
+        """G2 sfavorevole EQU = 1.50."""
+        assert_allclose(bridge_road_partial_factors("G2", "unfavorable", "EQU"), 1.50)
+
+    def test_G2_unfavorable_A2(self):
+        """G2 sfavorevole A2 = 1.30."""
+        assert_allclose(bridge_road_partial_factors("G2", "unfavorable", "A2"), 1.30)
+
+    def test_Q_traffic_unfavorable_A1(self):
+        """Q_traffic sfavorevole A1 = 1.35."""
+        assert_allclose(
+            bridge_road_partial_factors("Q_traffic", "unfavorable", "A1"), 1.35
+        )
+
+    def test_Q_traffic_unfavorable_A2(self):
+        """Q_traffic sfavorevole A2 = 1.15."""
+        assert_allclose(
+            bridge_road_partial_factors("Q_traffic", "unfavorable", "A2"), 1.15
+        )
+
+    def test_Q_unfavorable_A1(self):
+        """Q sfavorevole A1 = 1.50."""
+        assert_allclose(bridge_road_partial_factors("Q", "unfavorable", "A1"), 1.50)
+
+    def test_prestress_favorable_EQU(self):
+        """Prestress favorevole EQU = 0.90."""
+        assert_allclose(
+            bridge_road_partial_factors("prestress", "favorable", "EQU"), 0.90
+        )
+
+    def test_prestress_unfavorable_EQU(self):
+        """Prestress sfavorevole EQU = 1.00."""
+        assert_allclose(
+            bridge_road_partial_factors("prestress", "unfavorable", "EQU"), 1.00
+        )
+
+    def test_creep_unfavorable_A1(self):
+        """Creep sfavorevole A1 = 1.20."""
+        assert_allclose(
+            bridge_road_partial_factors("creep", "unfavorable", "A1"), 1.20
+        )
+
+    def test_creep_unfavorable_A2(self):
+        """Creep sfavorevole A2 = 1.00."""
+        assert_allclose(
+            bridge_road_partial_factors("creep", "unfavorable", "A2"), 1.00
+        )
+
+    def test_invalid_load_type(self):
+        """load_type non valido → ValueError."""
+        with pytest.raises(ValueError, match="load_type"):
+            bridge_road_partial_factors("G3", "favorable", "A1")
+
+    def test_invalid_effect(self):
+        """effect non valido → ValueError."""
+        with pytest.raises(ValueError, match="effect"):
+            bridge_road_partial_factors("G1", "neutral", "A1")
+
+    def test_invalid_combination(self):
+        """combination non valida → ValueError."""
+        with pytest.raises(ValueError, match="combination"):
+            bridge_road_partial_factors("G1", "favorable", "B1")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_road_partial_factors)
+        assert ref is not None
+        assert ref.article == "5.1.3.14"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.3.2.1 — COEFFICIENTI PARZIALI SLU PONTI FERROVIARI (Tab. 5.2.V)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class TestBridgeRailPartialFactors:
+    """NTC18 §5.2.3.2.1, Tab. 5.2.V — Coefficienti parziali ponti ferroviari."""
+
+    def test_G1_favorable_EQU(self):
+        """G1 favorevole EQU = 0.90."""
+        assert_allclose(bridge_rail_partial_factors("G1", "favorable", "EQU"), 0.90)
+
+    def test_G1_unfavorable_A1(self):
+        """G1 sfavorevole A1 = 1.35."""
+        assert_allclose(bridge_rail_partial_factors("G1", "unfavorable", "A1"), 1.35)
+
+    def test_G1_unfavorable_A2(self):
+        """G1 sfavorevole A2 = 1.00."""
+        assert_allclose(bridge_rail_partial_factors("G1", "unfavorable", "A2"), 1.00)
+
+    def test_ballast_favorable_EQU(self):
+        """Ballast favorevole EQU = 0.90."""
+        assert_allclose(
+            bridge_rail_partial_factors("ballast", "favorable", "EQU"), 0.90
+        )
+
+    def test_ballast_unfavorable_A1(self):
+        """Ballast sfavorevole A1 = 1.50."""
+        assert_allclose(
+            bridge_rail_partial_factors("ballast", "unfavorable", "A1"), 1.50
+        )
+
+    def test_ballast_unfavorable_A2(self):
+        """Ballast sfavorevole A2 = 1.30."""
+        assert_allclose(
+            bridge_rail_partial_factors("ballast", "unfavorable", "A2"), 1.30
+        )
+
+    def test_Q_traffic_unfavorable_EQU(self):
+        """Q_traffic sfavorevole EQU = 1.45."""
+        assert_allclose(
+            bridge_rail_partial_factors("Q_traffic", "unfavorable", "EQU"), 1.45
+        )
+
+    def test_Q_traffic_unfavorable_A2(self):
+        """Q_traffic sfavorevole A2 = 1.25."""
+        assert_allclose(
+            bridge_rail_partial_factors("Q_traffic", "unfavorable", "A2"), 1.25
+        )
+
+    def test_Q_favorable_all_zero(self):
+        """Q favorevole = 0.00 per tutte le combinazioni."""
+        for combo in ("EQU", "A1", "A2"):
+            assert_allclose(
+                bridge_rail_partial_factors("Q", "favorable", combo), 0.00
+            )
+
+    def test_prestress_favorable_A1(self):
+        """Prestress favorevole A1 = 1.00."""
+        assert_allclose(
+            bridge_rail_partial_factors("prestress", "favorable", "A1"), 1.00
+        )
+
+    def test_creep_unfavorable_EQU(self):
+        """Creep sfavorevole EQU = 1.20."""
+        assert_allclose(
+            bridge_rail_partial_factors("creep", "unfavorable", "EQU"), 1.20
+        )
+
+    def test_creep_unfavorable_A2(self):
+        """Creep sfavorevole A2 = 1.00."""
+        assert_allclose(
+            bridge_rail_partial_factors("creep", "unfavorable", "A2"), 1.00
+        )
+
+    def test_invalid_load_type(self):
+        """load_type non valido → ValueError."""
+        with pytest.raises(ValueError, match="load_type"):
+            bridge_rail_partial_factors("wind", "favorable", "A1")
+
+    def test_invalid_effect(self):
+        """effect non valido → ValueError."""
+        with pytest.raises(ValueError, match="effect"):
+            bridge_rail_partial_factors("G1", "bad", "A1")
+
+    def test_invalid_combination(self):
+        """combination non valida → ValueError."""
+        with pytest.raises(ValueError, match="combination"):
+            bridge_rail_partial_factors("G1", "favorable", "A3")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_rail_partial_factors)
+        assert ref is not None
+        assert ref.article == "5.2.3.2.1"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.3.1.2 — FATTORI MULTITRACK PONTI FERROVIARI (Tab. 5.2.III)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class TestBridgeRailMultitrackFactor:
+    """NTC18 §5.2.3.1.2, Tab. 5.2.III — Fattori riduzione multitrack."""
+
+    def test_1_track_normal(self):
+        """1 binario, traffico normale: fattore = 1.0."""
+        assert_allclose(bridge_rail_multitrack_factor(1, 1, "normal"), 1.0)
+
+    def test_1_track_heavy(self):
+        """1 binario, traffico pesante: fattore = 1.0."""
+        assert_allclose(bridge_rail_multitrack_factor(1, 1, "heavy"), 1.0)
+
+    def test_2_tracks_first_normal(self):
+        """2 binari, primo binario, traffico normale: fattore = 1.0."""
+        assert_allclose(bridge_rail_multitrack_factor(2, 1, "normal"), 1.0)
+
+    def test_2_tracks_second_normal(self):
+        """2 binari, secondo binario, traffico normale: fattore = 1.0."""
+        assert_allclose(bridge_rail_multitrack_factor(2, 2, "normal"), 1.0)
+
+    def test_2_tracks_second_heavy(self):
+        """2 binari, secondo binario, traffico pesante: fattore = 0.75."""
+        assert_allclose(bridge_rail_multitrack_factor(2, 2, "heavy"), 0.75)
+
+    def test_3_tracks_first_normal(self):
+        """>=3 binari, primo binario, traffico normale: fattore = 1.0."""
+        assert_allclose(bridge_rail_multitrack_factor(3, 1, "normal"), 1.0)
+
+    def test_3_tracks_second_normal(self):
+        """>=3 binari, secondo binario, traffico normale: fattore = 0.75."""
+        assert_allclose(bridge_rail_multitrack_factor(3, 2, "normal"), 0.75)
+
+    def test_3_tracks_third_normal(self):
+        """>=3 binari, terzo binario, traffico normale: fattore = 0.75."""
+        assert_allclose(bridge_rail_multitrack_factor(3, 3, "normal"), 0.75)
+
+    def test_3_tracks_third_heavy(self):
+        """>=3 binari, terzo binario, traffico pesante: fattore = 0.0."""
+        assert_allclose(bridge_rail_multitrack_factor(3, 3, "heavy"), 0.0)
+
+    def test_4_tracks_third_heavy(self):
+        """4 binari (>=3 bucket), terzo+ binario, traffico pesante: fattore = 0.0."""
+        assert_allclose(bridge_rail_multitrack_factor(4, 3, "heavy"), 0.0)
+
+    def test_4_tracks_first_normal(self):
+        """4 binari, primo binario, traffico normale: fattore = 1.0."""
+        assert_allclose(bridge_rail_multitrack_factor(4, 1, "normal"), 1.0)
+
+    def test_invalid_n_tracks(self):
+        """n_tracks < 1 → ValueError."""
+        with pytest.raises(ValueError, match="n_tracks"):
+            bridge_rail_multitrack_factor(0, 1)
+
+    def test_invalid_track_index(self):
+        """track_index < 1 → ValueError."""
+        with pytest.raises(ValueError, match="track_index"):
+            bridge_rail_multitrack_factor(2, 0)
+
+    def test_invalid_traffic_type(self):
+        """traffic_type non valido → ValueError."""
+        with pytest.raises(ValueError, match="traffic_type"):
+            bridge_rail_multitrack_factor(2, 1, "medium")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_rail_multitrack_factor)
+        assert ref is not None
+        assert ref.article == "5.2.3.1.2"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.2.3 — LIMITI SLE DEFORMAZIONE PONTI FERROVIARI (Tab. 5.2.VIII)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class TestBridgeRailDeformationLimits:
+    """NTC18 §5.2.3, Tab. 5.2.VIII — Limiti SLE deformazione ferroviario."""
+
+    def test_speed_low(self):
+        """V = 80 km/h (<= 120): theta=0.0035, R_s=1700, R_m=3500."""
+        theta, r_s, r_m = bridge_rail_deformation_limits(80.0)
+        assert_allclose(theta, 0.0035)
+        assert_allclose(r_s, 1700.0)
+        assert_allclose(r_m, 3500.0)
+
+    def test_speed_at_boundary_120(self):
+        """V = 120 km/h (limite incluso nella prima fascia): theta=0.0035."""
+        theta, r_s, r_m = bridge_rail_deformation_limits(120.0)
+        assert_allclose(theta, 0.0035)
+        assert_allclose(r_s, 1700.0)
+        assert_allclose(r_m, 3500.0)
+
+    def test_speed_medium(self):
+        """V = 160 km/h (120 < V <= 200): theta=0.0020, R_s=6000, R_m=9500."""
+        theta, r_s, r_m = bridge_rail_deformation_limits(160.0)
+        assert_allclose(theta, 0.0020)
+        assert_allclose(r_s, 6000.0)
+        assert_allclose(r_m, 9500.0)
+
+    def test_speed_at_boundary_200(self):
+        """V = 200 km/h (limite incluso seconda fascia): theta=0.0020."""
+        theta, r_s, r_m = bridge_rail_deformation_limits(200.0)
+        assert_allclose(theta, 0.0020)
+        assert_allclose(r_s, 6000.0)
+        assert_allclose(r_m, 9500.0)
+
+    def test_speed_high(self):
+        """V = 250 km/h (> 200): theta=0.0015, R_s=14000, R_m=17500."""
+        theta, r_s, r_m = bridge_rail_deformation_limits(250.0)
+        assert_allclose(theta, 0.0015)
+        assert_allclose(r_s, 14000.0)
+        assert_allclose(r_m, 17500.0)
+
+    def test_speed_very_high(self):
+        """V = 350 km/h (> 200): theta=0.0015."""
+        theta, _, _ = bridge_rail_deformation_limits(350.0)
+        assert_allclose(theta, 0.0015)
+
+    def test_invalid_speed(self):
+        """speed <= 0 → ValueError."""
+        with pytest.raises(ValueError, match="speed"):
+            bridge_rail_deformation_limits(0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_rail_deformation_limits)
+        assert ref is not None
+        assert ref.article == "5.2.3"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §5.1.4.3 — FLUSSO ANNUO VEICOLI PESANTI (Tab. 5.1.X)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+class TestBridgeFatigueTrafficFlow:
+    """NTC18 §5.1.4.3, Tab. 5.1.X — Flusso annuo veicoli pesanti."""
+
+    def test_category_1(self):
+        """Categoria 1: 2.0 × 10^6 veicoli/anno."""
+        assert_allclose(bridge_fatigue_traffic_flow(1), 2.0e6)
+
+    def test_category_2(self):
+        """Categoria 2: 0.5 × 10^6 veicoli/anno."""
+        assert_allclose(bridge_fatigue_traffic_flow(2), 0.5e6)
+
+    def test_category_3(self):
+        """Categoria 3: 0.125 × 10^6 veicoli/anno."""
+        assert_allclose(bridge_fatigue_traffic_flow(3), 0.125e6)
+
+    def test_category_4(self):
+        """Categoria 4: 0.05 × 10^6 veicoli/anno."""
+        assert_allclose(bridge_fatigue_traffic_flow(4), 0.05e6)
+
+    def test_invalid_category_0(self):
+        """Categoria 0 non esiste → ValueError."""
+        with pytest.raises(ValueError, match="traffic_category"):
+            bridge_fatigue_traffic_flow(0)
+
+    def test_invalid_category_5(self):
+        """Categoria 5 non esiste → ValueError."""
+        with pytest.raises(ValueError, match="traffic_category"):
+            bridge_fatigue_traffic_flow(5)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(bridge_fatigue_traffic_flow)
+        assert ref is not None
+        assert ref.article == "5.1.4.3"

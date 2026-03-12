@@ -1,6 +1,6 @@
 # TODO — Funzioni mancanti pyntc vs NTC18 Vault
 
-Copertura attuale: **~230 / 373 items** (~62%)
+Copertura attuale: **~240 / 373 items** (~64%)
 
 ---
 
@@ -87,23 +87,14 @@ Copertura attuale: **~230 / 373 items** (~62%)
 
 ## Cap. 5 — Ponti
 
-### Priorita' alta
-
-- [ ] **Tab 5.1.V** — Coefficienti parziali gamma ponti stradali (EQU, A1, A2)
-- [ ] **Tab 5.2.V** — Coefficienti parziali gamma ponti ferroviari
-
-### Priorita' media
-
-- [ ] **Tab 5.2.II** — Lunghezza caratteristica L_0 per coefficiente dinamico
-- [ ] **Tab 5.2.III** — Riduzione carichi per binari multipli
-- [ ] **Tab 5.2.VII** — Coefficienti psi aggiuntivi SLE ferroviario
-- [ ] **Tab 5.2.VIII** — Limiti variazione angolare e raggio minimo per velocita'
-
-### Priorita' bassa (fatica)
-
-- [ ] **Tab 5.1.VII** — Modello di fatica 2 (veicoli frequenti)
-- [ ] **Tab 5.1.VIII** — Modello di fatica 4 (veicoli equivalenti)
-- [ ] **Tab 5.1.X** — Flusso annuo veicoli pesanti
+- [x] `bridge_road_partial_factors` [Tab 5.1.V] — gamma SLU ponti stradali
+- [x] `bridge_rail_partial_factors` [Tab 5.2.V] — gamma SLU ponti ferroviari
+- [x] `bridge_rail_multitrack_factor` [Tab 5.2.III] — riduzione binari multipli
+- [x] `bridge_rail_deformation_limits` [Tab 5.2.VIII] — limiti SLE ferroviario
+- [x] `bridge_fatigue_traffic_flow` [Tab 5.1.X] — flusso veicoli pesanti (fatica)
+- [ ] Tab 5.2.II — L_0 per coefficiente dinamico (tabella qualitativa, non numerica)
+- [ ] Tab 5.2.VII — Coefficienti psi SLE ferroviario
+- [ ] Tab 5.1.VII/VIII — Modelli di fatica 2/4 (veicoli frequenti/equivalenti)
 
 ## Cap. 6 — Geotecnica (~7 formule mancanti)
 
