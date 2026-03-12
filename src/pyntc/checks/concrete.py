@@ -1072,3 +1072,173 @@ def concrete_crack_spacing(
     if c < 0:
         raise ValueError(f"c deve essere >= 0, ricevuto {c}")
     return k_3 * c + k_1 * k_2 * k_4 * phi / rho_eff
+
+
+# ── Flessione semplice ────────────────────────────────────────────────────────
+
+
+@ntc_ref(article="4.1.2.3.1", formula="4.1.19", latex=r"M_{Rd} = A_s f_{yd} (d - 0.4x)")
+def concrete_bending_resistance(
+    b: float,
+    d: float,
+    A_s: float,
+    f_yd: float,
+    f_cd: float,
+) -> float:
+    """Momento resistente sezione rettangolare a pressoflessione semplice [N*mm].
+
+    NTC18 §4.1.2.3.1 — Armatura tesa, blocco rettangolare di tensioni.
+
+    Parameters
+    ----------
+    b : float
+        Larghezza della sezione [mm].
+    d : float
+        Altezza utile della sezione [mm].
+    A_s : float
+        Area armatura tesa [mm²].
+    f_yd : float
+        Resistenza di progetto acciaio [MPa].
+    f_cd : float
+        Resistenza di progetto calcestruzzo [MPa].
+
+    Returns
+    -------
+    float
+        M_Rd [N*mm].
+    """
+    if b <= 0:
+        raise ValueError(f"b deve essere > 0, ricevuto {b}")
+    if d <= 0:
+        raise ValueError(f"d deve essere > 0, ricevuto {d}")
+    if A_s <= 0:
+        raise ValueError(f"A_s deve essere > 0, ricevuto {A_s}")
+    if f_yd <= 0:
+        raise ValueError(f"f_yd deve essere > 0, ricevuto {f_yd}")
+    if f_cd <= 0:
+        raise ValueError(f"f_cd deve essere > 0, ricevuto {f_cd}")
+
+    x = A_s * f_yd / (0.8 * b * f_cd)
+    if x > d:
+        raise ValueError(
+            f"Asse neutro x={x:.2f} mm > d={d:.2f} mm: sezione completamente compressa"
+        )
+    return A_s * f_yd * (d - 0.4 * x)
+
+
+@ntc_ref(article="4.1.2.3.1", formula="4.1.19", latex=r"M_{Ed} \le M_{Rd}")
+def concrete_bending_check(
+    M_Ed: float,
+    M_Rd: float,
+) -> tuple[bool, float]:
+    """Verifica a flessione semplice.
+
+    NTC18 §4.1.2.3.1 — M_Ed / M_Rd <= 1.0.
+
+    Parameters
+    ----------
+    M_Ed : float
+        Momento flettente di progetto [N*mm].
+    M_Rd : float
+        Momento resistente [N*mm].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_ok, ratio) con ratio = M_Ed / M_Rd.
+    """
+    ratio = M_Ed / M_Rd
+    return ratio <= 1.0, ratio
+
+
+# ── Punzonamento ──────────────────────────────────────────────────────────────
+
+
+@ntc_ref(article="4.1.2.3.7", formula="4.1.30", latex=r"V_{Rd,c} = v_{Rd,c} \cdot b_0 \cdot d")
+def concrete_punching_shear_resistance(
+    f_ck: float,
+    rho_l: float,
+    sigma_cp: float,
+    b_0: float,
+    d: float,
+    gamma_c: float = 1.5,
+) -> float:
+    """Resistenza a punzonamento senza armatura [N].
+
+    NTC18 §4.1.2.3.7 — Formula [4.1.30].
+
+    Parameters
+    ----------
+    f_ck : float
+        Resistenza caratteristica cilindrica a compressione [MPa].
+    rho_l : float
+        Rapporto geometrico armatura longitudinale [-] (cappato a 0.02).
+    sigma_cp : float
+        Tensione media di compressione N_Ed/A_c [MPa] (0 se assente).
+    b_0 : float
+        Perimetro critico di controllo [mm].
+    d : float
+        Altezza utile della sezione [mm].
+    gamma_c : float
+        Coefficiente parziale (default 1.5).
+
+    Returns
+    -------
+    float
+        V_Rd,c [N].
+    """
+    if f_ck <= 0:
+        raise ValueError(f"f_ck deve essere > 0, ricevuto {f_ck}")
+    if b_0 <= 0:
+        raise ValueError(f"b_0 deve essere > 0, ricevuto {b_0}")
+    if d <= 0:
+        raise ValueError(f"d deve essere > 0, ricevuto {d}")
+
+    rho_l = min(rho_l, 0.02)
+    k = min(1.0 + math.sqrt(200.0 / d), 2.0)
+
+    v_Rdc = (0.18 / gamma_c) * k * (100.0 * rho_l * f_ck) ** (1.0 / 3.0) + 0.15 * sigma_cp
+    v_min = 0.035 * k ** 1.5 * f_ck ** 0.5
+
+    return max(v_Rdc, v_min + 0.15 * sigma_cp) * b_0 * d
+
+
+@ntc_ref(article="4.1.2.3.7", formula="4.1.30", latex=r"V_{Ed} \le V_{Rd,c}")
+def concrete_punching_shear_check(
+    V_Ed: float,
+    f_ck: float,
+    rho_l: float,
+    sigma_cp: float,
+    b_0: float,
+    d: float,
+    gamma_c: float = 1.5,
+) -> tuple[bool, float]:
+    """Verifica a punzonamento senza armatura.
+
+    NTC18 §4.1.2.3.7 — V_Ed / V_Rd,c <= 1.0.
+
+    Parameters
+    ----------
+    V_Ed : float
+        Forza di punzonamento di progetto [N].
+    f_ck : float
+        Resistenza caratteristica cilindrica a compressione [MPa].
+    rho_l : float
+        Rapporto geometrico armatura longitudinale [-].
+    sigma_cp : float
+        Tensione media di compressione [MPa] (0 se assente).
+    b_0 : float
+        Perimetro critico di controllo [mm].
+    d : float
+        Altezza utile della sezione [mm].
+    gamma_c : float
+        Coefficiente parziale (default 1.5).
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verifica_ok, ratio) con ratio = V_Ed / V_Rd,c.
+    """
+    V_Rdc = concrete_punching_shear_resistance(f_ck, rho_l, sigma_cp, b_0, d, gamma_c)
+    ratio = V_Ed / V_Rdc
+    return ratio <= 1.0, ratio

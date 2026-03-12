@@ -1,6 +1,6 @@
 # TODO — Funzioni mancanti pyntc vs NTC18 Vault
 
-Copertura attuale: **~247 / 373 items** (~66%)
+Copertura attuale: **~272 / 373 items** (~73%)
 
 ---
 
@@ -22,7 +22,7 @@ Copertura attuale: **~247 / 373 items** (~66%)
 
 ### §3.3 — Azione del vento
 
-- [ ] **Tab 3.3.III** — Classi di rugosita' del terreno (A-D)
+- [x] `wind_terrain_roughness` [Tab 3.3.III] — classi di rugosita' del terreno (0, I, II, III, IV)
 
 ### §3.5 — Azione della temperatura
 
@@ -47,7 +47,11 @@ Copertura attuale: **~247 / 373 items** (~66%)
 - [x] `concrete_crack_spacing` [4.1.17] — s_r,max
 - [x] `concrete_crack_width` [4.1.14] — w_1 = 1.7 * epsilon * s_r
 - [x] `concrete_crack_width_limit` [Tab 4.1.IV] — w_max per classe esposizione
-- [ ] Formule mancanti: flessione, punzonamento, instabilita' avanzata
+- [x] `concrete_bending_resistance` [4.1.19] — momento resistente sezione rettangolare
+- [x] `concrete_bending_check` [4.1.19] — verifica flessione M_Ed ≤ M_Rd
+- [x] `concrete_punching_shear_resistance` [4.1.30] — resistenza punzonamento
+- [x] `concrete_punching_shear_check` [4.1.30] — verifica punzonamento
+- [ ] Formule mancanti: instabilita' avanzata, punzonamento con armatura
 
 ### §4.2 — Acciaio
 
@@ -62,8 +66,9 @@ Copertura attuale: **~247 / 373 items** (~66%)
 - [x] `steel_relative_slenderness` [4.2.45–4.2.46] — lambda_bar
 - [x] `steel_buckling_resistance_class4` [4.2.43] — N_b,Rd classe 4
 - [x] `weld_combined_stress_check` [4.2.81] — verifica combinata saldatura
-- [ ] Formule mancanti: stabilita' avanzata (aste composte, piastre, connessioni a T)
-- [ ] Tab 4.2.II–XIV rimanenti
+- [x] `bolt_grade_properties` [Tab 4.2.IX] — proprieta' meccaniche bulloni (gradi 4.6–10.9)
+- [x] `pin_bending_resistance` [4.2.77] — resistenza perno a flessione M_Rd
+- [ ] Formule mancanti: stabilita' avanzata (aste composte, piastre)
 
 ### §4.3 — Strutture composte acciaio-cls
 
@@ -72,7 +77,10 @@ Copertura attuale: **~247 / 373 items** (~66%)
 - [x] `composite_column_confinement_resistance` [4.3.22] — aumento resistenza per confinamento
 - [x] `composite_column_reduced_moment_resistance` [4.3.26] — momento resistente ridotto
 - [x] `composite_load_dispersion_width` [4.3.38] — larghezza di dispersione del carico
-- [ ] ~4 formule mancanti (connessione shear, momento resistente plastico trave)
+- [x] `composite_shear_connector_resistance` [4.3.8] — resistenza piolo shear stud
+- [x] `composite_degree_of_connection` [4.3.2.3.3] — grado di connessione eta
+- [x] `composite_beam_plastic_moment` [4.3.1] — momento plastico trave composta
+- [x] `composite_beam_minimum_connection_degree` [4.3.2.3.3] — grado minimo connessione
 
 ### §4.4 — Legno
 
@@ -104,11 +112,17 @@ Copertura attuale: **~247 / 373 items** (~66%)
 - [ ] Tab 5.2.VII — Coefficienti psi SLE ferroviario
 - [ ] Tab 5.1.VII/VIII — Modelli di fatica 2/4 (veicoli frequenti/equivalenti)
 
-## Cap. 6 — Geotecnica (~7 formule mancanti)
+## Cap. 6 — Geotecnica
 
-- [ ] Formule fondazioni superficiali (capacita' portante, cedimenti)
-- [ ] Formule pali di fondazione (portata laterale, portata di base)
-- [ ] Formule micropali
+- [x] `geo_bearing_capacity_factors` [6.4.1] — fattori N_c, N_q, N_γ (Brinch-Hansen)
+- [x] `geo_shallow_bearing_capacity` [6.4.1] — capacita' portante fondazione superficiale
+- [x] `geo_shallow_foundation_check` [6.4.1] — verifica q_Ed ≤ q_lim/γ_R
+- [x] `geo_pile_skin_friction` [6.4.3.1] — resistenza laterale palo
+- [x] `geo_pile_base_resistance` [6.4.3.1] — resistenza di punta palo
+- [x] `geo_pile_total_resistance` [6.4.3.1.1] — resistenza totale palo di progetto
+- [x] `geo_pile_check` [6.4.3.1] — verifica N_Ed ≤ R_c,d
+- [ ] Cedimenti fondazioni superficiali (Boussinesq)
+- [ ] Micropali
 
 ## Cap. 7 — Progettazione sismica
 

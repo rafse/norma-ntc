@@ -603,6 +603,53 @@ def steel_lt_buckling_resistance(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §4.2.8 — PROPRIETA' BULLONI (Tab. 4.2.IX)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Tab.4.2.IX — Caratteristiche meccaniche dei bulloni (NTC18 §4.2.8)
+# Formato: classe -> (f_ub [N/mm^2], f_yb [N/mm^2])
+_BOLT_GRADES: dict[str, tuple[float, float]] = {
+    "4.6": (400.0, 240.0),
+    "4.8": (400.0, 320.0),
+    "5.6": (500.0, 300.0),
+    "5.8": (500.0, 400.0),
+    "6.8": (600.0, 480.0),
+    "8.8": (800.0, 640.0),
+    "10.9": (1000.0, 900.0),
+}
+
+
+@ntc_ref(article="4.2.8", table="Tab.4.2.IX", latex=r"\text{Tab.\,4.2.IX}")
+def bolt_grade_properties(grade: str) -> tuple[float, float]:
+    """Caratteristiche meccaniche di bulloni da Tab. 4.2.IX [N/mm^2].
+
+    NTC18 §4.2.8, Tab. 4.2.IX — Tensione di rottura f_ub e tensione di
+    snervamento f_yb per bulloni a testa esagonale (ISO 898-1).
+
+    Parameters
+    ----------
+    grade : str
+        Classe del bullone: "4.6", "4.8", "5.6", "5.8", "6.8", "8.8", "10.9".
+
+    Returns
+    -------
+    tuple[float, float]
+        (f_ub, f_yb): tensione di rottura e di snervamento [N/mm^2].
+
+    Raises
+    ------
+    ValueError
+        Se la classe non e' riconosciuta.
+    """
+    if grade not in _BOLT_GRADES:
+        valid = ", ".join(_BOLT_GRADES)
+        raise ValueError(
+            f"grade deve essere {valid}, ricevuto: '{grade}'"
+        )
+    return _BOLT_GRADES[grade]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §4.2.8.1.1 — COLLEGAMENTI BULLONATI
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -1509,3 +1556,40 @@ def pin_bearing_resistance(
     if gamma_M3 <= 0:
         raise ValueError("gamma_M3 deve essere > 0")
     return 1.5 * t * d * f_y / gamma_M3
+
+
+@ntc_ref(article="4.2.8.10", formula="4.2.77", latex=r"M_{Rd} = \frac{1{,}5 \cdot W_{el} \cdot f_{yp}}{\gamma_{M0}}")
+def pin_bending_resistance(
+    W_el: float, f_yp: float, gamma_M0: float = 1.05
+) -> float:
+    """Resistenza a flessione di un perno [N*mm].
+
+    NTC18 §4.2.8.10, Formula [4.2.77]:
+        M_Rd = 1.5 * W_el * f_yp / gamma_M0
+
+    Parameters
+    ----------
+    W_el : float
+        Modulo di resistenza elastico del perno [mm^3].
+    f_yp : float
+        Tensione di snervamento del perno [N/mm^2].
+    gamma_M0 : float, optional
+        Coefficiente parziale gamma_M0 [-]. Default 1.05 (Tab. 4.2.VII).
+
+    Returns
+    -------
+    float
+        M_Rd: resistenza a flessione del perno [N*mm].
+
+    Raises
+    ------
+    ValueError
+        Se W_el, f_yp o gamma_M0 non sono positivi.
+    """
+    if W_el <= 0:
+        raise ValueError("W_el deve essere > 0")
+    if f_yp <= 0:
+        raise ValueError("f_yp deve essere > 0")
+    if gamma_M0 <= 0:
+        raise ValueError("gamma_M0 deve essere > 0")
+    return 1.5 * W_el * f_yp / gamma_M0

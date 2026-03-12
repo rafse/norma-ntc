@@ -25,6 +25,7 @@ from pyntc.actions.wind import (
     wind_exposure_coefficient,
     wind_pressure,
     wind_friction_action,
+    wind_terrain_roughness,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -286,3 +287,72 @@ class TestWindFrictionAction:
         assert ref is not None
         assert ref.article == "3.3.5"
         assert ref.formula == "3.3.5"
+
+
+# ── Tab. 3.3.III — Classi di rugosità del terreno ────────────────────────────
+
+class TestWindTerrainRoughness:
+    """NTC18 §3.3.7, Tab. 3.3.III."""
+
+    @pytest.mark.parametrize("category, expected_z0, expected_zmin, expected_alpha", [
+        ("0",   0.003,  1.0,  0.12),
+        ("I",   0.01,   1.0,  0.14),
+        ("II",  0.05,   2.0,  0.16),
+        ("III", 0.30,   5.0,  0.22),
+        ("IV",  1.00,  10.0,  0.28),
+    ])
+    def test_parametri_tabellati(self, category, expected_z0, expected_zmin, expected_alpha):
+        """Verifica z_0, z_min e alpha da Tab. 3.3.III."""
+        result = wind_terrain_roughness(category)
+        assert_allclose(result["z_0"], expected_z0, rtol=1e-6)
+        assert_allclose(result["z_min"], expected_zmin, rtol=1e-6)
+        assert_allclose(result["alpha"], expected_alpha, rtol=1e-6)
+
+    @pytest.mark.parametrize("category, expected_z0", [
+        ("0",   0.003),
+        ("I",   0.01),
+        ("II",  0.05),
+        ("III", 0.30),
+        ("IV",  1.00),
+    ])
+    def test_kr_formula(self, category, expected_z0):
+        """k_r = 0.19 * (z_0/0.05)^0.07."""
+        result = wind_terrain_roughness(category)
+        expected_kr = 0.19 * (expected_z0 / 0.05) ** 0.07
+        assert_allclose(result["kr"], expected_kr, rtol=1e-6)
+
+    def test_categoria_II_kr_esatto(self):
+        """Cat. II ha z_0 = 0.05, quindi k_r = 0.19 esattamente."""
+        result = wind_terrain_roughness("II")
+        assert_allclose(result["kr"], 0.19, rtol=1e-9)
+
+    def test_categoria_IV_kr_maggiore_di_II(self):
+        """Cat. IV (piu' rugosa) ha k_r > Cat. II."""
+        kr_ii = wind_terrain_roughness("II")["kr"]
+        kr_iv = wind_terrain_roughness("IV")["kr"]
+        assert kr_iv > kr_ii
+
+    def test_categoria_0_kr_minore_di_II(self):
+        """Cat. 0 (meno rugosa) ha k_r < Cat. II."""
+        kr_0 = wind_terrain_roughness("0")["kr"]
+        kr_ii = wind_terrain_roughness("II")["kr"]
+        assert kr_0 < kr_ii
+
+    def test_categoria_invalida(self):
+        """Categoria non valida solleva ValueError."""
+        with pytest.raises(ValueError, match="rugosita'"):
+            wind_terrain_roughness("V")
+        with pytest.raises(ValueError, match="rugosita'"):
+            wind_terrain_roughness("A")
+
+    def test_restituisce_dict_con_chiavi_corrette(self):
+        """Il dizionario ha esattamente le chiavi z_0, z_min, kr, alpha."""
+        result = wind_terrain_roughness("II")
+        assert set(result.keys()) == {"z_0", "z_min", "kr", "alpha"}
+
+    def test_ntc_ref(self):
+        """Verifica riferimento normativo."""
+        ref = get_ntc_ref(wind_terrain_roughness)
+        assert ref is not None
+        assert ref.article == "3.3.7"
+        assert ref.table == "Tab.3.3.III"

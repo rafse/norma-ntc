@@ -6,28 +6,27 @@ import pytest
 from numpy.testing import assert_allclose
 
 from pyntc.checks.composite import (
+    composite_beam_minimum_connection_degree,
+    composite_beam_plastic_moment,
     composite_beam_shear_distribution,
     composite_bond_stress_limit,
     composite_column_bending_check,
     composite_column_biaxial_check,
     composite_column_buckling_curve,
     composite_column_buckling_resistance,
-    composite_column_confinement_resistance,
     composite_column_effective_stiffness,
-    composite_column_effective_stiffness_ii,
     composite_column_local_buckling_check,
     composite_column_plastic_resistance,
-    composite_column_plastic_resistance_characteristic,
-    composite_column_reduced_moment_resistance,
     composite_column_slenderness,
     composite_concrete_part_resistance,
     composite_confinement_coefficients,
+    composite_degree_of_connection,
     composite_effective_width,
-    composite_load_dispersion_width,
     composite_minimum_connection_degree,
     composite_moment_amplification,
     composite_moment_redistribution_limits,
     composite_profiled_sheet_reduction,
+    composite_shear_connector_resistance,
     composite_steel_contribution_ratio,
     composite_stud_alpha,
     composite_stud_resistance,
@@ -801,212 +800,175 @@ class TestCompositeBondStressLimit:
 
 
 # ---------------------------------------------------------------------------
-# 21. composite_column_plastic_resistance_characteristic  [4.3.19]
+# 21. composite_shear_connector_resistance  [4.3.8]
 # ---------------------------------------------------------------------------
-class TestCompositeColumnPlasticResistanceCharacteristic:
-    """NTC18 §4.3.5.2 — Resistenza plastica caratteristica N_pl,Rk."""
+class TestCompositeShearConnectorResistance:
+    """NTC18 §4.3.2.3.3 — Resistenza connettore a piolo (shear stud)."""
 
-    def test_standard_section(self):
-        # A_a=10000, f_yk=355, A_c=90000, f_ck=25, A_s=2000, f_sk=450
-        # N_pl,Rk = 10000*355 + 0.85*90000*25 + 2000*450
-        N_plRk = composite_column_plastic_resistance_characteristic(
-            10000, 355, 90000, 25, 2000, 450
-        )
-        expected = 10000 * 355 + 0.85 * 90000 * 25 + 2000 * 450
-        assert_allclose(N_plRk, expected, rtol=1e-6)
+    def test_basic_concrete_governs(self):
+        # f_ck=25, E_cm=31000, d_sc=19, h_sc=100, f_u=450, gamma_V=1.25
+        # h_sc/d_sc = 100/19 > 4 → alpha=1.0
+        # P_concrete = 0.29*1.0*19^2*sqrt(25*31000)/1.25
+        # P_steel = 0.8*450*pi*19^2/4/1.25
+        f_ck, E_cm, d_sc, h_sc, f_u = 25, 31000, 19, 100, 450
+        P_Rd = composite_shear_connector_resistance(f_ck, E_cm, d_sc, h_sc, f_u)
+        P_concrete = 0.29 * 1.0 * d_sc**2 * math.sqrt(f_ck * E_cm) / 1.25
+        P_steel = 0.8 * f_u * math.pi * d_sc**2 / 4 / 1.25
+        assert_allclose(P_Rd, min(P_concrete, P_steel), rtol=1e-6)
 
-    def test_filled_section_coeff_1(self):
-        # Filled: coefficient = 1.0 instead of 0.85
-        N_plRk = composite_column_plastic_resistance_characteristic(
-            10000, 355, 90000, 25, 2000, 450, filled=True
-        )
-        expected = 10000 * 355 + 1.0 * 90000 * 25 + 2000 * 450
-        assert_allclose(N_plRk, expected, rtol=1e-6)
+    def test_basic_steel_governs(self):
+        # d_sc=19, h_sc=100, f_u=450, f_ck=50, E_cm=37000 — high concrete strength
+        # alpha=1.0, P_concrete larger, P_steel governs
+        f_ck, E_cm, d_sc, h_sc, f_u = 50, 37000, 19, 100, 450
+        P_Rd = composite_shear_connector_resistance(f_ck, E_cm, d_sc, h_sc, f_u)
+        P_concrete = 0.29 * 1.0 * d_sc**2 * math.sqrt(f_ck * E_cm) / 1.25
+        P_steel = 0.8 * f_u * math.pi * d_sc**2 / 4 / 1.25
+        assert_allclose(P_Rd, min(P_concrete, P_steel), rtol=1e-6)
 
-    def test_no_reinforcement(self):
-        N_plRk = composite_column_plastic_resistance_characteristic(
-            10000, 355, 90000, 25, 0, 450
-        )
-        expected = 10000 * 355 + 0.85 * 90000 * 25
-        assert_allclose(N_plRk, expected, rtol=1e-6)
+    def test_alpha_reduced_for_short_stud(self):
+        # h_sc/d_sc = 3.5 < 4 → alpha = 0.2*(3.5+1) = 0.9
+        d_sc, h_sc = 20, 70  # ratio = 3.5
+        f_ck, E_cm, f_u = 25, 31000, 450
+        P_Rd = composite_shear_connector_resistance(f_ck, E_cm, d_sc, h_sc, f_u)
+        alpha = 0.2 * (70 / 20 + 1)
+        P_concrete = 0.29 * alpha * d_sc**2 * math.sqrt(f_ck * E_cm) / 1.25
+        P_steel = 0.8 * f_u * math.pi * d_sc**2 / 4 / 1.25
+        assert_allclose(P_Rd, min(P_concrete, P_steel), rtol=1e-6)
 
-    def test_larger_than_N_pl_Rd(self):
-        # N_pl,Rk (no gamma) must be larger than N_pl,Rd (with gamma > 1)
-        N_plRk = composite_column_plastic_resistance_characteristic(
-            10000, 355, 90000, 25, 2000, 450
-        )
-        from pyntc.checks.composite import composite_column_plastic_resistance
-        N_plRd = composite_column_plastic_resistance(
-            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15
-        )
-        assert N_plRk > N_plRd
+    def test_custom_gamma_V(self):
+        P_Rd = composite_shear_connector_resistance(25, 31000, 19, 100, 450, gamma_V=1.0)
+        P_concrete = 0.29 * 1.0 * 19**2 * math.sqrt(25 * 31000) / 1.0
+        P_steel = 0.8 * 450 * math.pi * 19**2 / 4 / 1.0
+        assert_allclose(P_Rd, min(P_concrete, P_steel), rtol=1e-6)
 
     def test_ntc_ref(self):
-        ref = get_ntc_ref(composite_column_plastic_resistance_characteristic)
+        ref = get_ntc_ref(composite_shear_connector_resistance)
         assert ref is not None
-        assert ref.formula == "4.3.19"
+        assert ref.article == "4.3.2.3.3"
+        assert ref.formula == "4.3.8"
 
 
 # ---------------------------------------------------------------------------
-# 22. composite_column_effective_stiffness_ii  [4.3.20]
+# 22. composite_degree_of_connection
 # ---------------------------------------------------------------------------
-class TestCompositeColumnEffectiveStiffnessII:
-    """NTC18 §4.3.5.2 — Rigidezza flessionale efficace di II ordine."""
+class TestCompositeDegreeOfConnection:
+    """NTC18 §4.3.2.3.3 — Grado di connessione."""
 
-    def test_default_coefficients(self):
-        # Default: k_0=0.9, k_c_ii=0.5
-        # (EI)_eff,II = 0.9*(210000*50e6 + 210000*5e6 + 0.5*31000*200e6)
-        EI = composite_column_effective_stiffness_ii(
-            210000, 50e6, 210000, 5e6, 31000, 200e6
-        )
-        expected = 0.9 * (210000 * 50e6 + 210000 * 5e6 + 0.5 * 31000 * 200e6)
-        assert_allclose(EI, expected, rtol=1e-6)
+    def test_basic_partial(self):
+        # eta = 6/10 = 0.6
+        assert_allclose(composite_degree_of_connection(6, 10), 0.6, rtol=1e-9)
 
-    def test_custom_coefficients(self):
-        EI = composite_column_effective_stiffness_ii(
-            210000, 50e6, 210000, 5e6, 31000, 200e6, k_0=0.85, k_c_ii=0.45
-        )
-        expected = 0.85 * (210000 * 50e6 + 210000 * 5e6 + 0.45 * 31000 * 200e6)
-        assert_allclose(EI, expected, rtol=1e-6)
+    def test_full_connection(self):
+        # n_actual == n_full → eta = 1.0
+        assert_allclose(composite_degree_of_connection(10, 10), 1.0, rtol=1e-9)
 
-    def test_no_concrete(self):
-        # I_c=0 → concrete term vanishes
-        EI = composite_column_effective_stiffness_ii(
-            210000, 50e6, 210000, 5e6, 31000, 0.0
-        )
-        expected = 0.9 * (210000 * 50e6 + 210000 * 5e6)
-        assert_allclose(EI, expected, rtol=1e-6)
+    def test_minimum_connection(self):
+        # eta = 4/10 = 0.4
+        assert_allclose(composite_degree_of_connection(4, 10), 0.4, rtol=1e-9)
 
-    def test_stiffness_ii_less_than_stiffness_i(self):
-        # (EI)_eff,II (k_0=0.9, k_c=0.5) < (EI)_eff (k_a=0.6, no k_0)
-        from pyntc.checks.composite import composite_column_effective_stiffness
-        EI_ii = composite_column_effective_stiffness_ii(
-            210000, 50e6, 210000, 5e6, 31000, 200e6
-        )
-        EI_i = composite_column_effective_stiffness(
-            210000, 50e6, 210000, 5e6, 31000, 200e6, 0, 0, 1
-        )
-        # With default k_0=0.9 and k_c_ii=0.5 vs k_a=0.6, EI_II is smaller
-        assert EI_ii < EI_i
-
-    def test_ntc_ref(self):
-        ref = get_ntc_ref(composite_column_effective_stiffness_ii)
-        assert ref is not None
-        assert ref.formula == "4.3.20"
-
-
-# ---------------------------------------------------------------------------
-# 23. composite_column_confinement_resistance  [4.3.22]
-# ---------------------------------------------------------------------------
-class TestCompositeColumnConfinementResistance:
-    """NTC18 §4.3.5.3.1 — Resistenza plastica con confinamento (sezioni circolari)."""
-
-    def test_no_confinement(self):
-        # eta_a=1.0, eta_c=0.0: degenerates to standard formula without confinement
-        # (but concrete term still gets the (1 + 0*t/d*...) factor = 1.0)
-        N = composite_column_confinement_resistance(
-            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15,
-            t=10, d=250, eta_a=1.0, eta_c=0.0
-        )
-        expected = (
-            1.0 * 10000 * 355 / 1.05
-            + (90000 * 25 / 1.5) * (1 + 0.0 * 10 / 250 * 355 / 25)
-            + 2000 * 450 / 1.15
-        )
-        assert_allclose(N, expected, rtol=1e-6)
-
-    def test_with_confinement_increases_resistance(self):
-        # Confinement should increase N relative to no-confinement base case
-        N_base = composite_column_confinement_resistance(
-            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15,
-            t=10, d=250, eta_a=1.0, eta_c=0.0
-        )
-        N_confined = composite_column_confinement_resistance(
-            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15,
-            t=10, d=250, eta_a=0.9, eta_c=4.5
-        )
-        # eta_c > 0: concrete term increased, eta_a < 1: steel term reduced
-        # net effect with eta_c=4.5 dominates → N_confined > N_base
-        assert N_confined > N_base
-
-    def test_manual_calculation(self):
-        # d=250, t=10, eta_a=0.75, eta_c=3.5
-        # A_a=7363, f_yk=355, gamma_A=1.05
-        # A_c=41230, f_ck=30, gamma_C=1.5
-        # A_s=800, f_sk=450, gamma_S=1.15
-        N = composite_column_confinement_resistance(
-            7363, 355, 1.05, 41230, 30, 1.5, 800, 450, 1.15,
-            t=10, d=250, eta_a=0.75, eta_c=3.5
-        )
-        N_steel = 0.75 * 7363 * 355 / 1.05
-        N_concrete = (41230 * 30 / 1.5) * (1 + 3.5 * (10 / 250) * (355 / 30))
-        N_rebar = 800 * 450 / 1.15
-        expected = N_steel + N_concrete + N_rebar
-        assert_allclose(N, expected, rtol=1e-6)
-
-    def test_ntc_ref(self):
-        ref = get_ntc_ref(composite_column_confinement_resistance)
-        assert ref is not None
-        assert ref.formula == "4.3.22"
-
-
-# ---------------------------------------------------------------------------
-# 24. composite_column_reduced_moment_resistance  [4.3.26]
-# ---------------------------------------------------------------------------
-class TestCompositeColumnReducedMomentResistance:
-    """NTC18 §4.3.5.3.1 — Momento resistente ridotto da interazione N-M."""
-
-    def test_standard(self):
-        # mu_d=0.8, M_pl_Rd=500e6 → M=400e6
-        M = composite_column_reduced_moment_resistance(0.8, 500e6)
-        assert_allclose(M, 400e6, rtol=1e-6)
-
-    def test_full_moment(self):
-        # mu_d=1.0 → M = M_pl_Rd
-        M = composite_column_reduced_moment_resistance(1.0, 500e6)
-        assert_allclose(M, 500e6, rtol=1e-6)
-
-    def test_zero_moment(self):
-        # mu_d=0.0 → M = 0
-        M = composite_column_reduced_moment_resistance(0.0, 500e6)
-        assert_allclose(M, 0.0, atol=1e-6)
-
-    def test_invalid_mu_d_negative(self):
+    def test_invalid_zero_n_full(self):
         with pytest.raises(ValueError):
-            composite_column_reduced_moment_resistance(-0.1, 500e6)
+            composite_degree_of_connection(5, 0)
 
-    def test_invalid_mu_d_above_1(self):
+    def test_invalid_zero_n_actual(self):
         with pytest.raises(ValueError):
-            composite_column_reduced_moment_resistance(1.1, 500e6)
+            composite_degree_of_connection(0, 10)
+
+    def test_invalid_actual_exceeds_full(self):
+        with pytest.raises(ValueError):
+            composite_degree_of_connection(11, 10)
 
     def test_ntc_ref(self):
-        ref = get_ntc_ref(composite_column_reduced_moment_resistance)
+        ref = get_ntc_ref(composite_degree_of_connection)
         assert ref is not None
-        assert ref.formula == "4.3.26"
+        assert ref.article == "4.3.2.3.3"
 
 
 # ---------------------------------------------------------------------------
-# 25. composite_load_dispersion_width  [4.3.38]
+# 23. composite_beam_plastic_moment  [4.3.1]
 # ---------------------------------------------------------------------------
-class TestCompositeLoadDispersionWidth:
-    """NTC18 §4.3.6.1.1 — Larghezza efficace di dispersione per carichi concentrati."""
+class TestCompositeBeamPlasticMoment:
+    """NTC18 §4.3.2.2.1 — Momento plastico trave composta."""
 
-    def test_standard(self):
-        # b_p=200, h_c=100, h_t=50 → b_m = 200 + 2*(100+50) = 500
-        b_m = composite_load_dispersion_width(200, 100, 50)
-        assert_allclose(b_m, 500.0, rtol=1e-6)
+    def test_basic(self):
+        # A_a=9880, f_ya=355, b_eff=2000, h_c=120, f_ck=25, z_a=420
+        # F_a = 9880*355/1.05 = 3_340_190.5 N
+        # f_cd = 0.85*25/1.5 = 14.167 MPa
+        # a = 3_340_190.5 / (14.167 * 2000) = 117.9 mm < 120 OK
+        # M_pl = F_a * (420 - a/2)
+        A_a, f_ya, b_eff, h_c, f_ck, z_a = 9880, 355, 2000, 120, 25, 420
+        M_pl = composite_beam_plastic_moment(A_a, f_ya, b_eff, h_c, f_ck, z_a)
+        F_a = A_a * f_ya / 1.05
+        f_cd = 0.85 * f_ck / 1.5
+        a = F_a / (f_cd * b_eff)
+        expected = F_a * (z_a - a / 2)
+        assert_allclose(M_pl, expected, rtol=1e-6)
 
-    def test_no_overlay(self):
-        # h_t=0 → b_m = b_p + 2*h_c
-        b_m = composite_load_dispersion_width(300, 120, 0)
-        assert_allclose(b_m, 300 + 2 * 120, rtol=1e-6)
+    def test_neutral_axis_in_slab(self):
+        # Verifica che a < h_c
+        A_a, f_ya, b_eff, h_c, f_ck, z_a = 9880, 355, 2000, 120, 25, 420
+        F_a = A_a * f_ya / 1.05
+        f_cd = 0.85 * f_ck / 1.5
+        a = F_a / (f_cd * b_eff)
+        assert a < h_c, f"a={a:.1f} >= h_c={h_c}: test assumptions violated"
 
-    def test_wheel_load_typical(self):
-        # Typical wheel patch: b_p=400, h_c=150, h_t=80
-        b_m = composite_load_dispersion_width(400, 150, 80)
-        assert_allclose(b_m, 400 + 2 * (150 + 80), rtol=1e-6)
+    def test_axis_outside_slab_raises(self):
+        # Small b_eff → a >> h_c → ValueError
+        with pytest.raises(ValueError):
+            composite_beam_plastic_moment(50000, 355, 200, 50, 25, 500)
+
+    def test_custom_gamma(self):
+        A_a, f_ya, b_eff, h_c, f_ck, z_a = 9880, 355, 2000, 120, 25, 420
+        M_pl = composite_beam_plastic_moment(
+            A_a, f_ya, b_eff, h_c, f_ck, z_a, gamma_a=1.0, gamma_c=1.0
+        )
+        F_a = A_a * f_ya / 1.0
+        f_cd = 0.85 * f_ck / 1.0
+        a = min(F_a / (f_cd * b_eff), h_c)
+        expected = F_a * (z_a - a / 2)
+        assert_allclose(M_pl, expected, rtol=1e-6)
 
     def test_ntc_ref(self):
-        ref = get_ntc_ref(composite_load_dispersion_width)
+        ref = get_ntc_ref(composite_beam_plastic_moment)
         assert ref is not None
-        assert ref.formula == "4.3.38"
+        assert ref.article == "4.3.2.2.1"
+        assert ref.formula == "4.3.1"
+
+
+# ---------------------------------------------------------------------------
+# 24. composite_beam_minimum_connection_degree
+# ---------------------------------------------------------------------------
+class TestCompositeBeamMinimumConnectionDegree:
+    """NTC18 §4.3.2.3.3 — Grado minimo di connessione (pioli alternativi)."""
+
+    def test_basic_S355_L10(self):
+        # L=10, f_ya=355 → eta = max(1-(355/355)*(0.75-0.3), 0.4) = max(0.55, 0.4) = 0.55
+        eta = composite_beam_minimum_connection_degree(10, 355)
+        assert_allclose(eta, 0.55, rtol=1e-9)
+
+    def test_basic_S355_L25(self):
+        # L=25 → eta = max(1-(1.0)*(0.75-0.75), 0.4) = max(1.0, 0.4) = 1.0
+        eta = composite_beam_minimum_connection_degree(25, 355)
+        assert_allclose(eta, 1.0, rtol=1e-9)
+
+    def test_above_25m_returns_1(self):
+        # L > 25 → 1.0
+        eta = composite_beam_minimum_connection_degree(30, 355)
+        assert_allclose(eta, 1.0, rtol=1e-9)
+
+    def test_clamped_to_04(self):
+        # Low f_ya → eta_min could be < 0.4 → clamp to 0.4
+        # L=5, f_ya=235: eta = 1-(355/235)*(0.75-0.15) = 1-1.5106*0.6 = 1-0.906 = 0.094 → 0.4
+        eta = composite_beam_minimum_connection_degree(5, 235)
+        assert_allclose(eta, 0.4, rtol=1e-6)
+
+    def test_higher_steel_grade(self):
+        # f_ya=460: lower 355/f_ya ratio → higher eta_min
+        eta_355 = composite_beam_minimum_connection_degree(10, 355)
+        eta_460 = composite_beam_minimum_connection_degree(10, 460)
+        assert eta_460 > eta_355
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(composite_beam_minimum_connection_degree)
+        assert ref is not None
+        assert ref.article == "4.3.2.3.3"

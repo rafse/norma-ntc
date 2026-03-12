@@ -239,6 +239,60 @@ def wind_exposure_coefficient(
     return kr**2 * c_t * ln_z * (7.0 + c_t * ln_z)
 
 
+# ── Tab. 3.3.III — Classi di rugosità del terreno ────────────────────────────
+
+_TERRAIN_ROUGHNESS: dict[str, tuple[float, float, float]] = {
+    #       z_0 [m]  z_min [m]  alpha [-]
+    "0":   (0.003,   1.0,       0.12),
+    "I":   (0.01,    1.0,       0.14),
+    "II":  (0.05,    2.0,       0.16),
+    "III": (0.30,    5.0,       0.22),
+    "IV":  (1.00,   10.0,       0.28),
+}
+
+
+@ntc_ref(article="3.3.7", table="Tab.3.3.III",
+         latex=r"k_r = 0.19\!\left(\frac{z_0}{0.05}\right)^{0.07}")
+def wind_terrain_roughness(category: str) -> dict[str, float]:
+    """Parametri della classe di rugosita' del terreno (Tab. 3.3.III).
+
+    NTC18 §3.3.7, Tab. 3.3.III.
+
+    Coefficiente di rugosita' k_r calcolato come:
+        k_r = 0.19 * (z_0 / 0.05)^0.07
+
+    Parameters
+    ----------
+    category : str
+        Classe di rugosita' del terreno: "0", "I", "II", "III", "IV".
+
+    Returns
+    -------
+    dict[str, float]
+        Dizionario con le chiavi:
+        - ``"z_0"``   : lunghezza di rugosita' [m]
+        - ``"z_min"`` : altezza minima [m]
+        - ``"kr"``    : coefficiente di rugosita' k_r [-]
+        - ``"alpha"`` : esponente del profilo di velocita' [-]
+
+    Raises
+    ------
+    ValueError
+        Se ``category`` non e' in {"0", "I", "II", "III", "IV"}.
+    """
+    if category not in _TERRAIN_ROUGHNESS:
+        raise ValueError(
+            f"categoria di rugosita' '{category}' non valida. "
+            f"Valori ammessi: {', '.join(_TERRAIN_ROUGHNESS.keys())} "
+            "(Tab. 3.3.III)."
+        )
+
+    z_0, z_min, alpha = _TERRAIN_ROUGHNESS[category]
+    kr = 0.19 * (z_0 / 0.05) ** 0.07
+
+    return {"z_0": z_0, "z_min": z_min, "kr": kr, "alpha": alpha}
+
+
 @ntc_ref(article="3.3.4", formula="3.3.4",
          latex=r"p = q_b \, c_e \, c_p \, c_d")
 def wind_pressure(

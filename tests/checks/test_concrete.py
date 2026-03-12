@@ -10,6 +10,8 @@ from pyntc.checks.concrete import (
     biaxial_bending_check,
     bond_design_strength,
     concrete_beam_min_reinforcement,
+    concrete_bending_check,
+    concrete_bending_resistance,
     concrete_column_min_reinforcement,
     concrete_confined_strength,
     concrete_crack_mean_strain,
@@ -19,6 +21,8 @@ from pyntc.checks.concrete import (
     concrete_design_compressive_strength,
     concrete_design_tensile_strength,
     concrete_prestress_stress_limits,
+    concrete_punching_shear_check,
+    concrete_punching_shear_resistance,
     concrete_slenderness,
     concrete_slenderness_limit,
     concrete_strain_limits,
@@ -1003,3 +1007,189 @@ class TestConcreteCrackWidthLimit:
         assert ref is not None
         assert ref.article == "4.1.2.2.4.4"
         assert ref.table == "Tab. 4.1.IV"
+
+
+# ── §4.1.2.3.1 — Momento resistente a flessione semplice ─────────────────────
+
+
+class TestConcreteBendingResistance:
+    """NTC18 §4.1.2.3.1, Formula [4.1.19] — Momento resistente."""
+
+    def test_basic(self):
+        """b=300mm, d=450mm, As=1000mm², fyd=391MPa, fcd=14.2MPa.
+
+        x = 1000*391/(0.8*300*14.2) = 114.8mm
+        MRd = 1000*391*(450-0.4*114.8)
+        """
+        result = concrete_bending_resistance(300, 450, 1000, 391, 14.2)
+        x = 1000 * 391 / (0.8 * 300 * 14.2)
+        expected = 1000 * 391 * (450 - 0.4 * x)
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_bending_resistance)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.1"
+
+    def test_invalid_section(self):
+        """x > d → ValueError."""
+        with pytest.raises(ValueError):
+            concrete_bending_resistance(100, 200, 5000, 391, 14.2)
+
+    def test_zero_b_raises(self):
+        with pytest.raises(ValueError):
+            concrete_bending_resistance(0, 450, 1000, 391, 14.2)
+
+    def test_zero_d_raises(self):
+        with pytest.raises(ValueError):
+            concrete_bending_resistance(300, 0, 1000, 391, 14.2)
+
+    def test_result_positive(self):
+        """Il momento resistente deve essere positivo."""
+        result = concrete_bending_resistance(300, 500, 1200, 391, 14.17)
+        assert result > 0
+
+
+# ── §4.1.2.3.1 — Verifica a flessione ────────────────────────────────────────
+
+
+class TestConcreteBendingCheck:
+    """NTC18 §4.1.2.3.1 — Verifica M_Ed <= M_Rd."""
+
+    def test_ok(self):
+        """M_Ed < M_Rd: verifica ok, ratio < 1.0."""
+        ok, ratio = concrete_bending_check(M_Ed=80.0e6, M_Rd=100.0e6)
+        assert ok is True
+        assert_allclose(ratio, 0.8, rtol=1e-6)
+
+    def test_not_ok(self):
+        """M_Ed > M_Rd: verifica non ok, ratio > 1.0."""
+        ok, ratio = concrete_bending_check(M_Ed=120.0e6, M_Rd=100.0e6)
+        assert ok is False
+        assert_allclose(ratio, 1.2, rtol=1e-6)
+
+    def test_boundary(self):
+        """M_Ed = M_Rd: ratio = 1.0, verifica ok."""
+        ok, ratio = concrete_bending_check(M_Ed=100.0e6, M_Rd=100.0e6)
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_bending_check)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.1"
+
+
+# ── §4.1.2.3.7 — Resistenza a punzonamento ───────────────────────────────────
+
+
+class TestConcretePunchingShearResistance:
+    """NTC18 §4.1.2.3.7, Formula [4.1.30] — Resistenza punzonamento."""
+
+    def test_basic(self):
+        """f_ck=25, rho_l=0.01, sigma_cp=0, b_0=2000mm, d=200mm.
+
+        k = min(1+sqrt(200/200), 2.0) = 2.0
+        v_Rdc = (0.18/1.5)*2.0*(100*0.01*25)^(1/3) + 0 = 0.12*2.0*2.924 = 0.7018
+        v_min = 0.035*2.0^1.5*25^0.5 = 0.035*2.828*5.0 = 0.495
+        V_Rdc = max(0.7018, 0.495) * 2000 * 200 = 280715 N
+        """
+        result = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.01, sigma_cp=0.0, b_0=2000.0, d=200.0,
+        )
+        k = min(1.0 + math.sqrt(200.0 / 200.0), 2.0)
+        v_Rdc = (0.18 / 1.5) * k * (100 * 0.01 * 25) ** (1 / 3)
+        v_min = 0.035 * k ** 1.5 * 25 ** 0.5
+        expected = max(v_Rdc, v_min) * 2000 * 200
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_with_compression(self):
+        """sigma_cp=2.0 MPa contribuisce al termine 0.15*sigma_cp."""
+        result = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.01, sigma_cp=2.0, b_0=2000.0, d=200.0,
+        )
+        k = min(1.0 + math.sqrt(200.0 / 200.0), 2.0)
+        v_Rdc = (0.18 / 1.5) * k * (100 * 0.01 * 25) ** (1 / 3) + 0.15 * 2.0
+        v_min = 0.035 * k ** 1.5 * 25 ** 0.5
+        expected = max(v_Rdc, v_min + 0.15 * 2.0) * 2000 * 200
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_rho_capped_at_002(self):
+        """rho_l=0.03 viene cappato a 0.02."""
+        result1 = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.03, sigma_cp=0.0, b_0=2000.0, d=200.0,
+        )
+        result2 = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.02, sigma_cp=0.0, b_0=2000.0, d=200.0,
+        )
+        assert_allclose(result1, result2, rtol=1e-6)
+
+    def test_large_d_k_not_capped(self):
+        """d=800mm: k = 1+sqrt(200/800) = 1.5 < 2.0, non cappato."""
+        result = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.01, sigma_cp=0.0, b_0=2000.0, d=800.0,
+        )
+        k = 1.0 + math.sqrt(200.0 / 800.0)
+        v_Rdc = (0.18 / 1.5) * k * (100 * 0.01 * 25) ** (1 / 3)
+        v_min = 0.035 * k ** 1.5 * 25 ** 0.5
+        expected = max(v_Rdc, v_min) * 2000 * 800
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_negative_fck_raises(self):
+        with pytest.raises(ValueError):
+            concrete_punching_shear_resistance(
+                f_ck=-25.0, rho_l=0.01, sigma_cp=0.0, b_0=2000.0, d=200.0,
+            )
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_punching_shear_resistance)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.7"
+
+
+# ── §4.1.2.3.7 — Verifica a punzonamento ─────────────────────────────────────
+
+
+class TestConcretePunchingShearCheck:
+    """NTC18 §4.1.2.3.7 — Verifica V_Ed <= V_Rd,c."""
+
+    def test_ok(self):
+        """V_Ed < V_Rd,c: verifica ok."""
+        V_Rdc = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.01, sigma_cp=0.0, b_0=2000.0, d=200.0,
+        )
+        ok, ratio = concrete_punching_shear_check(
+            V_Ed=V_Rdc * 0.8, f_ck=25.0, rho_l=0.01, sigma_cp=0.0,
+            b_0=2000.0, d=200.0,
+        )
+        assert ok is True
+        assert_allclose(ratio, 0.8, rtol=1e-6)
+
+    def test_not_ok(self):
+        """V_Ed > V_Rd,c: verifica non ok."""
+        V_Rdc = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.01, sigma_cp=0.0, b_0=2000.0, d=200.0,
+        )
+        ok, ratio = concrete_punching_shear_check(
+            V_Ed=V_Rdc * 1.2, f_ck=25.0, rho_l=0.01, sigma_cp=0.0,
+            b_0=2000.0, d=200.0,
+        )
+        assert ok is False
+        assert_allclose(ratio, 1.2, rtol=1e-6)
+
+    def test_boundary(self):
+        """V_Ed = V_Rd,c: ratio = 1.0, verifica ok."""
+        V_Rdc = concrete_punching_shear_resistance(
+            f_ck=25.0, rho_l=0.01, sigma_cp=0.0, b_0=2000.0, d=200.0,
+        )
+        ok, ratio = concrete_punching_shear_check(
+            V_Ed=V_Rdc, f_ck=25.0, rho_l=0.01, sigma_cp=0.0,
+            b_0=2000.0, d=200.0,
+        )
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(concrete_punching_shear_check)
+        assert ref is not None
+        assert ref.article == "4.1.2.3.7"

@@ -1114,3 +1114,180 @@ def composite_bond_stress_limit(section_type: str) -> float:
     if section_type not in _BOND_STRESS_LIMITS:
         raise ValueError(f"Tipo sezione non valido: {section_type!r}")
     return _BOND_STRESS_LIMITS[section_type]
+# ============================================================================
+# TRAVI — Resistenza connettore a piolo (formula semplificata §4.3.2.3.3)
+# ============================================================================
+
+
+@ntc_ref(article="4.3.2.3.3", formula="4.3.8", latex=r"P_{Rd} = \min\!\left(0.29\,\alpha\,d_{sc}^2\sqrt{f_{ck}E_{cm}}/\gamma_V,\;0.8f_u\pi d_{sc}^2/(4\gamma_V)\right)")
+def composite_shear_connector_resistance(
+    f_ck: float,
+    E_cm: float,
+    d_sc: float,
+    h_sc: float,
+    f_u: float,
+    gamma_V: float = 1.25,
+) -> float:
+    """Resistenza di calcolo del connettore a piolo (shear stud) [N].
+
+    NTC18 §4.3.2.3.3 [4.3.8] — Minore tra rottura del piolo e schiacciamento
+    del calcestruzzo.
+
+    Parameters
+    ----------
+    f_ck : float
+        Resistenza cilindrica caratteristica del calcestruzzo [MPa].
+    E_cm : float
+        Modulo elastico medio del calcestruzzo [MPa].
+    d_sc : float
+        Diametro del gambo del piolo [mm].
+    h_sc : float
+        Altezza del piolo [mm].
+    f_u : float
+        Resistenza ultima dell'acciaio del piolo [MPa] (tipico 450 MPa).
+    gamma_V : float
+        Coefficiente parziale di sicurezza [-] (default 1.25).
+
+    Returns
+    -------
+    float
+        Resistenza di progetto P_Rd [N].
+    """
+    ratio = h_sc / d_sc
+    if ratio < 4:
+        alpha = 0.2 * (ratio + 1)
+    else:
+        alpha = 1.0
+
+    # Resistenza per schiacciamento del calcestruzzo
+    P_concrete = 0.29 * alpha * d_sc**2 * math.sqrt(f_ck * E_cm) / gamma_V
+
+    # Resistenza per rottura del gambo del piolo
+    P_steel = 0.8 * f_u * math.pi * d_sc**2 / 4 / gamma_V
+
+    return min(P_concrete, P_steel)
+
+
+# ============================================================================
+# TRAVI — Grado di connessione
+# ============================================================================
+
+
+@ntc_ref(article="4.3.2.3.3", latex=r"\eta = n / n_f")
+def composite_degree_of_connection(n_actual: float, n_full: float) -> float:
+    """Grado di connessione eta [-].
+
+    NTC18 §4.3.2.3.3 — eta = n_actual / n_full.
+
+    Parameters
+    ----------
+    n_actual : float
+        Numero di connettori effettivamente presenti [-].
+    n_full : float
+        Numero di connettori per connessione completa [-].
+
+    Returns
+    -------
+    float
+        Grado di connessione eta [-].
+    """
+    if n_actual <= 0 or n_full <= 0:
+        raise ValueError("n_actual e n_full devono essere entrambi > 0")
+    if n_actual > n_full:
+        raise ValueError(
+            f"n_actual ({n_actual}) non puo' superare n_full ({n_full})"
+        )
+    return n_actual / n_full
+
+
+# ============================================================================
+# TRAVI — Momento plastico trave composta
+# ============================================================================
+
+
+@ntc_ref(article="4.3.2.2.1", formula="4.3.1", latex=r"M_{pl,Rd} = F_a (z_a - a/2)")
+def composite_beam_plastic_moment(
+    A_a: float,
+    f_ya: float,
+    b_eff: float,
+    h_c: float,
+    f_ck: float,
+    z_a: float,
+    gamma_a: float = 1.05,
+    gamma_c: float = 1.5,
+) -> float:
+    """Momento plastico di progetto della trave composta [N·mm].
+
+    NTC18 §4.3.2.2.1 [4.3.1] — Connessione completa, asse neutro nella soletta.
+
+    Parameters
+    ----------
+    A_a : float
+        Area del profilo in acciaio [mm²].
+    f_ya : float
+        Resistenza a snervamento dell'acciaio [MPa].
+    b_eff : float
+        Larghezza efficace della soletta [mm].
+    h_c : float
+        Altezza della soletta in calcestruzzo [mm].
+    f_ck : float
+        Resistenza cilindrica caratteristica del calcestruzzo [MPa].
+    z_a : float
+        Distanza dal baricentro dell'acciaio alla sommita' della soletta [mm].
+    gamma_a : float
+        Fattore parziale per l'acciaio strutturale [-] (default 1.05).
+    gamma_c : float
+        Fattore parziale per il calcestruzzo [-] (default 1.5).
+
+    Returns
+    -------
+    float
+        Momento plastico di progetto M_pl,Rd [N·mm].
+
+    Raises
+    ------
+    ValueError
+        Se l'asse neutro cade fuori dalla soletta (a > h_c).
+    """
+    F_a = A_a * f_ya / gamma_a
+    f_cd = 0.85 * f_ck / gamma_c
+    a = F_a / (f_cd * b_eff)
+
+    if a > h_c + 1e-9:
+        raise ValueError(
+            f"Asse neutro fuori dalla soletta: a = {a:.2f} mm > h_c = {h_c:.2f} mm"
+        )
+
+    a = min(a, h_c)
+    return F_a * (z_a - a / 2)
+
+
+# ============================================================================
+# TRAVI — Grado minimo di connessione (formula alternativa §4.3.2.3.3)
+# ============================================================================
+
+
+@ntc_ref(article="4.3.2.3.3", latex=r"\eta_{\min} = 1 - \frac{355}{f_{ya}}(0.75 - 0.03L) \ge 0.4")
+def composite_beam_minimum_connection_degree(L: float, f_ya: float) -> float:
+    """Grado minimo di connessione per travi composte eta_min [-].
+
+    NTC18 §4.3.2.3.3 — Formula per pioli alternativi (h >= 4d):
+    eta_min = max(1 - (355/f_ya)*(0.75 - 0.03*L), 0.4) per L <= 25 m,
+    eta_min = 1.0 per L > 25 m.
+
+    Parameters
+    ----------
+    L : float
+        Luce della trave [m].
+    f_ya : float
+        Resistenza a snervamento dell'acciaio strutturale [MPa].
+
+    Returns
+    -------
+    float
+        Grado minimo di connessione eta_min [-].
+    """
+    if L > 25:
+        return 1.0
+    eta_min = 1.0 - (355.0 / f_ya) * (0.75 - 0.03 * L)
+    return max(eta_min, 0.4)

@@ -814,3 +814,270 @@ def geo_embankment_resistance_factor() -> float:
         Coefficiente parziale gamma_R = 1.1 [-].
     """
     return 1.1
+
+
+# ============================================================================
+# Fondazioni superficiali — capacità portante (§6.4.1)
+# ============================================================================
+
+
+@ntc_ref(article="6.4.1", latex=r"N_q = e^{\pi\tan\phi}\tan^2(45+\phi/2)")
+def geo_bearing_capacity_factors(phi_k: float) -> dict[str, float]:
+    """Fattori di portanza N_c, N_q, N_γ secondo Brinch-Hansen.
+
+    NTC18 §6.4.1.
+
+    Parameters
+    ----------
+    phi_k : float
+        Angolo di attrito caratteristico [gradi].
+
+    Returns
+    -------
+    dict[str, float]
+        Dizionario con chiavi ``"N_c"``, ``"N_q"``, ``"N_gamma"``.
+    """
+    if phi_k < 0:
+        raise ValueError(f"phi_k deve essere >= 0: {phi_k}")
+    if phi_k >= 90:
+        raise ValueError(f"phi_k deve essere < 90: {phi_k}")
+
+    phi_rad = np.radians(phi_k)
+
+    if phi_k == 0.0:
+        N_q = 1.0
+        N_c = np.pi + 2.0  # = 5.14159...
+        N_gamma = 0.0
+    else:
+        N_q = np.exp(np.pi * np.tan(phi_rad)) * np.tan(np.pi / 4.0 + phi_rad / 2.0) ** 2
+        N_c = (N_q - 1.0) / np.tan(phi_rad)
+        N_gamma = 2.0 * (N_q + 1.0) * np.tan(phi_rad)
+
+    return {"N_c": float(N_c), "N_q": float(N_q), "N_gamma": float(N_gamma)}
+
+
+@ntc_ref(article="6.4.1", latex=r"q_{lim} = c N_c + q N_q + 0.5\,\gamma B N_\gamma")
+def geo_shallow_bearing_capacity(
+    c_k: float,
+    phi_k: float,
+    gamma: float,
+    B: float,
+    L: float,
+    D: float,
+    q_surcharge: float = 0.0,
+) -> float:
+    """Resistenza caratteristica di una fondazione superficiale [kPa].
+
+    NTC18 §6.4.1 — Formula di Brinch-Hansen semplificata (senza fattori di
+    inclinazione/forma).
+
+    Parameters
+    ----------
+    c_k : float
+        Coesione caratteristica del terreno [kPa].
+    phi_k : float
+        Angolo di attrito caratteristico [gradi].
+    gamma : float
+        Peso specifico del terreno [kN/m³].
+    B : float
+        Larghezza della fondazione [m].
+    L : float
+        Lunghezza della fondazione [m] (riservato per estensioni future).
+    D : float
+        Profondità del piano di posa [m].
+    q_surcharge : float, optional
+        Sovraccarico aggiuntivo in superficie [kPa], default 0.0.
+
+    Returns
+    -------
+    float
+        Carico limite unitario q_lim [kPa].
+    """
+    if c_k < 0:
+        raise ValueError(f"c_k deve essere >= 0: {c_k}")
+    if gamma <= 0:
+        raise ValueError(f"gamma deve essere > 0: {gamma}")
+    if B <= 0:
+        raise ValueError(f"B deve essere > 0: {B}")
+    if D < 0:
+        raise ValueError(f"D deve essere >= 0: {D}")
+
+    factors = geo_bearing_capacity_factors.__wrapped__(phi_k)
+    N_c = factors["N_c"]
+    N_q = factors["N_q"]
+    N_gamma = factors["N_gamma"]
+
+    q = gamma * D + q_surcharge
+    q_lim = c_k * N_c + q * N_q + 0.5 * gamma * B * N_gamma
+    return float(q_lim)
+
+
+@ntc_ref(article="6.4.1", formula="6.2.1", latex=r"q_{Ed} \le q_{lim}/\gamma_R")
+def geo_shallow_foundation_check(
+    N_Ed: float,
+    A: float,
+    q_lim: float,
+    gamma_R: float = 1.0,
+) -> tuple[bool, float]:
+    """Verifica portanza fondazione superficiale — NTC18 §6.4.1.
+
+    Parameters
+    ----------
+    N_Ed : float
+        Carico verticale di progetto [kN].
+    A : float
+        Area della fondazione [m²].
+    q_lim : float
+        Carico limite unitario caratteristico [kPa].
+    gamma_R : float, optional
+        Coefficiente parziale sulla resistenza [-], default 1.0.
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificato, rapporto q_Ed / R_d).
+    """
+    if A <= 0:
+        raise ValueError(f"A deve essere > 0: {A}")
+    if q_lim <= 0:
+        raise ValueError(f"q_lim deve essere > 0: {q_lim}")
+    if gamma_R <= 0:
+        raise ValueError(f"gamma_R deve essere > 0: {gamma_R}")
+
+    q_Ed = N_Ed / A
+    R_d = q_lim / gamma_R
+    ratio = q_Ed / R_d
+    return ratio <= 1.0, float(ratio)
+
+
+# ============================================================================
+# Pali — resistenza laterale, di punta e totale (§6.4.3)
+# ============================================================================
+
+
+@ntc_ref(article="6.4.3.1", latex=r"R_{s,k} = \alpha\,c_u\,U\,L")
+def geo_pile_skin_friction(
+    c_u: float,
+    alpha: float,
+    perimeter: float,
+    length: float,
+) -> float:
+    """Resistenza laterale caratteristica di un palo in argilla — metodo α.
+
+    NTC18 §6.4.3.1.
+
+    Parameters
+    ----------
+    c_u : float
+        Resistenza al taglio non drenata [kPa].
+    alpha : float
+        Fattore di adesione [-] (tipico 0.5–1.0).
+    perimeter : float
+        Perimetro della sezione del palo [m].
+    length : float
+        Lunghezza del palo [m].
+
+    Returns
+    -------
+    float
+        Resistenza laterale caratteristica R_s,k [kN].
+    """
+    if c_u < 0:
+        raise ValueError(f"c_u deve essere >= 0: {c_u}")
+    if alpha <= 0:
+        raise ValueError(f"alpha deve essere > 0: {alpha}")
+    if perimeter <= 0:
+        raise ValueError(f"perimeter deve essere > 0: {perimeter}")
+    if length <= 0:
+        raise ValueError(f"length deve essere > 0: {length}")
+
+    return float(alpha * c_u * perimeter * length)
+
+
+@ntc_ref(article="6.4.3.1", latex=r"R_{b,k} = q_b \cdot A_b")
+def geo_pile_base_resistance(q_b: float, A_b: float) -> float:
+    """Resistenza di punta caratteristica di un palo.
+
+    NTC18 §6.4.3.1.
+
+    Parameters
+    ----------
+    q_b : float
+        Resistenza unitaria di punta [kPa].
+    A_b : float
+        Area della sezione di punta del palo [m²].
+
+    Returns
+    -------
+    float
+        Resistenza di punta caratteristica R_b,k [kN].
+    """
+    if q_b < 0:
+        raise ValueError(f"q_b deve essere >= 0: {q_b}")
+    if A_b <= 0:
+        raise ValueError(f"A_b deve essere > 0: {A_b}")
+
+    return float(q_b * A_b)
+
+
+@ntc_ref(article="6.4.3.1.1", formula="6.4.2", latex=r"R_{c,d} = R_{c,k} / \gamma_t")
+def geo_pile_total_resistance(
+    R_s_k: float,
+    R_b_k: float,
+    xi: float,
+    gamma_t: float = 1.15,
+) -> float:
+    """Resistenza totale di progetto di un palo [kN].
+
+    NTC18 §6.4.3.1.1 — R_c,d = (R_s,k + R_b,k) / (xi * gamma_t).
+
+    Parameters
+    ----------
+    R_s_k : float
+        Resistenza laterale caratteristica [kN].
+    R_b_k : float
+        Resistenza di punta caratteristica [kN].
+    xi : float
+        Fattore di correlazione xi [-].
+    gamma_t : float, optional
+        Coefficiente parziale gamma_t [-], default 1.15.
+
+    Returns
+    -------
+    float
+        Resistenza totale di progetto R_c,d [kN].
+    """
+    if R_s_k < 0:
+        raise ValueError(f"R_s_k deve essere >= 0: {R_s_k}")
+    if R_b_k < 0:
+        raise ValueError(f"R_b_k deve essere >= 0: {R_b_k}")
+    if xi <= 0:
+        raise ValueError(f"xi deve essere > 0: {xi}")
+    if gamma_t <= 0:
+        raise ValueError(f"gamma_t deve essere > 0: {gamma_t}")
+
+    R_c_k = R_s_k + R_b_k
+    return float(R_c_k / (xi * gamma_t))
+
+
+@ntc_ref(article="6.4.3.1", latex=r"N_{Ed} \le R_{c,d}")
+def geo_pile_check(N_Ed: float, R_c_d: float) -> tuple[bool, float]:
+    """Verifica portanza assiale di un palo — NTC18 §6.4.3.1.
+
+    Parameters
+    ----------
+    N_Ed : float
+        Carico assiale di progetto [kN].
+    R_c_d : float
+        Resistenza totale di progetto del palo [kN].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificato, rapporto N_Ed / R_c,d).
+    """
+    if R_c_d <= 0:
+        raise ValueError(f"R_c_d deve essere > 0: {R_c_d}")
+
+    ratio = N_Ed / R_c_d
+    return ratio <= 1.0, float(ratio)
