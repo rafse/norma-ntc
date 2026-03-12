@@ -13,6 +13,7 @@ from pyntc.actions.temperature import (
     temperature_extremes,
     temperature_solar_increment,
     temperature_uniform_variation,
+    thermal_expansion_coefficient,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -193,3 +194,61 @@ class TestTemperatureUniformVariation:
         assert ref is not None
         assert ref.article == "3.5.5"
         assert ref.table == "Tab.3.5.II"
+
+
+# ── Tab. 3.5.III — Coefficienti di dilatazione termica ──────────────────────
+
+class TestThermalExpansionCoefficient:
+    """NTC18 §3.5.7, Tab. 3.5.III — alpha_T [10⁻⁶/°C]."""
+
+    # ── Valori scalari ────────────────────────────────────────────────────
+
+    @pytest.mark.parametrize("material, expected", [
+        ("aluminum",             24.0),
+        ("steel",                12.0),
+        ("concrete",             10.0),
+        ("composite",            12.0),
+        ("lightweight_concrete",  7.0),
+        ("timber_parallel",       5.0),
+    ])
+    def test_valori_scalari(self, material, expected):
+        """Verifica valori singoli da Tab. 3.5.III."""
+        result = thermal_expansion_coefficient(material)
+        assert_allclose(result, expected, rtol=1e-3)
+
+    # ── Valori a range (tuple) ────────────────────────────────────────────
+
+    def test_muratura_range(self):
+        """Muratura: alpha_T nel range (6, 10) — restituisce tupla."""
+        result = thermal_expansion_coefficient("masonry")
+        assert isinstance(result, tuple)
+        assert result == (6.0, 10.0)
+
+    def test_legno_ortogonale_range(self):
+        """Legno ortogonale: alpha_T nel range (30, 70) — restituisce tupla."""
+        result = thermal_expansion_coefficient("timber_perpendicular")
+        assert isinstance(result, tuple)
+        assert result == (30.0, 70.0)
+
+    def test_range_min_max(self):
+        """La tupla e' ordinata (min, max)."""
+        a_min, a_max = thermal_expansion_coefficient("masonry")
+        assert a_min < a_max
+
+    # ── Edge cases ────────────────────────────────────────────────────────
+
+    def test_materiale_invalido(self):
+        """Materiale sconosciuto solleva ValueError."""
+        with pytest.raises(ValueError, match="materiale"):
+            thermal_expansion_coefficient("glass")
+
+    def test_materiale_italiano_invalido(self):
+        """Chiave italiana non supportata solleva ValueError."""
+        with pytest.raises(ValueError, match="materiale"):
+            thermal_expansion_coefficient("acciaio")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(thermal_expansion_coefficient)
+        assert ref is not None
+        assert ref.article == "3.5.7"
+        assert ref.table == "Tab.3.5.III"

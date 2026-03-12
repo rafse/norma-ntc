@@ -41,6 +41,7 @@ from pyntc.actions.temperature import (
     temperature_extremes,
     temperature_solar_increment,
     temperature_uniform_variation,
+    thermal_expansion_coefficient,
 )
 from pyntc.actions.fire import (
     explosion_equivalent_pressure,

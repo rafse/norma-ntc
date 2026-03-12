@@ -189,3 +189,62 @@ def temperature_uniform_variation(structure_type: str) -> float:
         )
 
     return _UNIFORM_VARIATION[structure_type]
+
+
+# ── Tab. 3.5.III — Coefficienti di dilatazione termica ──────────────────────
+
+_THERMAL_EXPANSION: dict[str, float | tuple[float, float]] = {
+    "aluminum":              24.0,          # Alluminio [10⁻⁶/°C]
+    "steel":                 12.0,          # Acciaio da carpenteria
+    "concrete":              10.0,          # Calcestruzzo strutturale
+    "composite":             12.0,          # Strutture miste acciaio-calcestruzzo
+    "lightweight_concrete":   7.0,          # Calcestruzzo alleggerito
+    "masonry":               (6.0, 10.0),   # Muratura (range)
+    "timber_parallel":        5.0,          # Legno parallelo alle fibre
+    "timber_perpendicular":  (30.0, 70.0),  # Legno ortogonale alle fibre (range)
+}
+
+
+@ntc_ref(article="3.5.7", table="Tab.3.5.III",
+         latex=r"\alpha_T \;\text{[10^{-6}/°C]} — \text{Tab.\,3.5.III}")
+def thermal_expansion_coefficient(
+    material: str,
+) -> float | tuple[float, float]:
+    """Coefficiente di dilatazione termica alpha_T [10⁻⁶/°C].
+
+    NTC18 §3.5.7, Tab. 3.5.III.
+    Per materiali con valore a range (muratura, legno ortogonale),
+    restituisce una tupla ``(min, max)``.
+
+    Parameters
+    ----------
+    material : str
+        Materiale:
+        - ``"aluminum"``: alluminio (24)
+        - ``"steel"``: acciaio da carpenteria (12)
+        - ``"concrete"``: calcestruzzo strutturale (10)
+        - ``"composite"``: strutture miste acciaio-calcestruzzo (12)
+        - ``"lightweight_concrete"``: calcestruzzo alleggerito (7)
+        - ``"masonry"``: muratura (6 ÷ 10) → tuple (6, 10)
+        - ``"timber_parallel"``: legno parallelo alle fibre (5)
+        - ``"timber_perpendicular"``: legno ortogonale alle fibre (30 ÷ 70) → tuple (30, 70)
+
+    Returns
+    -------
+    float or tuple[float, float]
+        Coefficiente alpha_T [10⁻⁶/°C].
+        Tupla ``(min, max)`` per materiali con range normativo.
+
+    Raises
+    ------
+    ValueError
+        Se ``material`` non e' valido.
+    """
+    if material not in _THERMAL_EXPANSION:
+        valid = ", ".join(_THERMAL_EXPANSION.keys())
+        raise ValueError(
+            f"materiale '{material}' non valido. "
+            f"Valori ammessi: {valid}."
+        )
+
+    return _THERMAL_EXPANSION[material]

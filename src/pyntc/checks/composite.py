@@ -850,6 +850,238 @@ def composite_beam_shear_distribution(
 
 
 # ============================================================================
+# COLONNE — Resistenza caratteristica (N_pl,Rk)
+# ============================================================================
+
+
+@ntc_ref(article="4.3.5.2", formula="4.3.19", latex=r"N_{pl,Rk} = A_a\,f_{yk} + 0{,}85\,A_c\,f_{ck} + A_s\,f_{sk}")
+def composite_column_plastic_resistance_characteristic(
+    A_a: float,
+    f_yk: float,
+    A_c: float,
+    f_ck: float,
+    A_s: float,
+    f_sk: float,
+    *,
+    filled: bool = False,
+) -> float:
+    """Resistenza plastica caratteristica a sforzo normale N_pl,Rk [N].
+
+    NTC18 §4.3.5.2 [4.3.19]: usata per il calcolo della snellezza normalizzata.
+    Differisce da N_pl,Rd perche' non divide per i fattori parziali.
+
+    Parameters
+    ----------
+    A_a : float
+        Area del profilo in acciaio strutturale [mm²].
+    f_yk : float
+        Resistenza caratteristica a snervamento acciaio [N/mm²].
+    A_c : float
+        Area della parte in calcestruzzo [mm²].
+    f_ck : float
+        Resistenza cilindrica caratteristica calcestruzzo [N/mm²].
+    A_s : float
+        Area delle barre d'armatura [mm²].
+    f_sk : float
+        Resistenza caratteristica armatura [N/mm²].
+    filled : bool
+        Se True, usa coefficiente 1.0 per il calcestruzzo (sezioni riempite).
+
+    Returns
+    -------
+    float
+        N_pl,Rk [N].
+    """
+    alpha_cc = 1.0 if filled else 0.85
+    return A_a * f_yk + alpha_cc * A_c * f_ck + A_s * f_sk
+
+
+# ============================================================================
+# COLONNE — Rigidezza flessionale efficace per analisi del II ordine
+# ============================================================================
+
+
+@ntc_ref(article="4.3.5.2", formula="4.3.20", latex=r"(EI)_{\mathrm{eff,II}} = k_0\!\left(E_a I_a + E_s I_s + k_{c,II}\,E_{cm}\,I_c\right)")
+def composite_column_effective_stiffness_ii(
+    E_a: float,
+    I_a: float,
+    E_s: float,
+    I_s: float,
+    E_cm: float,
+    I_c: float,
+    *,
+    k_0: float = 0.9,
+    k_c_ii: float = 0.5,
+) -> float:
+    """Rigidezza flessionale efficace di II ordine per colonne composte [N·mm²].
+
+    NTC18 §4.3.5.2 [4.3.20]:
+    (EI)_eff,II = k_0 * (E_a*I_a + E_s*I_s + k_c,II * E_cm * I_c)
+
+    Utilizzata per la verifica del carico critico N_cr nel metodo semplificato.
+
+    Parameters
+    ----------
+    E_a : float
+        Modulo elastico acciaio strutturale [N/mm²].
+    I_a : float
+        Momento d'inerzia acciaio strutturale [mm⁴].
+    E_s : float
+        Modulo elastico armatura [N/mm²].
+    I_s : float
+        Momento d'inerzia armatura [mm⁴].
+    E_cm : float
+        Modulo elastico istantaneo calcestruzzo [N/mm²].
+    I_c : float
+        Momento d'inerzia calcestruzzo [mm⁴].
+    k_0 : float
+        Coefficiente calibrazione (default 0.9 per NTC18).
+    k_c_ii : float
+        Coefficiente riduttivo per il calcestruzzo (default 0.5 per NTC18).
+
+    Returns
+    -------
+    float
+        (EI)_eff,II [N·mm²].
+    """
+    return k_0 * (E_a * I_a + E_s * I_s + k_c_ii * E_cm * I_c)
+
+
+# ============================================================================
+# COLONNE — Resistenza plastica con confinamento (sezioni circolari riempite)
+# ============================================================================
+
+
+@ntc_ref(article="4.3.5.3.1", formula="4.3.22", latex=r"N_{pl,Rd} = \eta_a\,\frac{A_a\,f_{yk}}{\gamma_A} + \frac{A_c\,f_{ck}}{\gamma_C}\!\left(1 + \eta_c\,\frac{t}{d}\,\frac{f_{yk}}{f_{ck}}\right) + \frac{A_s\,f_{sk}}{\gamma_S}")
+def composite_column_confinement_resistance(
+    A_a: float,
+    f_yk: float,
+    gamma_A: float,
+    A_c: float,
+    f_ck: float,
+    gamma_C: float,
+    A_s: float,
+    f_sk: float,
+    gamma_S: float,
+    t: float,
+    d: float,
+    eta_a: float,
+    eta_c: float,
+) -> float:
+    """Resistenza plastica di progetto con effetto di confinamento [N].
+
+    NTC18 §4.3.5.3.1 [4.3.22] — per colonne circolari cave riempite.
+    Tiene conto del confinamento del calcestruzzo da parte del tubo in acciaio.
+
+    Parameters
+    ----------
+    A_a : float
+        Area del profilo in acciaio (tubo circolare) [mm²].
+    f_yk : float
+        Resistenza caratteristica a snervamento acciaio [N/mm²].
+    gamma_A : float
+        Fattore parziale acciaio [-].
+    A_c : float
+        Area della parte in calcestruzzo [mm²].
+    f_ck : float
+        Resistenza cilindrica caratteristica calcestruzzo [N/mm²].
+    gamma_C : float
+        Fattore parziale calcestruzzo [-].
+    A_s : float
+        Area delle barre d'armatura [mm²].
+    f_sk : float
+        Resistenza caratteristica armatura [N/mm²].
+    gamma_S : float
+        Fattore parziale armatura [-].
+    t : float
+        Spessore della parete del tubo [mm].
+    d : float
+        Diametro esterno del tubo [mm].
+    eta_a : float
+        Coefficiente di confinamento per acciaio [-] (da [4.3.23]).
+    eta_c : float
+        Coefficiente di confinamento per calcestruzzo [-] (da [4.3.24]).
+
+    Returns
+    -------
+    float
+        N_pl,Rd con confinamento [N].
+    """
+    N_steel = eta_a * A_a * f_yk / gamma_A
+    N_concrete = (A_c * f_ck / gamma_C) * (1 + eta_c * (t / d) * (f_yk / f_ck))
+    N_rebar = A_s * f_sk / gamma_S
+    return N_steel + N_concrete + N_rebar
+
+
+# ============================================================================
+# COLONNE — Momento resistente ridotto da interazione N-M
+# ============================================================================
+
+
+@ntc_ref(article="4.3.5.3.1", formula="4.3.26", latex=r"M_{pl,Rd}(N_{Ed}) = \mu_d\,M_{pl,Rd}")
+def composite_column_reduced_moment_resistance(
+    mu_d: float, M_pl_Rd: float
+) -> float:
+    """Momento resistente di progetto ridotto per effetto dello sforzo normale [N·mm].
+
+    NTC18 §4.3.5.3.1 [4.3.26]:
+    M_pl,Rd(N_Ed) = mu_d * M_pl,Rd
+
+    Il coefficiente mu_d e' ottenuto dal dominio di interazione N-M
+    in corrispondenza del valore di N_Ed agente.
+
+    Parameters
+    ----------
+    mu_d : float
+        Coefficiente dal dominio di interazione N-M [-] (0 <= mu_d <= 1.0).
+    M_pl_Rd : float
+        Momento resistente plastico puro della sezione composta [N·mm].
+
+    Returns
+    -------
+    float
+        Momento resistente ridotto M_pl,Rd(N_Ed) [N·mm].
+    """
+    if mu_d < 0 or mu_d > 1.0 + 1e-9:
+        raise ValueError(f"mu_d = {mu_d:.4f}: deve essere compreso tra 0 e 1")
+    return mu_d * M_pl_Rd
+
+
+# ============================================================================
+# TRAVI — Larghezza efficace di dispersione per carichi concentrati
+# ============================================================================
+
+
+@ntc_ref(article="4.3.6.1.1", formula="4.3.38", latex=r"b_m = b_p + 2\,(h_c + h_t)")
+def composite_load_dispersion_width(
+    b_p: float, h_c: float, h_t: float
+) -> float:
+    """Larghezza efficace di dispersione per carichi concentrati o lineari [mm].
+
+    NTC18 §4.3.6.1.1 [4.3.38]:
+    b_m = b_p + 2*(h_c + h_t)
+
+    Larghezza su cui ripartire il carico concentrato/lineare agente sulla
+    soletta composita (es. carico da ruota).
+
+    Parameters
+    ----------
+    b_p : float
+        Larghezza della zona di applicazione del carico (contatto) [mm].
+    h_c : float
+        Altezza dello strato di calcestruzzo sopra la lamiera [mm].
+    h_t : float
+        Spessore del rivestimento impermeabile/pavimento sovrapposto [mm].
+
+    Returns
+    -------
+    float
+        Larghezza di dispersione b_m [mm].
+    """
+    return b_p + 2 * (h_c + h_t)
+
+
+# ============================================================================
 # COLONNE — Tensione tangenziale limite di aderenza
 # ============================================================================
 

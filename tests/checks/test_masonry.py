@@ -11,12 +11,15 @@ from pyntc.checks.masonry import (
     masonry_design_shear_strength,
     masonry_eccentricity_check,
     masonry_eccentricity_coefficient,
+    masonry_eccentricity_m,
     masonry_effective_height,
     masonry_horizontal_eccentricity,
     masonry_lateral_restraint_factor,
     masonry_partial_safety_factor,
+    masonry_phi_from_table,
     masonry_reduced_strength,
     masonry_reduction_factor,
+    masonry_simplified_axial_check,
     masonry_simplified_check,
     masonry_slenderness,
     masonry_vertical_load_eccentricity,
@@ -569,3 +572,244 @@ class TestMasonryEccentricityCheck:
         assert ref is not None
         assert ref.article == "4.5.6.2"
         assert ref.formula == "4.5.11"
+
+
+# ── [4.5.6] — masonry_eccentricity_m ────────────────────────────────────────
+
+
+class TestMasonryEccentricityM:
+    """NTC18 §4.5.6.2, Formula [4.5.6] — m = 6*e/t."""
+
+    def test_zero_eccentricity(self):
+        """e = 0: m = 0."""
+        result = masonry_eccentricity_m(e=0.0, t=300.0)
+        assert_allclose(result, 0.0, atol=1e-10)
+
+    def test_e_t6(self):
+        """e = t/6 => m = 1.0."""
+        result = masonry_eccentricity_m(e=50.0, t=300.0)
+        assert_allclose(result, 1.0, rtol=1e-6)
+
+    def test_quarter_thickness(self):
+        """e = t/4 => m = 6*(t/4)/t = 1.5."""
+        result = masonry_eccentricity_m(e=75.0, t=300.0)
+        assert_allclose(result, 1.5, rtol=1e-6)
+
+    def test_half_sixth(self):
+        """e = 25 mm, t = 300 mm => m = 6*25/300 = 0.5."""
+        result = masonry_eccentricity_m(e=25.0, t=300.0)
+        assert_allclose(result, 0.5, rtol=1e-6)
+
+    def test_negative_eccentricity_raises(self):
+        with pytest.raises(ValueError, match="e deve essere"):
+            masonry_eccentricity_m(e=-1.0, t=300.0)
+
+    def test_zero_thickness_raises(self):
+        with pytest.raises(ValueError, match="t deve essere"):
+            masonry_eccentricity_m(e=25.0, t=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_eccentricity_m)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+        assert ref.formula == "4.5.6"
+
+
+# ── Tab.4.5.III — masonry_phi_from_table ────────────────────────────────────
+
+
+class TestMasonryPhiFromTable:
+    """NTC18 §4.5.6.2, Tab. 4.5.III — interpolazione bilineare."""
+
+    # Valori esatti sulla griglia
+    def test_grid_lambda0_m0(self):
+        """lambda=0, m=0: Phi = 1.00."""
+        assert_allclose(masonry_phi_from_table(0.0, 0.0), 1.00, rtol=1e-3)
+
+    def test_grid_lambda0_m05(self):
+        """lambda=0, m=0.5: Phi = 0.74."""
+        assert_allclose(masonry_phi_from_table(0.0, 0.5), 0.74, rtol=1e-3)
+
+    def test_grid_lambda0_m10(self):
+        """lambda=0, m=1.0: Phi = 0.59."""
+        assert_allclose(masonry_phi_from_table(0.0, 1.0), 0.59, rtol=1e-3)
+
+    def test_grid_lambda0_m15(self):
+        """lambda=0, m=1.5: Phi = 0.44."""
+        assert_allclose(masonry_phi_from_table(0.0, 1.5), 0.44, rtol=1e-3)
+
+    def test_grid_lambda0_m20(self):
+        """lambda=0, m=2.0: Phi = 0.33."""
+        assert_allclose(masonry_phi_from_table(0.0, 2.0), 0.33, rtol=1e-3)
+
+    def test_grid_lambda5_m0(self):
+        """lambda=5, m=0: Phi = 0.97."""
+        assert_allclose(masonry_phi_from_table(5.0, 0.0), 0.97, rtol=1e-3)
+
+    def test_grid_lambda10_m0(self):
+        """lambda=10, m=0: Phi = 0.86."""
+        assert_allclose(masonry_phi_from_table(10.0, 0.0), 0.86, rtol=1e-3)
+
+    def test_grid_lambda10_m10(self):
+        """lambda=10, m=1.0: Phi = 0.45."""
+        assert_allclose(masonry_phi_from_table(10.0, 1.0), 0.45, rtol=1e-3)
+
+    def test_grid_lambda10_m20(self):
+        """lambda=10, m=2.0: Phi = 0.16."""
+        assert_allclose(masonry_phi_from_table(10.0, 2.0), 0.16, rtol=1e-3)
+
+    def test_grid_lambda15_m0(self):
+        """lambda=15, m=0: Phi = 0.69."""
+        assert_allclose(masonry_phi_from_table(15.0, 0.0), 0.69, rtol=1e-3)
+
+    def test_grid_lambda15_m10(self):
+        """lambda=15, m=1.0: Phi = 0.32."""
+        assert_allclose(masonry_phi_from_table(15.0, 1.0), 0.32, rtol=1e-3)
+
+    def test_grid_lambda20_m0(self):
+        """lambda=20, m=0: Phi = 0.53."""
+        assert_allclose(masonry_phi_from_table(20.0, 0.0), 0.53, rtol=1e-3)
+
+    def test_grid_lambda20_m10(self):
+        """lambda=20, m=1.0: Phi = 0.23."""
+        assert_allclose(masonry_phi_from_table(20.0, 1.0), 0.23, rtol=1e-3)
+
+    # Interpolazione solo su m (lambda esatto)
+    def test_interp_m_only(self):
+        """lambda=10 esatto, m=0.25: interp fra m=0 (0.86) e m=0.5 (0.61).
+        Phi = 0.86*(1-0.5) + 0.61*0.5 = 0.735
+        """
+        result = masonry_phi_from_table(10.0, 0.25)
+        assert_allclose(result, 0.735, rtol=1e-3)
+
+    # Interpolazione solo su lambda (m esatto)
+    def test_interp_lambda_only(self):
+        """m=0 esatto, lambda=7.5: interp fra lambda=5 (0.97) e lambda=10 (0.86).
+        t_lam = (7.5-5)/(10-5) = 0.5
+        Phi = 0.97*0.5 + 0.86*0.5 = 0.915
+        """
+        result = masonry_phi_from_table(7.5, 0.0)
+        assert_allclose(result, 0.915, rtol=1e-3)
+
+    # Interpolazione bilineare completa
+    def test_interp_bilinear(self):
+        """lambda=7.5, m=0.25: interpolazione bilineare.
+        Phi(5,0)=0.97, Phi(5,0.5)=0.71, Phi(10,0)=0.86, Phi(10,0.5)=0.61
+        t_lam=0.5, t_m=0.5
+        Phi = 0.25*0.97 + 0.25*0.86 + 0.25*0.71 + 0.25*0.61 = 0.7875
+        """
+        result = masonry_phi_from_table(7.5, 0.25)
+        assert_allclose(result, 0.7875, rtol=1e-2)
+
+    # Combinazioni fuori dominio (celle None nella tabella)
+    def test_lambda20_m15_raises(self):
+        """lambda=20, m=1.5: fuori dal dominio Tab.4.5.III."""
+        with pytest.raises(ValueError, match="dominio"):
+            masonry_phi_from_table(20.0, 1.5)
+
+    def test_lambda15_m20_raises(self):
+        """lambda=15, m=2.0: fuori dal dominio Tab.4.5.III."""
+        with pytest.raises(ValueError, match="dominio"):
+            masonry_phi_from_table(15.0, 2.0)
+
+    # Validazione input
+    def test_negative_lambda_raises(self):
+        with pytest.raises(ValueError, match="lambda_slend deve essere >= 0"):
+            masonry_phi_from_table(-1.0, 0.0)
+
+    def test_lambda_exceeds_20_raises(self):
+        with pytest.raises(ValueError, match="lambda_slend deve essere <= 20"):
+            masonry_phi_from_table(21.0, 0.0)
+
+    def test_m_exceeds_2_raises(self):
+        with pytest.raises(ValueError, match="m deve essere <= 2.0"):
+            masonry_phi_from_table(0.0, 2.1)
+
+    def test_negative_m_raises(self):
+        with pytest.raises(ValueError, match="m deve essere >= 0"):
+            masonry_phi_from_table(0.0, -0.1)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_phi_from_table)
+        assert ref is not None
+        assert ref.article == "4.5.6.2"
+        assert ref.table == "Tab.4.5.III"
+
+
+# ── [4.5.12] — masonry_simplified_axial_check ───────────────────────────────
+
+
+class TestMasonrySimplifiedAxialCheck:
+    """NTC18 §4.5.6.4, Formula [4.5.12] — ratio = sigma / f_d."""
+
+    def test_passes_low_load(self):
+        """Carico basso: ratio < 1.0 => verifica superata."""
+        # N_Ed=100e3 N, A=500e3 mm^2 => sigma = 100e3/(0.65*500e3) = 0.3077 MPa
+        # f_d = 5.0/2.5 = 2.0 MPa => ratio = 0.3077/2.0 = 0.1538
+        passes, ratio = masonry_simplified_axial_check(
+            N_Ed=100e3, A=500e3, f_k=5.0, gamma_M=2.5
+        )
+        expected_sigma = 100e3 / (0.65 * 500e3)
+        expected_ratio = expected_sigma / (5.0 / 2.5)
+        assert passes is True
+        assert_allclose(ratio, expected_ratio, rtol=1e-4)
+        assert ratio < 1.0
+
+    def test_fails_high_load(self):
+        """Carico elevato: ratio > 1.0 => verifica non superata."""
+        # N_Ed=800e3 N, A=200e3 mm^2 => sigma = 800e3/(0.65*200e3) = 6.154 MPa
+        # f_d = 3.0/2.5 = 1.2 MPa => ratio = 6.154/1.2 = 5.128
+        passes, ratio = masonry_simplified_axial_check(
+            N_Ed=800e3, A=200e3, f_k=3.0, gamma_M=2.5
+        )
+        assert passes is False
+        assert ratio > 1.0
+
+    def test_exactly_at_limit(self):
+        """ratio = 1.0 esatto: verifica superata (sigma = f_d)."""
+        # Vogliamo sigma = f_d => N_Ed = 0.65 * A * f_k / gamma_M
+        f_k = 4.0
+        gamma_M = 2.0
+        A = 300e3  # mm^2
+        f_d = f_k / gamma_M  # 2.0 MPa
+        N_Ed = 0.65 * A * f_d  # N tale che sigma = f_d esattamente
+        passes, ratio = masonry_simplified_axial_check(
+            N_Ed=N_Ed, A=A, f_k=f_k, gamma_M=gamma_M
+        )
+        assert passes is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_ratio_formula(self):
+        """Verifica la formula del ratio: ratio = sigma / (f_k / gamma_M)."""
+        N_Ed = 250e3
+        A = 400e3
+        f_k = 6.0
+        gamma_M = 3.0
+        passes, ratio = masonry_simplified_axial_check(
+            N_Ed=N_Ed, A=A, f_k=f_k, gamma_M=gamma_M
+        )
+        sigma = N_Ed / (0.65 * A)
+        f_d = f_k / gamma_M
+        assert_allclose(ratio, sigma / f_d, rtol=1e-6)
+
+    def test_zero_area_raises(self):
+        with pytest.raises(ValueError, match="A deve essere"):
+            masonry_simplified_axial_check(N_Ed=100.0, A=0.0, f_k=5.0, gamma_M=2.5)
+
+    def test_negative_N_raises(self):
+        with pytest.raises(ValueError, match="N_Ed deve essere"):
+            masonry_simplified_axial_check(N_Ed=-1.0, A=100.0, f_k=5.0, gamma_M=2.5)
+
+    def test_zero_fk_raises(self):
+        with pytest.raises(ValueError, match="f_k deve essere"):
+            masonry_simplified_axial_check(N_Ed=100.0, A=100.0, f_k=0.0, gamma_M=2.5)
+
+    def test_zero_gamma_raises(self):
+        with pytest.raises(ValueError, match="gamma_M deve essere"):
+            masonry_simplified_axial_check(N_Ed=100.0, A=100.0, f_k=5.0, gamma_M=0.0)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(masonry_simplified_axial_check)
+        assert ref is not None
+        assert ref.article == "4.5.6.4"
+        assert ref.formula == "4.5.12"

@@ -12,13 +12,18 @@ from pyntc.checks.composite import (
     composite_column_biaxial_check,
     composite_column_buckling_curve,
     composite_column_buckling_resistance,
+    composite_column_confinement_resistance,
     composite_column_effective_stiffness,
+    composite_column_effective_stiffness_ii,
     composite_column_local_buckling_check,
     composite_column_plastic_resistance,
+    composite_column_plastic_resistance_characteristic,
+    composite_column_reduced_moment_resistance,
     composite_column_slenderness,
     composite_concrete_part_resistance,
     composite_confinement_coefficients,
     composite_effective_width,
+    composite_load_dispersion_width,
     composite_minimum_connection_degree,
     composite_moment_amplification,
     composite_moment_redistribution_limits,
@@ -793,3 +798,215 @@ class TestCompositeBondStressLimit:
         ref = get_ntc_ref(composite_bond_stress_limit)
         assert ref is not None
         assert "4.3.5.5" in ref.article
+
+
+# ---------------------------------------------------------------------------
+# 21. composite_column_plastic_resistance_characteristic  [4.3.19]
+# ---------------------------------------------------------------------------
+class TestCompositeColumnPlasticResistanceCharacteristic:
+    """NTC18 §4.3.5.2 — Resistenza plastica caratteristica N_pl,Rk."""
+
+    def test_standard_section(self):
+        # A_a=10000, f_yk=355, A_c=90000, f_ck=25, A_s=2000, f_sk=450
+        # N_pl,Rk = 10000*355 + 0.85*90000*25 + 2000*450
+        N_plRk = composite_column_plastic_resistance_characteristic(
+            10000, 355, 90000, 25, 2000, 450
+        )
+        expected = 10000 * 355 + 0.85 * 90000 * 25 + 2000 * 450
+        assert_allclose(N_plRk, expected, rtol=1e-6)
+
+    def test_filled_section_coeff_1(self):
+        # Filled: coefficient = 1.0 instead of 0.85
+        N_plRk = composite_column_plastic_resistance_characteristic(
+            10000, 355, 90000, 25, 2000, 450, filled=True
+        )
+        expected = 10000 * 355 + 1.0 * 90000 * 25 + 2000 * 450
+        assert_allclose(N_plRk, expected, rtol=1e-6)
+
+    def test_no_reinforcement(self):
+        N_plRk = composite_column_plastic_resistance_characteristic(
+            10000, 355, 90000, 25, 0, 450
+        )
+        expected = 10000 * 355 + 0.85 * 90000 * 25
+        assert_allclose(N_plRk, expected, rtol=1e-6)
+
+    def test_larger_than_N_pl_Rd(self):
+        # N_pl,Rk (no gamma) must be larger than N_pl,Rd (with gamma > 1)
+        N_plRk = composite_column_plastic_resistance_characteristic(
+            10000, 355, 90000, 25, 2000, 450
+        )
+        from pyntc.checks.composite import composite_column_plastic_resistance
+        N_plRd = composite_column_plastic_resistance(
+            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15
+        )
+        assert N_plRk > N_plRd
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(composite_column_plastic_resistance_characteristic)
+        assert ref is not None
+        assert ref.formula == "4.3.19"
+
+
+# ---------------------------------------------------------------------------
+# 22. composite_column_effective_stiffness_ii  [4.3.20]
+# ---------------------------------------------------------------------------
+class TestCompositeColumnEffectiveStiffnessII:
+    """NTC18 §4.3.5.2 — Rigidezza flessionale efficace di II ordine."""
+
+    def test_default_coefficients(self):
+        # Default: k_0=0.9, k_c_ii=0.5
+        # (EI)_eff,II = 0.9*(210000*50e6 + 210000*5e6 + 0.5*31000*200e6)
+        EI = composite_column_effective_stiffness_ii(
+            210000, 50e6, 210000, 5e6, 31000, 200e6
+        )
+        expected = 0.9 * (210000 * 50e6 + 210000 * 5e6 + 0.5 * 31000 * 200e6)
+        assert_allclose(EI, expected, rtol=1e-6)
+
+    def test_custom_coefficients(self):
+        EI = composite_column_effective_stiffness_ii(
+            210000, 50e6, 210000, 5e6, 31000, 200e6, k_0=0.85, k_c_ii=0.45
+        )
+        expected = 0.85 * (210000 * 50e6 + 210000 * 5e6 + 0.45 * 31000 * 200e6)
+        assert_allclose(EI, expected, rtol=1e-6)
+
+    def test_no_concrete(self):
+        # I_c=0 → concrete term vanishes
+        EI = composite_column_effective_stiffness_ii(
+            210000, 50e6, 210000, 5e6, 31000, 0.0
+        )
+        expected = 0.9 * (210000 * 50e6 + 210000 * 5e6)
+        assert_allclose(EI, expected, rtol=1e-6)
+
+    def test_stiffness_ii_less_than_stiffness_i(self):
+        # (EI)_eff,II (k_0=0.9, k_c=0.5) < (EI)_eff (k_a=0.6, no k_0)
+        from pyntc.checks.composite import composite_column_effective_stiffness
+        EI_ii = composite_column_effective_stiffness_ii(
+            210000, 50e6, 210000, 5e6, 31000, 200e6
+        )
+        EI_i = composite_column_effective_stiffness(
+            210000, 50e6, 210000, 5e6, 31000, 200e6, 0, 0, 1
+        )
+        # With default k_0=0.9 and k_c_ii=0.5 vs k_a=0.6, EI_II is smaller
+        assert EI_ii < EI_i
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(composite_column_effective_stiffness_ii)
+        assert ref is not None
+        assert ref.formula == "4.3.20"
+
+
+# ---------------------------------------------------------------------------
+# 23. composite_column_confinement_resistance  [4.3.22]
+# ---------------------------------------------------------------------------
+class TestCompositeColumnConfinementResistance:
+    """NTC18 §4.3.5.3.1 — Resistenza plastica con confinamento (sezioni circolari)."""
+
+    def test_no_confinement(self):
+        # eta_a=1.0, eta_c=0.0: degenerates to standard formula without confinement
+        # (but concrete term still gets the (1 + 0*t/d*...) factor = 1.0)
+        N = composite_column_confinement_resistance(
+            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15,
+            t=10, d=250, eta_a=1.0, eta_c=0.0
+        )
+        expected = (
+            1.0 * 10000 * 355 / 1.05
+            + (90000 * 25 / 1.5) * (1 + 0.0 * 10 / 250 * 355 / 25)
+            + 2000 * 450 / 1.15
+        )
+        assert_allclose(N, expected, rtol=1e-6)
+
+    def test_with_confinement_increases_resistance(self):
+        # Confinement should increase N relative to no-confinement base case
+        N_base = composite_column_confinement_resistance(
+            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15,
+            t=10, d=250, eta_a=1.0, eta_c=0.0
+        )
+        N_confined = composite_column_confinement_resistance(
+            10000, 355, 1.05, 90000, 25, 1.5, 2000, 450, 1.15,
+            t=10, d=250, eta_a=0.9, eta_c=4.5
+        )
+        # eta_c > 0: concrete term increased, eta_a < 1: steel term reduced
+        # net effect with eta_c=4.5 dominates → N_confined > N_base
+        assert N_confined > N_base
+
+    def test_manual_calculation(self):
+        # d=250, t=10, eta_a=0.75, eta_c=3.5
+        # A_a=7363, f_yk=355, gamma_A=1.05
+        # A_c=41230, f_ck=30, gamma_C=1.5
+        # A_s=800, f_sk=450, gamma_S=1.15
+        N = composite_column_confinement_resistance(
+            7363, 355, 1.05, 41230, 30, 1.5, 800, 450, 1.15,
+            t=10, d=250, eta_a=0.75, eta_c=3.5
+        )
+        N_steel = 0.75 * 7363 * 355 / 1.05
+        N_concrete = (41230 * 30 / 1.5) * (1 + 3.5 * (10 / 250) * (355 / 30))
+        N_rebar = 800 * 450 / 1.15
+        expected = N_steel + N_concrete + N_rebar
+        assert_allclose(N, expected, rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(composite_column_confinement_resistance)
+        assert ref is not None
+        assert ref.formula == "4.3.22"
+
+
+# ---------------------------------------------------------------------------
+# 24. composite_column_reduced_moment_resistance  [4.3.26]
+# ---------------------------------------------------------------------------
+class TestCompositeColumnReducedMomentResistance:
+    """NTC18 §4.3.5.3.1 — Momento resistente ridotto da interazione N-M."""
+
+    def test_standard(self):
+        # mu_d=0.8, M_pl_Rd=500e6 → M=400e6
+        M = composite_column_reduced_moment_resistance(0.8, 500e6)
+        assert_allclose(M, 400e6, rtol=1e-6)
+
+    def test_full_moment(self):
+        # mu_d=1.0 → M = M_pl_Rd
+        M = composite_column_reduced_moment_resistance(1.0, 500e6)
+        assert_allclose(M, 500e6, rtol=1e-6)
+
+    def test_zero_moment(self):
+        # mu_d=0.0 → M = 0
+        M = composite_column_reduced_moment_resistance(0.0, 500e6)
+        assert_allclose(M, 0.0, atol=1e-6)
+
+    def test_invalid_mu_d_negative(self):
+        with pytest.raises(ValueError):
+            composite_column_reduced_moment_resistance(-0.1, 500e6)
+
+    def test_invalid_mu_d_above_1(self):
+        with pytest.raises(ValueError):
+            composite_column_reduced_moment_resistance(1.1, 500e6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(composite_column_reduced_moment_resistance)
+        assert ref is not None
+        assert ref.formula == "4.3.26"
+
+
+# ---------------------------------------------------------------------------
+# 25. composite_load_dispersion_width  [4.3.38]
+# ---------------------------------------------------------------------------
+class TestCompositeLoadDispersionWidth:
+    """NTC18 §4.3.6.1.1 — Larghezza efficace di dispersione per carichi concentrati."""
+
+    def test_standard(self):
+        # b_p=200, h_c=100, h_t=50 → b_m = 200 + 2*(100+50) = 500
+        b_m = composite_load_dispersion_width(200, 100, 50)
+        assert_allclose(b_m, 500.0, rtol=1e-6)
+
+    def test_no_overlay(self):
+        # h_t=0 → b_m = b_p + 2*h_c
+        b_m = composite_load_dispersion_width(300, 120, 0)
+        assert_allclose(b_m, 300 + 2 * 120, rtol=1e-6)
+
+    def test_wheel_load_typical(self):
+        # Typical wheel patch: b_p=400, h_c=150, h_t=80
+        b_m = composite_load_dispersion_width(400, 150, 80)
+        assert_allclose(b_m, 400 + 2 * (150 + 80), rtol=1e-6)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(composite_load_dispersion_width)
+        assert ref is not None
+        assert ref.formula == "4.3.38"

@@ -565,6 +565,203 @@ def masonry_eccentricity_check(e1: float, e2: float, t: float) -> tuple[bool, fl
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §4.5.6.2 — COEFFICIENTE DI ECCENTRICITÀ m  [4.5.6]
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.5.6.2", formula="4.5.6", latex=r"m = \frac{6\,e}{t}")
+def masonry_eccentricity_m(e: float, t: float) -> float:
+    """Coefficiente di eccentricita' adimensionale m [-].
+
+    NTC18 §4.5.6.2, Formula [4.5.6]:
+        m = 6 * e / t
+
+    Utilizzato come indice di colonna nella Tab. 4.5.III per la lettura
+    del coefficiente di riduzione Phi.
+
+    Parameters
+    ----------
+    e : float
+        Eccentricita' totale [mm]. Valore >= 0.
+    t : float
+        Spessore della parete [mm].
+
+    Returns
+    -------
+    float
+        Coefficiente di eccentricita' adimensionale m [-].
+    """
+    if e < 0:
+        raise ValueError("e deve essere >= 0")
+    if t <= 0:
+        raise ValueError("t deve essere > 0")
+    return 6.0 * e / t
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.5.6.2 — COEFFICIENTE Phi DA TAB. 4.5.III (interpolazione tabulare)
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.5.6.2",
+    table="Tab.4.5.III",
+    latex=r"\Phi = f(\lambda,\,m) \quad \text{Tab.\,4.5.III}",
+)
+def masonry_phi_from_table(lambda_slend: float, m: float) -> float:
+    """Coefficiente di riduzione Phi da Tab. 4.5.III — interpolazione bilineare [-].
+
+    NTC18 §4.5.6.2, Tab. 4.5.III: valori del coefficiente Phi
+    in funzione della snellezza lambda e del coefficiente di eccentricita' m.
+
+    Tabella discreta:
+        Righe (lambda): 0, 5, 10, 15, 20
+        Colonne (m):    0, 0.5, 1.0, 1.5, 2.0
+    Celle None indicano combinazioni non ammesse (parete troppo snella/eccentrica).
+
+    Parameters
+    ----------
+    lambda_slend : float
+        Snellezza convenzionale lambda = h0/t [-], intervallo [0, 20].
+    m : float
+        Coefficiente di eccentricita' m = 6*e/t [-], intervallo [0, 2.0].
+
+    Returns
+    -------
+    float
+        Coefficiente di riduzione Phi [-].
+
+    Raises
+    ------
+    ValueError
+        Se lambda_slend o m sono fuori dai limiti ammessi, oppure se la
+        combinazione cade in una cella non tabulata (dominio non ammesso).
+    """
+    if lambda_slend < 0:
+        raise ValueError("lambda_slend deve essere >= 0")
+    if lambda_slend > 20:
+        raise ValueError("lambda_slend deve essere <= 20")
+    if m < 0:
+        raise ValueError("m deve essere >= 0")
+    if m > 2.0:
+        raise ValueError("m deve essere <= 2.0 (limite Tab.4.5.III)")
+
+    # Trova gli indici di interpolazione per lambda
+    i_lo = 0
+    for i in range(len(_PHI_LAMBDA) - 1):
+        if _PHI_LAMBDA[i + 1] > lambda_slend:
+            break
+        i_lo = i + 1
+    if _PHI_LAMBDA[i_lo] == lambda_slend:
+        i_hi = i_lo
+    else:
+        i_hi = min(i_lo + 1, len(_PHI_LAMBDA) - 1)
+
+    # Trova gli indici di interpolazione per m
+    j_lo = 0
+    for j in range(len(_PHI_M) - 1):
+        if _PHI_M[j + 1] > m:
+            break
+        j_lo = j + 1
+    if _PHI_M[j_lo] == m:
+        j_hi = j_lo
+    else:
+        j_hi = min(j_lo + 1, len(_PHI_M) - 1)
+
+    # Verifica che tutti e 4 gli angoli siano validi
+    corners = [
+        _phi_value(i_lo, j_lo),
+        _phi_value(i_lo, j_hi),
+        _phi_value(i_hi, j_lo),
+        _phi_value(i_hi, j_hi),
+    ]
+    if any(c is None for c in corners):
+        raise ValueError(
+            f"Combinazione (lambda={lambda_slend}, m={m}) fuori dal dominio "
+            f"ammesso dalla Tab.4.5.III"
+        )
+
+    # Interpolazione bilineare
+    if i_lo == i_hi and j_lo == j_hi:
+        return corners[0]  # type: ignore[return-value]
+
+    if i_lo == i_hi:
+        t_m = (m - _PHI_M[j_lo]) / (_PHI_M[j_hi] - _PHI_M[j_lo])
+        return corners[0] * (1.0 - t_m) + corners[1] * t_m  # type: ignore[operator]
+
+    if j_lo == j_hi:
+        t_lam = (lambda_slend - _PHI_LAMBDA[i_lo]) / (
+            _PHI_LAMBDA[i_hi] - _PHI_LAMBDA[i_lo]
+        )
+        return corners[0] * (1.0 - t_lam) + corners[2] * t_lam  # type: ignore[operator]
+
+    # Interpolazione bilineare completa
+    t_lam = (lambda_slend - _PHI_LAMBDA[i_lo]) / (
+        _PHI_LAMBDA[i_hi] - _PHI_LAMBDA[i_lo]
+    )
+    t_m = (m - _PHI_M[j_lo]) / (_PHI_M[j_hi] - _PHI_M[j_lo])
+
+    phi = (
+        corners[0] * (1.0 - t_lam) * (1.0 - t_m)
+        + corners[2] * t_lam * (1.0 - t_m)
+        + corners[1] * (1.0 - t_lam) * t_m
+        + corners[3] * t_lam * t_m
+    )
+    return phi  # type: ignore[return-value]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §4.5.6.4 — VERIFICA SEMPLIFICATA ALLO SFORZO NORMALE  [4.5.12]
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(article="4.5.6.4", formula="4.5.12", latex=r"\sigma = \frac{N}{0{,}65\,A} \le \frac{f_k}{\gamma_M}")
+def masonry_simplified_axial_check(
+    N_Ed: float, A: float, f_k: float, gamma_M: float
+) -> tuple[bool, float]:
+    """Verifica semplificata allo sforzo normale [Formula 4.5.12].
+
+    NTC18 §4.5.6.4, Formula [4.5.12]:
+        sigma = N_Ed / (0.65 * A) <= f_k / gamma_M
+        ratio  = sigma / (f_k / gamma_M)
+
+    Le unita' di N_Ed, A, f_k devono essere coerenti tra loro
+    (es. N_Ed [N], A [mm^2], f_k [N/mm^2]).
+
+    Parameters
+    ----------
+    N_Ed : float
+        Carico verticale di progetto [N].
+    A : float
+        Area totale della sezione resistente [mm^2].
+    f_k : float
+        Resistenza caratteristica a compressione della muratura [N/mm^2].
+    gamma_M : float
+        Coefficiente parziale di sicurezza [-].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificata, ratio):
+        - verificata: True se sigma <= f_k / gamma_M (ratio <= 1.0)
+        - ratio: sigma / (f_k / gamma_M)
+    """
+    if N_Ed < 0:
+        raise ValueError("N_Ed deve essere >= 0")
+    if A <= 0:
+        raise ValueError("A deve essere > 0")
+    if f_k <= 0:
+        raise ValueError("f_k deve essere > 0")
+    if gamma_M <= 0:
+        raise ValueError("gamma_M deve essere > 0")
+
+    sigma = N_Ed / (0.65 * A)
+    f_d = f_k / gamma_M
+    ratio = sigma / f_d
+    return ratio <= 1.0, ratio
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §4.5.6.4 — VERIFICA SEMPLIFICATA
 # ══════════════════════════════════════════════════════════════════════════════
 

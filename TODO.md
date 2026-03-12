@@ -1,6 +1,6 @@
 # TODO — Funzioni mancanti pyntc vs NTC18 Vault
 
-Copertura attuale: **~240 / 373 items** (~64%)
+Copertura attuale: **~247 / 373 items** (~66%)
 
 ---
 
@@ -26,7 +26,7 @@ Copertura attuale: **~240 / 373 items** (~64%)
 
 ### §3.5 — Azione della temperatura
 
-- [ ] **Tab 3.5.III** — Coefficienti di dilatazione termica per materiale
+- [x] `thermal_expansion_coefficient` [Tab 3.5.III] — coefficienti di dilatazione termica per materiale
 
 ### §3.6 — Azioni eccezionali
 
@@ -67,7 +67,12 @@ Copertura attuale: **~240 / 373 items** (~64%)
 
 ### §4.3 — Strutture composte acciaio-cls
 
-- [ ] ~9 formule mancanti (connessione, momento resistente, taglio)
+- [x] `composite_column_plastic_resistance_characteristic` [4.3.19] — resistenza plastica
+- [x] `composite_column_effective_stiffness_ii` [4.3.20] — rigidezza effettiva
+- [x] `composite_column_confinement_resistance` [4.3.22] — aumento resistenza per confinamento
+- [x] `composite_column_reduced_moment_resistance` [4.3.26] — momento resistente ridotto
+- [x] `composite_load_dispersion_width` [4.3.38] — larghezza di dispersione del carico
+- [ ] ~4 formule mancanti (connessione shear, momento resistente plastico trave)
 
 ### §4.4 — Legno
 
@@ -83,6 +88,9 @@ Copertura attuale: **~240 / 373 items** (~64%)
 - [x] `masonry_horizontal_eccentricity` [4.5.9] — eccentricita' azioni orizzontali
 - [x] `masonry_combined_eccentricity` [4.5.10] — combinazione eccentricita'
 - [x] `masonry_eccentricity_check` [4.5.11] — verifica limiti eccentricita'
+- [x] `masonry_eccentricity_m` [4.5.6] — eccentricita' accidentale
+- [x] `masonry_phi_from_table` [Tab 4.5.III] — coefficiente Φ per interpolazione bilineare
+- [x] `masonry_simplified_axial_check` [4.5.12] — verifica semplificata snellezza
 - [ ] Muratura armata §4.5.7, muratura confinata §4.5.8
 
 ## Cap. 5 — Ponti
