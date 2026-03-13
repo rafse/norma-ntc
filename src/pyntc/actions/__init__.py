@@ -68,6 +68,8 @@ from pyntc.actions.bridges import (
     bridge_sw_load,
     bridge_rail_sle_combination_factors,
     bridge_dynamic_factor,
+    bridge_fatigue_vehicle_model2,
+    bridge_fatigue_vehicle_model4,
 )
 from pyntc.actions.combinations import (
     combination_coefficients,

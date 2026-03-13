@@ -26,6 +26,10 @@ from pyntc.checks.geotechnical import (
     geo_anchor_correlation_profiles,
     geo_anchor_characteristic_resistance,
     geo_embankment_resistance_factor,
+    geo_anchor_check,
+    geo_anchor_correlation_factors,
+    geo_anchor_partial_factor,
+    geo_retaining_wall_resistance_factor,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -840,3 +844,133 @@ class TestGeoEmbankmentResistanceFactor:
         ref = get_ntc_ref(geo_embankment_resistance_factor)
         assert ref is not None
         assert ref.article == "6.8.2"
+
+# ---------------------------------------------------------------------------
+class TestGeoAnchorCorrelationFactors:
+    """NTC18 §6.6.2 — Tab. 6.6.III — Fattori ζ_as, ζ_at per ancoraggi."""
+
+    def test_correlation_factors_n1(self):
+        zeta_as, zeta_at = geo_anchor_correlation_factors(1)
+        assert_allclose(zeta_as, 1.80)
+        assert_allclose(zeta_at, 1.80)
+
+    def test_correlation_factors_n2(self):
+        zeta_as, zeta_at = geo_anchor_correlation_factors(2)
+        assert_allclose(zeta_as, 1.75)
+        assert_allclose(zeta_at, 1.70)
+
+    def test_correlation_factors_n3(self):
+        zeta_as, zeta_at = geo_anchor_correlation_factors(3)
+        assert_allclose(zeta_as, 1.70)
+        assert_allclose(zeta_at, 1.65)
+
+    def test_correlation_factors_n4(self):
+        zeta_as, zeta_at = geo_anchor_correlation_factors(4)
+        assert_allclose(zeta_as, 1.65)
+        assert_allclose(zeta_at, 1.60)
+
+    def test_correlation_factors_n5(self):
+        zeta_as, zeta_at = geo_anchor_correlation_factors(5)
+        assert_allclose(zeta_as, 1.60)
+        assert_allclose(zeta_at, 1.55)
+
+    def test_correlation_factors_n5plus(self):
+        """n >= 5 deve restituire i valori di n=5."""
+        zeta_as, zeta_at = geo_anchor_correlation_factors(7)
+        assert_allclose(zeta_as, 1.60)
+        assert_allclose(zeta_at, 1.55)
+
+    def test_correlation_factors_ntc_ref(self):
+        ref = get_ntc_ref(geo_anchor_correlation_factors)
+        assert ref is not None
+        assert "6.6" in ref.article or "6.6" in (ref.table or "")
+
+    def test_correlation_factors_raises(self):
+        with pytest.raises(ValueError):
+            geo_anchor_correlation_factors(0)
+
+
+# ---------------------------------------------------------------------------
+
+# 23. geo_anchor_partial_factor — Tab. 6.6.1
+# ---------------------------------------------------------------------------
+class TestGeoAnchorPartialFactor:
+    """NTC18 §6.6.2 — Tab. 6.6.1 — Coefficienti parziali γ_g ancoraggi."""
+
+    def test_partial_factor_temporary(self):
+        assert_allclose(geo_anchor_partial_factor("temporary"), 1.1)
+
+    def test_partial_factor_permanent(self):
+        assert_allclose(geo_anchor_partial_factor("permanent"), 1.2)
+
+    def test_partial_factor_ntc_ref(self):
+        ref = get_ntc_ref(geo_anchor_partial_factor)
+        assert ref is not None
+
+    def test_partial_factor_raises(self):
+        with pytest.raises(ValueError):
+            geo_anchor_partial_factor("unknown")
+
+
+# ---------------------------------------------------------------------------
+# 24. geo_anchor_check — verifica R_Ed <= R_d
+# ---------------------------------------------------------------------------
+class TestGeoAnchorCheck:
+    """NTC18 §6.6.2 — Verifica ancoraggio R_Ed <= R_d = R_ak / γ_g."""
+
+    def test_anchor_check_pass(self):
+        """R_Ed=100, R_ak=200, gamma_g=1.1 → R_d≈181.8, ratio≈0.55."""
+        ok, ratio = geo_anchor_check(100, 200, 1.1)
+        assert ok is True
+        assert_allclose(ratio, 100 / (200 / 1.1), rtol=1e-6)
+
+    def test_anchor_check_fail(self):
+        """R_Ed >= R_d → not verified."""
+        ok, ratio = geo_anchor_check(200, 200, 1.1)
+        assert ok is False
+
+    def test_anchor_check_exact_limit(self):
+        """R_Ed == R_d → verificato (ratio == 1.0)."""
+        ok, ratio = geo_anchor_check(200, 200, 1.0)
+        assert ok is True
+        assert_allclose(ratio, 1.0)
+
+    def test_anchor_check_ntc_ref(self):
+        ref = get_ntc_ref(geo_anchor_check)
+        assert ref is not None
+
+    def test_anchor_check_raises_R_ak_zero(self):
+        with pytest.raises(ValueError):
+            geo_anchor_check(100, 0, 1.1)
+
+    def test_anchor_check_raises_gamma_g_zero(self):
+        with pytest.raises(ValueError):
+            geo_anchor_check(100, 200, 0)
+
+
+# ---------------------------------------------------------------------------
+# 25. geo_retaining_wall_resistance_factor — Tab. 6.5.1
+# ---------------------------------------------------------------------------
+class TestGeoRetainingWallResistanceFactor:
+    """NTC18 §6.5.3.1.1 — Tab. 6.5.1 — Coefficienti R3 muri di sostegno."""
+
+    def test_bearing_factor(self):
+        assert_allclose(geo_retaining_wall_resistance_factor("bearing"), 1.4)
+
+    def test_sliding_factor(self):
+        assert_allclose(geo_retaining_wall_resistance_factor("sliding"), 1.1)
+
+    def test_overturning_factor(self):
+        assert_allclose(geo_retaining_wall_resistance_factor("overturning"), 1.15)
+
+    def test_passive_factor(self):
+        assert_allclose(geo_retaining_wall_resistance_factor("passive"), 1.4)
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(geo_retaining_wall_resistance_factor)
+        assert ref is not None
+        assert "6.5" in ref.article
+
+    def test_raises_unknown(self):
+        with pytest.raises(ValueError):
+            geo_retaining_wall_resistance_factor("unknown")

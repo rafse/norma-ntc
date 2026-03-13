@@ -33,6 +33,8 @@ from pyntc.actions.bridges import (
     bridge_rail_multitrack_factor,
     bridge_rail_deformation_limits,
     bridge_fatigue_traffic_flow,
+    bridge_fatigue_vehicle_model2,
+    bridge_fatigue_vehicle_model4,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -1180,3 +1182,49 @@ class TestBridgeFatigueTrafficFlow:
         ref = get_ntc_ref(bridge_fatigue_traffic_flow)
         assert ref is not None
         assert ref.article == "5.1.4.3"
+
+
+
+class TestBridgeFatigueModels:
+    def test_model2_vehicle1(self):
+        result = bridge_fatigue_vehicle_model2(1)
+        assert result["vehicle"] == 1
+        assert len(result["axle_loads_kN"]) == 2
+        assert result["axle_loads_kN"] == [90, 190]
+        assert result["axle_spacing_m"] == [4.50]
+
+    def test_model2_vehicle3(self):
+        result = bridge_fatigue_vehicle_model2(3)
+        assert len(result["axle_loads_kN"]) == 5
+        assert result["axle_loads_kN"] == [90, 180, 120, 120, 120]
+
+    def test_model2_ntc_ref(self):
+        ref = get_ntc_ref(bridge_fatigue_vehicle_model2)
+        assert ref is not None
+        assert "5.1" in str(ref.table)
+
+    def test_model2_raises(self):
+        with pytest.raises(ValueError):
+            bridge_fatigue_vehicle_model2(6)
+
+    def test_model4_vehicle1_long(self):
+        result = bridge_fatigue_vehicle_model4(1, "long_distance")
+        assert result["axle_loads_kN"] == [70, 130]
+        assert_allclose(result["traffic_percentage"], 20.0)
+
+    def test_model4_vehicle3_local(self):
+        result = bridge_fatigue_vehicle_model4(3, "local")
+        assert_allclose(result["traffic_percentage"], 5.0)
+
+    def test_model4_ntc_ref(self):
+        ref = get_ntc_ref(bridge_fatigue_vehicle_model4)
+        assert ref is not None
+        assert "5.1" in str(ref.table)
+
+    def test_model4_raises_vehicle(self):
+        with pytest.raises(ValueError):
+            bridge_fatigue_vehicle_model4(0)
+
+    def test_model4_raises_traffic(self):
+        with pytest.raises(ValueError):
+            bridge_fatigue_vehicle_model4(1, "unknown_type")

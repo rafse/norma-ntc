@@ -932,3 +932,88 @@ def timber_straightness_limit(L: float, material: str) -> float:
         f"Materiale '{material}' non riconosciuto. "
         "Valori ammessi: 'solid', 'glulam'."
     )
+# 21. timber_service_class_description — §4.4.5 / Tab. 4.4.II
+# ===========================================================================
+
+@ntc_ref(
+    article="4.4.5",
+    table="Tab.4.4.II",
+    latex=r"\text{Tab.\,4.4.II}",
+)
+def timber_service_class_description(service_class: int) -> dict:
+    """Descrizione della classe di servizio [Tab. 4.4.II].
+
+    NTC18 §4.4.5, Tab. 4.4.II.
+
+    Parameters
+    ----------
+    service_class : int
+        Classe di servizio (1, 2 o 3).
+
+    Returns
+    -------
+    dict
+        {"description": str, "u_max_softwood": int | None, "temp_range": str}
+    """
+    _classes: dict[int, dict] = {
+        1: {
+            "description": "Umidita' relativa < 65%",
+            "u_max_softwood": 12,
+            "temp_range": "20\u00b0C",
+        },
+        2: {
+            "description": "Umidita' relativa < 85%",
+            "u_max_softwood": 20,
+            "temp_range": "20\u00b0C",
+        },
+        3: {
+            "description": "Umidita' relativa > 85%",
+            "u_max_softwood": None,
+            "temp_range": "variabile",
+        },
+    }
+    if service_class not in _classes:
+        raise ValueError(
+            f"service_class {service_class!r} non valido. Valori ammessi: 1, 2, 3."
+        )
+    return _classes[service_class]
+
+
+# ===========================================================================
+# 22. timber_load_duration_class — §4.4.5 / Tab. 4.4.I
+# ===========================================================================
+
+@ntc_ref(
+    article="4.4.5",
+    table="Tab.4.4.I",
+    latex=r"\text{Tab.\,4.4.I}",
+)
+def timber_load_duration_class(duration: str) -> str:
+    """Classe di durata del carico [Tab. 4.4.I].
+
+    NTC18 §4.4.5, Tab. 4.4.I.
+
+    Parameters
+    ----------
+    duration : str
+        Identificativo della durata: "permanent", "long_term",
+        "medium_term", "short_term", "instantaneous".
+
+    Returns
+    -------
+    str
+        Descrizione della classe di durata.
+    """
+    _durations: dict[str, str] = {
+        "permanent": "Piu' di 10 anni",
+        "long_term": "6 mesi - 10 anni",
+        "medium_term": "1 settimana - 6 mesi",
+        "short_term": "Meno di 1 settimana",
+        "instantaneous": "Istantanea",
+    }
+    if duration not in _durations:
+        valid = ", ".join(f'"{d}"' for d in _durations)
+        raise ValueError(
+            f"duration {duration!r} non riconosciuta. Valori ammessi: {valid}."
+        )
+    return _durations[duration]

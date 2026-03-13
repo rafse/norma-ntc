@@ -1215,6 +1215,317 @@ def wall_confinement_requirement(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# §7.4.4.5.1 — PARETI ACCOPPIATE — SCORRIMENTO
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §7.4.4.5.1 — PARETI ACCOPPIATE — SCORRIMENTO
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="7.4.4.5.1",
+    formula="7.4.20",
+    latex=r"V_{dd} = \min\{1{,}3 \cdot \sum A_{id}\sqrt{f_{cd}f_{yd}},\;0{,}25\,f_{yd}\sum A_{id}\}",
+)
+def wall_sliding_shear_diagonal(sum_A_id: float, f_cd: float, f_yd: float) -> float:
+    """Contributo delle armature diagonali alla resistenza a scorrimento.
+
+    NTC18 §7.4.4.5.1, Formula [7.4.20]:
+        V_dd = min(1.3 * sum_A_id * sqrt(f_cd * f_yd), 0.25 * f_yd * sum_A_id)
+
+    Parameters
+    ----------
+    sum_A_id : float
+        Somma delle aree delle armature diagonali [mm^2].
+    f_cd : float
+        Resistenza di progetto a compressione del calcestruzzo [MPa].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [MPa].
+
+    Returns
+    -------
+    float
+        Contributo V_dd alla resistenza a scorrimento [N].
+    """
+    if sum_A_id <= 0:
+        raise ValueError(f"sum_A_id deve essere > 0, ricevuto {sum_A_id}")
+    if f_cd <= 0:
+        raise ValueError(f"f_cd deve essere > 0, ricevuto {f_cd}")
+    if f_yd <= 0:
+        raise ValueError(f"f_yd deve essere > 0, ricevuto {f_yd}")
+
+    opt1 = 1.3 * sum_A_id * math.sqrt(f_cd * f_yd)
+    opt2 = 0.25 * f_yd * sum_A_id
+    return min(opt1, opt2)
+
+
+@ntc_ref(
+    article="7.4.4.5.1",
+    formula="7.4.21",
+    latex=r"V_{id} = f_{yd} \sum A_{id} \cos\varphi_i",
+)
+def wall_sliding_shear_inclined(sum_A_id: float, f_yd: float, phi: float) -> float:
+    """Contributo delle armature inclinate alla resistenza a scorrimento.
+
+    NTC18 §7.4.4.5.1, Formula [7.4.21]:
+        V_id = f_yd * sum_A_id * cos(phi)
+
+    Parameters
+    ----------
+    sum_A_id : float
+        Somma delle aree delle armature inclinate [mm^2].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [MPa].
+    phi : float
+        Angolo di inclinazione delle armature rispetto all'asse orizzontale [rad].
+
+    Returns
+    -------
+    float
+        Contributo V_id alla resistenza a scorrimento [N].
+    """
+    if sum_A_id <= 0:
+        raise ValueError(f"sum_A_id deve essere > 0, ricevuto {sum_A_id}")
+    if f_yd <= 0:
+        raise ValueError(f"f_yd deve essere > 0, ricevuto {f_yd}")
+
+    return f_yd * sum_A_id * math.cos(phi)
+
+
+@ntc_ref(
+    article="7.4.4.5.1",
+    formula="7.4.22",
+    latex=r"V_{fd} = \min\{\mu_f\bigl(\sum A_{ij}f_{yd}+N_{fd}\bigr)\xi + \frac{M_{fd}}{2\xi l_w},\;0{,}5\,\eta_{fc}\,f_{cd}\,\xi\,l_w\,b_{w0}\}",
+)
+def wall_sliding_shear_friction(
+    sum_A_ij: float,
+    f_yd: float,
+    N_fd: float,
+    xi: float,
+    M_fd: float,
+    l_w: float,
+    b_w0: float,
+    f_ck: float,
+    f_cd: float,
+    mu_f: float = 0.6,
+) -> float:
+    """Contributo dell'attrito alla resistenza a scorrimento.
+
+    NTC18 §7.4.4.5.1, Formula [7.4.22]:
+        eta_fc = 0.6 * (1 - f_ck / 250)
+        V_fd = min(
+            mu_f * (sum_A_ij * f_yd + N_fd) * xi + M_fd / (2 * xi * l_w),
+            0.5 * eta_fc * f_cd * xi * l_w * b_w0
+        )
+
+    Parameters
+    ----------
+    sum_A_ij : float
+        Somma delle aree delle armature trasversali [mm^2].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [MPa].
+    N_fd : float
+        Forza normale di progetto [N].
+    xi : float
+        Rapporto profondita' zona compressa / altezza parete [-].
+    M_fd : float
+        Momento flettente di progetto [N*mm].
+    l_w : float
+        Lunghezza della parete [mm].
+    b_w0 : float
+        Spessore dell'anima della parete [mm].
+    f_ck : float
+        Resistenza caratteristica a compressione del calcestruzzo [MPa].
+    f_cd : float
+        Resistenza di progetto a compressione del calcestruzzo [MPa].
+    mu_f : float
+        Coefficiente di attrito, default 0.6 (NTC18).
+
+    Returns
+    -------
+    float
+        Contributo V_fd alla resistenza a scorrimento [N].
+    """
+    if f_ck <= 0:
+        raise ValueError(f"f_ck deve essere > 0, ricevuto {f_ck}")
+    if f_cd <= 0:
+        raise ValueError(f"f_cd deve essere > 0, ricevuto {f_cd}")
+    if l_w <= 0:
+        raise ValueError(f"l_w deve essere > 0, ricevuto {l_w}")
+    if b_w0 <= 0:
+        raise ValueError(f"b_w0 deve essere > 0, ricevuto {b_w0}")
+
+    eta_fc = 0.6 * (1.0 - f_ck / 250.0)
+    term1 = mu_f * (sum_A_ij * f_yd + N_fd) * xi + M_fd / (2.0 * xi * l_w)
+    term2 = 0.5 * eta_fc * f_cd * xi * l_w * b_w0
+    return min(term1, term2)
+
+
+@ntc_ref(
+    article="7.4.4.5.1",
+    formula="7.4.19",
+    latex=r"V_{Rd,S} = V_{dd} + V_{id} + V_{fd}",
+)
+def wall_sliding_shear_resistance(V_dd: float, V_id: float, V_fd: float) -> float:
+    """Resistenza totale a scorrimento della parete.
+
+    NTC18 §7.4.4.5.1, Formula [7.4.19]:
+        V_Rd_S = V_dd + V_id + V_fd
+
+    Parameters
+    ----------
+    V_dd : float
+        Contributo delle armature diagonali [N].
+    V_id : float
+        Contributo delle armature inclinate [N].
+    V_fd : float
+        Contributo dell'attrito [N].
+
+    Returns
+    -------
+    float
+        Resistenza totale a scorrimento V_Rd_S [N].
+    """
+    return V_dd + V_id + V_fd
+
+
+@ntc_ref(
+    article="7.4.4.5.1",
+    formula="7.4.18",
+    latex=r"V_{Ed} \le V_{Rd,S}",
+)
+def wall_sliding_check(V_Ed: float, V_Rd_S: float) -> tuple[bool, float]:
+    """Verifica a scorrimento della parete accoppiata.
+
+    NTC18 §7.4.4.5.1, Formula [7.4.18]:
+        V_Ed <= V_Rd_S
+
+    Parameters
+    ----------
+    V_Ed : float
+        Taglio di progetto [N].
+    V_Rd_S : float
+        Resistenza totale a scorrimento [N].
+
+    Returns
+    -------
+    tuple[bool, float]
+        - satisfied: True se la verifica e' soddisfatta
+        - ratio: V_Ed / V_Rd_S [-]
+    """
+    ratio = V_Ed / V_Rd_S
+    return ratio <= 1.0, ratio
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# §7.4.4.6 — TRAVI DI ACCOPPIAMENTO
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="7.4.4.6",
+    formula="7.4.23",
+    latex=r"V_{Ed} \le f_{cut} \cdot b \cdot d, \quad f_{cut} = 0{,}5\,\eta\,f_{cd}",
+)
+def coupling_beam_shear_capacity(f_ck: float, f_cd: float, b: float, d: float) -> float:
+    """Resistenza a taglio della trave di accoppiamento (contributo calcestruzzo).
+
+    NTC18 §7.4.4.6, Formula [7.4.23]:
+        eta = 0.6 * (1 - f_ck / 250)
+        f_cut = 0.5 * eta * f_cd
+        V_Rd = f_cut * b * d
+
+    Parameters
+    ----------
+    f_ck : float
+        Resistenza caratteristica a compressione del calcestruzzo [MPa].
+    f_cd : float
+        Resistenza di progetto a compressione del calcestruzzo [MPa].
+    b : float
+        Larghezza della trave [mm].
+    d : float
+        Altezza utile della trave [mm].
+
+    Returns
+    -------
+    float
+        Resistenza a taglio V_Rd [N].
+    """
+    eta = 0.6 * (1.0 - f_ck / 250.0)
+    f_cut = 0.5 * eta * f_cd
+    return f_cut * b * d
+
+
+@ntc_ref(
+    article="7.4.4.6",
+    formula="7.4.23",
+    latex=r"V_{Ed} \le f_{cut} \cdot b \cdot d",
+)
+def coupling_beam_shear_check(
+    V_Ed: float, f_ck: float, f_cd: float, b: float, d: float
+) -> tuple[bool, float]:
+    """Verifica a taglio della trave di accoppiamento (cls).
+
+    NTC18 §7.4.4.6, Formula [7.4.23]:
+        V_Rd = coupling_beam_shear_capacity(f_ck, f_cd, b, d)
+        V_Ed <= V_Rd
+
+    Parameters
+    ----------
+    V_Ed : float
+        Taglio di progetto [N].
+    f_ck : float
+        Resistenza caratteristica a compressione del calcestruzzo [MPa].
+    f_cd : float
+        Resistenza di progetto a compressione del calcestruzzo [MPa].
+    b : float
+        Larghezza della trave [mm].
+    d : float
+        Altezza utile della trave [mm].
+
+    Returns
+    -------
+    tuple[bool, float]
+        - satisfied: True se la verifica e' soddisfatta
+        - ratio: V_Ed / V_Rd [-]
+    """
+    V_Rd = coupling_beam_shear_capacity(f_ck, f_cd, b, d)
+    ratio = V_Ed / V_Rd
+    return ratio <= 1.0, ratio
+
+
+@ntc_ref(
+    article="7.4.4.6",
+    formula="7.4.24",
+    latex=r"V_{il} = 2\,A_s\,f_{yd}\,\sin\varphi",
+)
+def coupling_beam_inclined_bars_shear(A_s: float, f_yd: float, phi: float) -> float:
+    """Resistenza a taglio della trave di accoppiamento con armatura inclinata.
+
+    NTC18 §7.4.4.6, Formula [7.4.24]:
+        V_il = 2 * A_s * f_yd * sin(phi)
+
+    Parameters
+    ----------
+    A_s : float
+        Area delle armature inclinate (per lato) [mm^2].
+    f_yd : float
+        Resistenza di progetto dell'acciaio [MPa].
+    phi : float
+        Angolo di inclinazione delle armature rispetto all'asse orizzontale [rad].
+
+    Returns
+    -------
+    float
+        Resistenza a taglio V_il [N].
+    """
+    return 2.0 * A_s * f_yd * math.sin(phi)
+
+# ══════════════════════════════════════════════════════════════════════════════
 # §7.11 — OPERE E SISTEMI GEOTECNICI
 # ══════════════════════════════════════════════════════════════════════════════
 

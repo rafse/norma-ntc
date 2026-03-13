@@ -28,6 +28,8 @@ from pyntc.checks.timber import (
     timber_column_stability_check,
     timber_deflection_limits,
     timber_straightness_limit,
+    timber_load_duration_class,
+    timber_service_class_description,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -874,3 +876,42 @@ class TestTimberCompressionPerpCheck:
         assert ref is not None
         assert ref.article == "4.4.8.1.4"
         assert ref.formula == "4.4.4"
+
+
+
+class TestTimberServiceClasses:
+    def test_service_class_1(self):
+        result = timber_service_class_description(1)
+        assert isinstance(result, dict)
+        assert "description" in result
+
+    def test_service_class_3(self):
+        result = timber_service_class_description(3)
+        assert isinstance(result, dict)
+
+    def test_service_class_raises(self):
+        with pytest.raises(ValueError):
+            timber_service_class_description(4)
+
+    def test_service_class_ntc_ref(self):
+        ref = get_ntc_ref(timber_service_class_description)
+        assert ref is not None
+
+
+class TestTimberLoadDuration:
+    def test_permanent(self):
+        result = timber_load_duration_class("permanent")
+        assert "10 anni" in result or "anno" in result.lower() or len(result) > 0
+
+    def test_instantaneous(self):
+        result = timber_load_duration_class("instantaneous")
+        assert isinstance(result, str)
+
+    def test_raises_unknown(self):
+        with pytest.raises(ValueError):
+            timber_load_duration_class("unknown")
+
+    def test_ntc_ref(self):
+        ref = get_ntc_ref(timber_load_duration_class)
+        assert ref is not None
+        assert "4.4" in str(ref.table) or "4.4" in str(ref.article)

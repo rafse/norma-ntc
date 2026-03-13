@@ -1306,3 +1306,137 @@ def bridge_dynamic_factor(L_phi: float, track_type: str = "standard") -> float:
     return max(1.0, min(phi, 2.0))
 
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# §5.1.4.3 — MODELLI DI CARICO DI FATICA
+# ══════════════════════════════════════════════════════════════════════════
+
+# Dati geometrici condivisi (interassi e tipo ruota) per i 5 veicoli
+_FATIGUE_VEHICLES: dict[int, dict] = {
+    1: {
+        "axle_spacing_m": [4.50],
+        "wheel_type": ["A", "B"],
+    },
+    2: {
+        "axle_spacing_m": [4.20, 1.30],
+        "wheel_type": ["A", "B", "B"],
+    },
+    3: {
+        "axle_spacing_m": [3.20, 5.20, 1.30, 1.30],
+        "wheel_type": ["A", "B", "C", "C", "C"],
+    },
+    4: {
+        "axle_spacing_m": [3.40, 6.00, 1.80],
+        "wheel_type": ["A", "B", "B", "B"],
+    },
+    5: {
+        "axle_spacing_m": [4.80, 3.60, 4.40, 1.30],
+        "wheel_type": ["A", "B", "C", "C", "C"],
+    },
+}
+
+# Carichi modello 2 (Tab. 5.1.VII)
+_FATIGUE_MODEL2_LOADS: dict[int, list[float]] = {
+    1: [90, 190],
+    2: [80, 140, 140],
+    3: [90, 180, 120, 120, 120],
+    4: [90, 190, 140, 140],
+    5: [90, 180, 120, 110, 110],
+}
+
+# Carichi modello 4 (Tab. 5.1.VIII) e composizione traffico
+_FATIGUE_MODEL4_LOADS: dict[int, list[float]] = {
+    1: [70, 130],
+    2: [70, 120, 120],
+    3: [70, 150, 90, 90, 90],
+    4: [70, 140, 90, 90],
+    5: [70, 130, 90, 80, 80],
+}
+
+# Percentuali traffico: {vehicle: {traffic_type: percentage}}
+_FATIGUE_MODEL4_TRAFFIC: dict[int, dict[str, float]] = {
+    1: {"long_distance": 20.0, "medium_distance": 40.0, "local": 80.0},
+    2: {"long_distance": 5.0,  "medium_distance": 10.0, "local": 5.0},
+    3: {"long_distance": 50.0, "medium_distance": 30.0, "local": 5.0},
+    4: {"long_distance": 15.0, "medium_distance": 15.0, "local": 5.0},
+    5: {"long_distance": 10.0, "medium_distance": 5.0,  "local": 5.0},
+}
+
+_VALID_TRAFFIC_TYPES = ("long_distance", "medium_distance", "local")
+
+
+@ntc_ref(
+    article="5.1.4.3",
+    table="Tab.5.1.VII",
+    latex=r"\text{Tab.\,5.1.VII}",
+)
+def bridge_fatigue_vehicle_model2(vehicle: int) -> dict:
+    """Veicolo frequente modello 2 per fatica ponti stradali [Tab. 5.1.VII].
+
+    NTC18 §5.1.4.3, Tab. 5.1.VII.
+
+    Parameters
+    ----------
+    vehicle : int
+        Numero del veicolo (1-5).
+
+    Returns
+    -------
+    dict
+        {"vehicle": int, "axle_spacing_m": list[float],
+         "axle_loads_kN": list[float], "wheel_type": list[str]}
+    """
+    if vehicle not in _FATIGUE_VEHICLES:
+        raise ValueError(
+            f"vehicle {vehicle!r} non valido. Valori ammessi: 1-5."
+        )
+    return {
+        "vehicle": vehicle,
+        "axle_spacing_m": _FATIGUE_VEHICLES[vehicle]["axle_spacing_m"],
+        "axle_loads_kN": _FATIGUE_MODEL2_LOADS[vehicle],
+        "wheel_type": _FATIGUE_VEHICLES[vehicle]["wheel_type"],
+    }
+
+
+@ntc_ref(
+    article="5.1.4.3",
+    table="Tab.5.1.VIII",
+    latex=r"\text{Tab.\,5.1.VIII}",
+)
+def bridge_fatigue_vehicle_model4(
+    vehicle: int, traffic_type: str = "long_distance"
+) -> dict:
+    """Veicolo equivalente modello 4 per fatica ponti stradali [Tab. 5.1.VIII].
+
+    NTC18 §5.1.4.3, Tab. 5.1.VIII.
+
+    Parameters
+    ----------
+    vehicle : int
+        Numero del veicolo (1-5).
+    traffic_type : str
+        Tipo di traffico: "long_distance", "medium_distance", "local".
+
+    Returns
+    -------
+    dict
+        {"vehicle": int, "axle_spacing_m": list[float],
+         "axle_loads_kN": list[float], "wheel_type": list[str],
+         "traffic_percentage": float}
+    """
+    if vehicle not in _FATIGUE_VEHICLES:
+        raise ValueError(
+            f"vehicle {vehicle!r} non valido. Valori ammessi: 1-5."
+        )
+    if traffic_type not in _VALID_TRAFFIC_TYPES:
+        valid = ", ".join(f'"{t}"' for t in _VALID_TRAFFIC_TYPES)
+        raise ValueError(
+            f"traffic_type {traffic_type!r} non valido. Valori ammessi: {valid}."
+        )
+    return {
+        "vehicle": vehicle,
+        "axle_spacing_m": _FATIGUE_VEHICLES[vehicle]["axle_spacing_m"],
+        "axle_loads_kN": _FATIGUE_MODEL4_LOADS[vehicle],
+        "wheel_type": _FATIGUE_VEHICLES[vehicle]["wheel_type"],
+        "traffic_percentage": _FATIGUE_MODEL4_TRAFFIC[vehicle][traffic_type],
+    }

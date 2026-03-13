@@ -35,6 +35,14 @@ from pyntc.checks.seismic_design import (
     sheet_pile_pseudostatic_acceleration,
     wall_confinement_requirement,
     wall_critical_height,
+    coupling_beam_inclined_bars_shear,
+    coupling_beam_shear_capacity,
+    coupling_beam_shear_check,
+    wall_sliding_check,
+    wall_sliding_shear_diagonal,
+    wall_sliding_shear_friction,
+    wall_sliding_shear_inclined,
+    wall_sliding_shear_resistance,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -1353,3 +1361,166 @@ class TestAnchorFreeLengthSeismic:
         ref = get_ntc_ref(anchor_free_length_seismic)
         assert ref is not None
         assert ref.formula == "7.11.12"
+
+
+
+class TestWallSlidingShear:
+    """NTC18 §7.4.4.5.1, Formule [7.4.18]-[7.4.22]."""
+
+    def test_diagonal_basic(self):
+        """sum_A_id=2000, f_cd=16.67, f_yd=391: V_dd = min(opt1, opt2)."""
+        result = wall_sliding_shear_diagonal(2000, 16.67, 391)
+        expected = min(1.3 * 2000 * math.sqrt(16.67 * 391), 0.25 * 391 * 2000)
+        assert_allclose(result, expected, rtol=1e-5)
+
+    def test_diagonal_ntc_ref(self):
+        ref = get_ntc_ref(wall_sliding_shear_diagonal)
+        assert ref is not None
+        assert ref.formula == "7.4.20"
+
+    def test_diagonal_raises_nonpositive(self):
+        with pytest.raises(ValueError):
+            wall_sliding_shear_diagonal(0, 16.67, 391)
+        with pytest.raises(ValueError):
+            wall_sliding_shear_diagonal(2000, 0, 391)
+        with pytest.raises(ValueError):
+            wall_sliding_shear_diagonal(2000, 16.67, 0)
+
+    def test_inclined_basic(self):
+        """sum=1000, f_yd=391, phi=30deg=pi/6."""
+        result = wall_sliding_shear_inclined(1000, 391, math.pi / 6)
+        assert_allclose(result, 391 * 1000 * math.cos(math.pi / 6), rtol=1e-6)
+
+    def test_inclined_ntc_ref(self):
+        ref = get_ntc_ref(wall_sliding_shear_inclined)
+        assert ref is not None
+        assert ref.formula == "7.4.21"
+
+    def test_inclined_raises_nonpositive(self):
+        with pytest.raises(ValueError):
+            wall_sliding_shear_inclined(0, 391, math.pi / 6)
+        with pytest.raises(ValueError):
+            wall_sliding_shear_inclined(1000, 0, math.pi / 6)
+
+    def test_friction_basic(self):
+        """Risultato deve essere float positivo."""
+        result = wall_sliding_shear_friction(
+            sum_A_ij=2000, f_yd=391, N_fd=500e3, xi=0.8,
+            M_fd=200e6, l_w=3000, b_w0=200, f_ck=25, f_cd=16.67
+        )
+        assert result > 0
+
+    def test_friction_value(self):
+        """Verifica numerica del valore di V_fd."""
+        sum_A_ij = 2000.0
+        f_yd = 391.0
+        N_fd = 500e3
+        xi = 0.8
+        M_fd = 200e6
+        l_w = 3000.0
+        b_w0 = 200.0
+        f_ck = 25.0
+        f_cd = 16.67
+        mu_f = 0.6
+        eta_fc = 0.6 * (1.0 - f_ck / 250.0)
+        term1 = mu_f * (sum_A_ij * f_yd + N_fd) * xi + M_fd / (2.0 * xi * l_w)
+        term2 = 0.5 * eta_fc * f_cd * xi * l_w * b_w0
+        expected = min(term1, term2)
+        result = wall_sliding_shear_friction(
+            sum_A_ij=sum_A_ij, f_yd=f_yd, N_fd=N_fd, xi=xi,
+            M_fd=M_fd, l_w=l_w, b_w0=b_w0, f_ck=f_ck, f_cd=f_cd
+        )
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_friction_ntc_ref(self):
+        ref = get_ntc_ref(wall_sliding_shear_friction)
+        assert ref is not None
+        assert ref.formula == "7.4.22"
+
+    def test_friction_raises_nonpositive(self):
+        kwargs = dict(
+            sum_A_ij=2000, f_yd=391, N_fd=500e3, xi=0.8,
+            M_fd=200e6, l_w=3000, b_w0=200, f_ck=25, f_cd=16.67
+        )
+        with pytest.raises(ValueError):
+            wall_sliding_shear_friction(**{**kwargs, "f_ck": 0})
+        with pytest.raises(ValueError):
+            wall_sliding_shear_friction(**{**kwargs, "f_cd": 0})
+        with pytest.raises(ValueError):
+            wall_sliding_shear_friction(**{**kwargs, "l_w": 0})
+        with pytest.raises(ValueError):
+            wall_sliding_shear_friction(**{**kwargs, "b_w0": 0})
+
+    def test_resistance_sum(self):
+        result = wall_sliding_shear_resistance(100e3, 50e3, 30e3)
+        assert_allclose(result, 180e3, rtol=1e-6)
+
+    def test_resistance_ntc_ref(self):
+        ref = get_ntc_ref(wall_sliding_shear_resistance)
+        assert ref is not None
+        assert ref.formula == "7.4.19"
+
+    def test_check_pass(self):
+        ok, ratio = wall_sliding_check(150e3, 200e3)
+        assert ok is True
+        assert_allclose(ratio, 0.75, rtol=1e-6)
+
+    def test_check_fail(self):
+        ok, ratio = wall_sliding_check(250e3, 200e3)
+        assert ok is False
+        assert_allclose(ratio, 1.25, rtol=1e-6)
+
+    def test_check_ntc_ref(self):
+        ref = get_ntc_ref(wall_sliding_check)
+        assert ref is not None
+        assert ref.formula == "7.4.18"
+
+
+# ── [7.4.23]-[7.4.24] — Travi di accoppiamento ───────────────────────────────
+
+
+class TestCouplingBeam:
+    """NTC18 §7.4.4.6, Formule [7.4.23]-[7.4.24]."""
+
+    def test_shear_capacity_basic(self):
+        """f_ck=25, f_cd=16.67, b=300, d=500."""
+        result = coupling_beam_shear_capacity(25, 16.67, 300, 500)
+        eta = 0.6 * (1 - 25 / 250)
+        f_cut = 0.5 * eta * 16.67
+        assert_allclose(result, f_cut * 300 * 500, rtol=1e-5)
+
+    def test_shear_capacity_ntc_ref(self):
+        ref = get_ntc_ref(coupling_beam_shear_capacity)
+        assert ref is not None
+        assert ref.formula == "7.4.23"
+
+    def test_shear_check_pass(self):
+        """V_Ed=500e3, V_Rd~675000 -> ratio~0.74 -> pass."""
+        ok, ratio = coupling_beam_shear_check(500e3, 25, 16.67, 300, 500)
+        assert ok is True
+        assert ratio < 1.0
+
+    def test_shear_check_fail(self):
+        """V_Ed molto grande -> fail."""
+        ok, ratio = coupling_beam_shear_check(1e6, 25, 16.67, 300, 500)
+        assert ok is False
+
+    def test_shear_check_ntc_ref(self):
+        ref = get_ntc_ref(coupling_beam_shear_check)
+        assert ref is not None
+        assert ref.formula == "7.4.23"
+
+    def test_inclined_bars_basic(self):
+        """A_s=1000, f_yd=391, phi=45deg."""
+        result = coupling_beam_inclined_bars_shear(1000, 391, math.pi / 4)
+        assert_allclose(result, 2 * 1000 * 391 * math.sin(math.pi / 4), rtol=1e-6)
+
+    def test_inclined_bars_zero_angle(self):
+        """phi=0 -> V_il = 0."""
+        result = coupling_beam_inclined_bars_shear(1000, 391, 0.0)
+        assert_allclose(result, 0.0, atol=1e-10)
+
+    def test_inclined_bars_ntc_ref(self):
+        ref = get_ntc_ref(coupling_beam_inclined_bars_shear)
+        assert ref is not None
+        assert ref.formula == "7.4.24"

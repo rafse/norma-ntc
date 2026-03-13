@@ -35,6 +35,10 @@ from pyntc.checks.geotechnical import (
     geo_sifonamento_check,
     geo_uplift_check,
     geo_uplift_partial_factors,
+    geo_anchor_check,
+    geo_anchor_correlation_factors,
+    geo_anchor_partial_factor,
+    geo_retaining_wall_resistance_factor,
 )
 from pyntc.checks.existing_buildings import (
     adequacy_check,
@@ -75,6 +79,14 @@ from pyntc.checks.seismic_design import (
     sheet_pile_pseudostatic_acceleration,
     wall_confinement_requirement,
     wall_critical_height,
+    wall_sliding_check,
+    wall_sliding_shear_diagonal,
+    wall_sliding_shear_friction,
+    wall_sliding_shear_inclined,
+    wall_sliding_shear_resistance,
+    coupling_beam_inclined_bars_shear,
+    coupling_beam_shear_capacity,
+    coupling_beam_shear_check,
 )
 from pyntc.checks.steel import (
     bolt_shear_resistance,
@@ -102,6 +114,11 @@ from pyntc.checks.steel import (
     steel_torsion_resistance,
     weld_combined_stress_check,
     weld_fillet_resistance,
+    steel_ltb_check,
+    steel_ltb_correction_factor,
+    steel_ltb_reduction_factor,
+    steel_ltb_resistance,
+    steel_ltb_slenderness,
 )
 from pyntc.checks.masonry import (
     masonry_combined_eccentricity,
@@ -179,6 +196,8 @@ from pyntc.checks.timber import (
     timber_tension_bending_check,
     timber_torsion_check,
     timber_torsion_shape_factor,
+    timber_load_duration_class,
+    timber_service_class_description,
 )
 from pyntc.checks.rc_beam import check_rc_beam_slu
 from pyntc.checks.concrete import (

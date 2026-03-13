@@ -39,6 +39,11 @@ from pyntc.checks.steel import (
     steel_von_mises_check,
     weld_combined_stress_check,
     weld_fillet_resistance,
+    steel_ltb_check,
+    steel_ltb_correction_factor,
+    steel_ltb_reduction_factor,
+    steel_ltb_resistance,
+    steel_ltb_slenderness,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -1222,3 +1227,73 @@ class TestWeldCombinedStressCheck:
         assert ref is not None
         assert ref.formula == "4.2.81"
         assert ref.article == "4.2.8.2.4"
+
+
+
+class TestSteelLTB:
+    """NTC18 §4.2.4.1.3.2 — Instabilita' laterale torsionale."""
+
+    def test_ltb_slenderness_basic(self):
+        # W_y=500e3 mm^3, f_yk=355 N/mm^2, M_cr=200e6 N*mm
+        # lambda = sqrt(500000 * 355 / 200e6) = sqrt(0.8875)
+        result = steel_ltb_slenderness(500e3, 355.0, 200e6)
+        assert_allclose(result, math.sqrt(500e3 * 355.0 / 200e6), rtol=1e-6)
+
+    def test_ltb_slenderness_ntc_ref(self):
+        ref = steel_ltb_slenderness._ntc_ref
+        assert ref.formula == "4.251"
+
+    def test_ltb_correction_factor_basic(self):
+        # lambda=0.8, k_c=0.94: f = 1 - 0.5*(1-0.94)*(1 - 2*(0.8-0.8)^2) = 1 - 0.5*0.06*1 = 0.97
+        result = steel_ltb_correction_factor(0.8, 0.94)
+        assert_allclose(result, 0.97, rtol=1e-6)
+
+    def test_ltb_correction_factor_ntc_ref(self):
+        ref = steel_ltb_correction_factor._ntc_ref
+        assert ref.formula == "4.252"
+
+    def test_ltb_reduction_factor_low_slenderness(self):
+        # lambda_LT <= lambda_LT0 = 0.4 → chi = 1.0
+        result = steel_ltb_reduction_factor(0.3)
+        assert result == 1.0
+
+    def test_ltb_reduction_factor_basic(self):
+        # lambda=1.0, alpha=0.34, lambda0=0.4, beta=0.75
+        # Phi = 0.5*(1 + 0.34*(1.0-0.4) + 0.75*1.0) = 0.5*(1+0.204+0.75) = 0.977
+        # chi = 1/(0.977 + sqrt(0.977^2 - 0.75*1.0^2))
+        phi = 0.5 * (1 + 0.34 * (1.0 - 0.4) + 0.75 * 1.0 ** 2)
+        expected = 1.0 / (phi + math.sqrt(phi ** 2 - 0.75 * 1.0 ** 2))
+        result = steel_ltb_reduction_factor(1.0)
+        assert_allclose(result, expected, rtol=1e-6)
+
+    def test_ltb_reduction_factor_ntc_ref(self):
+        ref = steel_ltb_reduction_factor._ntc_ref
+        assert ref.formula == "4.250"
+
+    def test_ltb_resistance_basic(self):
+        # chi=0.7, W=500e3, f=355, gM1=1.05 -> 0.7*500e3*355/1.05
+        result = steel_ltb_resistance(0.7, 500e3, 355.0, 1.05)
+        assert_allclose(result, 0.7 * 500e3 * 355.0 / 1.05, rtol=1e-6)
+
+    def test_ltb_resistance_ntc_ref(self):
+        ref = steel_ltb_resistance._ntc_ref
+        assert ref.formula == "4.249"
+
+    def test_ltb_check_pass(self):
+        ok, ratio = steel_ltb_check(80e6, 100e6)
+        assert ok is True
+        assert_allclose(ratio, 0.8, rtol=1e-6)
+
+    def test_ltb_check_fail(self):
+        ok, ratio = steel_ltb_check(110e6, 100e6)
+        assert ok is False
+
+    def test_ltb_check_ntc_ref(self):
+        ref = steel_ltb_check._ntc_ref
+        assert ref.formula == "4.248"
+
+    def test_ltb_slenderness_raises(self):
+        with pytest.raises(ValueError):
+            steel_ltb_slenderness(-1, 355, 200e6)
+        with pytest.raises(ValueError):
+            steel_ltb_slenderness(500e3, 355, 0)

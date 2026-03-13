@@ -1593,3 +1593,176 @@ def pin_bending_resistance(
     if gamma_M0 <= 0:
         raise ValueError("gamma_M0 deve essere > 0")
     return 1.5 * W_el * f_yp / gamma_M0
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# §4.2.4.1.3.2 — INSTABILITÀ LATERALE TORSIONALE (LTB)
+# ══════════════════════════════════════════════════════════════════════════
+
+
+@ntc_ref(
+    article="4.2.4.1.3.2",
+    formula="4.251",
+    latex=r"\bar{\lambda}_{LT} = \sqrt{\frac{W_y \cdot f_{yk}}{M_{cr}}}",
+)
+def steel_ltb_slenderness(W_y: float, f_yk: float, M_cr: float) -> float:
+    """Snellezza relativa per instabilita' laterale torsionale [4.251].
+
+    NTC18 §4.2.4.1.3.2, Formula [4.251]:
+        lambda_LT = sqrt(W_y * f_yk / M_cr)
+
+    Parameters
+    ----------
+    W_y : float
+        Modulo di resistenza plastico (o elastico) rispetto all'asse forte [mm^3].
+    f_yk : float
+        Tensione caratteristica di snervamento [N/mm^2].
+    M_cr : float
+        Momento critico elastico di instabilita' laterale torsionale [N*mm].
+
+    Returns
+    -------
+    float
+        lambda_LT: snellezza relativa LTB [-].
+    """
+    if W_y <= 0:
+        raise ValueError("W_y deve essere > 0")
+    if f_yk <= 0:
+        raise ValueError("f_yk deve essere > 0")
+    if M_cr <= 0:
+        raise ValueError("M_cr deve essere > 0")
+    return math.sqrt(W_y * f_yk / M_cr)
+
+
+@ntc_ref(
+    article="4.2.4.1.3.2",
+    formula="4.252",
+    latex=r"f = 1 - 0.5\,(1 - k_c)\,\left[1 - 2\,(\bar{\lambda}_{LT} - 0.8)^2\right]",
+)
+def steel_ltb_correction_factor(lambda_LT: float, k_c: float = 0.94) -> float:
+    """Fattore correttivo f per riduzione LTB [4.252].
+
+    NTC18 §4.2.4.1.3.2, Formula [4.252]:
+        f = 1 - 0.5*(1 - k_c)*(1 - 2*(lambda_LT - 0.8)**2)
+        f <= 1.0
+
+    Parameters
+    ----------
+    lambda_LT : float
+        Snellezza relativa LTB [-].
+    k_c : float
+        Fattore di conversione (default 0.94 per carico uniforme).
+
+    Returns
+    -------
+    float
+        f: fattore correttivo [-].
+    """
+    if lambda_LT <= 0:
+        raise ValueError("lambda_LT deve essere > 0")
+    f = 1.0 - 0.5 * (1.0 - k_c) * (1.0 - 2.0 * (lambda_LT - 0.8) ** 2)
+    return min(f, 1.0)
+
+
+@ntc_ref(
+    article="4.2.4.1.3.2",
+    formula="4.250",
+    latex=r"\chi_{LT} = \frac{1}{\Phi_{LT} + \sqrt{\Phi_{LT}^2 - \beta\,\bar{\lambda}_{LT}^2}}",
+)
+def steel_ltb_reduction_factor(
+    lambda_LT: float,
+    alpha_LT: float = 0.34,
+    lambda_LT0: float = 0.4,
+    beta: float = 0.75,
+    f_corr: float = 1.0,
+) -> float:
+    """Fattore di riduzione chi_LT per instabilita' laterale torsionale [4.250].
+
+    NTC18 §4.2.4.1.3.2, Formula [4.250]:
+        Phi_LT = 0.5*(1 + alpha_LT*(lambda_LT - lambda_LT0) + beta*lambda_LT**2)
+        chi_LT = (1/f_corr) * 1/(Phi_LT + sqrt(Phi_LT**2 - beta*lambda_LT**2))
+        chi_LT <= min(1.0, 1/lambda_LT**2)
+
+    Parameters
+    ----------
+    lambda_LT : float
+        Snellezza relativa LTB [-].
+    alpha_LT : float
+        Fattore di imperfezione (curva a=0.21, b=0.34, c=0.49, d=0.76).
+    lambda_LT0 : float
+        Snellezza limite (default NTC18 = 0.4).
+    beta : float
+        Parametro riduzione (default NTC18 = 0.75).
+    f_corr : float
+        Fattore correttivo f da Formula [4.252] (default 1.0).
+
+    Returns
+    -------
+    float
+        chi_LT: fattore di riduzione LTB [-].
+    """
+    if lambda_LT <= lambda_LT0:
+        return 1.0
+    phi = 0.5 * (1.0 + alpha_LT * (lambda_LT - lambda_LT0) + beta * lambda_LT ** 2)
+    chi_raw = 1.0 / (phi + math.sqrt(phi ** 2 - beta * lambda_LT ** 2))
+    chi_LT = chi_raw / f_corr
+    return min(chi_LT, 1.0, 1.0 / lambda_LT ** 2)
+
+
+@ntc_ref(
+    article="4.2.4.1.3.2",
+    formula="4.249",
+    latex=r"M_{b,Rd} = \chi_{LT}\,W_y\,\frac{f_{yk}}{\gamma_{M1}}",
+)
+def steel_ltb_resistance(
+    chi_LT: float, W_y: float, f_yk: float, gamma_M1: float = 1.05
+) -> float:
+    """Resistenza a instabilita' laterale torsionale M_b,Rd [4.249].
+
+    NTC18 §4.2.4.1.3.2, Formula [4.249]:
+        M_b,Rd = chi_LT * W_y * f_yk / gamma_M1
+
+    Parameters
+    ----------
+    chi_LT : float
+        Fattore di riduzione LTB [-].
+    W_y : float
+        Modulo di resistenza plastico rispetto all'asse forte [mm^3].
+    f_yk : float
+        Tensione caratteristica di snervamento [N/mm^2].
+    gamma_M1 : float
+        Coefficiente parziale gamma_M1 (default 1.05).
+
+    Returns
+    -------
+    float
+        M_b,Rd: resistenza LTB [N*mm].
+    """
+    return chi_LT * W_y * f_yk / gamma_M1
+
+
+@ntc_ref(
+    article="4.2.4.1.3.2",
+    formula="4.248",
+    latex=r"\frac{M_{Ed}}{M_{b,Rd}} \leq 1",
+)
+def steel_ltb_check(M_Ed: float, M_b_Rd: float) -> tuple[bool, float]:
+    """Verifica a instabilita' laterale torsionale [4.248].
+
+    NTC18 §4.2.4.1.3.2, Formula [4.248]:
+        M_Ed / M_b,Rd <= 1
+
+    Parameters
+    ----------
+    M_Ed : float
+        Momento flettente di progetto [N*mm].
+    M_b_Rd : float
+        Resistenza LTB di progetto [N*mm].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, ratio): True se verificata, rapporto M_Ed/M_b_Rd.
+    """
+    ratio = M_Ed / M_b_Rd
+    return (ratio <= 1.0, ratio)

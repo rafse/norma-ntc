@@ -1,6 +1,6 @@
 # TODO — Funzioni mancanti pyntc vs NTC18 Vault
 
-Copertura attuale: **~300 / 373 items** (~80%)
+Copertura attuale: **~325 / 373 items** (~87%)
 
 ---
 
@@ -71,7 +71,12 @@ Copertura attuale: **~300 / 373 items** (~80%)
 - [x] `weld_combined_stress_check` [4.2.81] — verifica combinata saldatura
 - [x] `bolt_grade_properties` [Tab 4.2.IX] — proprieta' meccaniche bulloni (gradi 4.6–10.9)
 - [x] `pin_bending_resistance` [4.2.77] — resistenza perno a flessione M_Rd
-- [ ] Formule mancanti: stabilita' avanzata (aste composte, piastre)
+- [x] `steel_ltb_slenderness` [4.251] — snellezza relativa LTB
+- [x] `steel_ltb_correction_factor` [4.252] — fattore correttivo f
+- [x] `steel_ltb_reduction_factor` [4.250] — fattore riduzione chi_LT
+- [x] `steel_ltb_resistance` [4.249] — M_b,Rd = chi_LT * W_y * f_yk / gamma_M1
+- [x] `steel_ltb_check` [4.248] — verifica M_Ed / M_b,Rd ≤ 1
+- [ ] Stabilita' avanzata: aste composte, piastre
 
 ### §4.3 — Strutture composte acciaio-cls
 
@@ -90,8 +95,9 @@ Copertura attuale: **~300 / 373 items** (~80%)
 - [x] `timber_tension_check` [4.4.2] — trazione parallela
 - [x] `timber_compression_check` [4.4.3] — compressione parallela
 - [x] `timber_compression_perp_check` [4.4.4] — compressione perpendicolare
+- [x] `timber_service_class_description` [Tab 4.4.II] — classi di servizio 1/2/3
+- [x] `timber_load_duration_class` [Tab 4.4.I] — classi di durata del carico
 - [ ] Formule residue (instabilita' avanzata, fatica)
-- [ ] Tab 4.4.I–IV (classi di servizio, k_mod, k_def, proprieta')
 
 ### §4.5 — Muratura
 
@@ -118,7 +124,8 @@ Copertura attuale: **~300 / 373 items** (~80%)
 - [ ] Tab 5.2.II — L_0 per coefficiente dinamico (tabella qualitativa, non numerica)
 - [x] `bridge_rail_sle_combination_factors` [Tab 5.2.VII] — coefficienti psi SLE ferroviario
 - [x] `bridge_dynamic_factor` [5.2.3] — coefficiente dinamico φ ponti ferroviari
-- [ ] Tab 5.1.VII/VIII — Modelli di fatica 2/4 (veicoli frequenti/equivalenti)
+- [x] `bridge_fatigue_vehicle_model2` [Tab 5.1.VII] — veicoli frequenti modello 2
+- [x] `bridge_fatigue_vehicle_model4` [Tab 5.1.VIII] — veicoli equivalenti modello 4
 
 ## Cap. 6 — Geotecnica
 
@@ -132,7 +139,11 @@ Copertura attuale: **~300 / 373 items** (~80%)
 - [x] `geo_settlement_elastic` [6.4.2] — cedimento elastico (Schmertmann)
 - [x] `geo_consolidation_settlement` [6.4.2] — cedimento consolidazione
 - [x] `geo_settlement_check` [6.4.2] — verifica s ≤ s_lim
-- [ ] Micropali
+- [x] `geo_anchor_correlation_factors` [Tab 6.6.III] — fattori ζ_as, ζ_at per ancoraggi
+- [x] `geo_anchor_partial_factor` [Tab 6.6.1] — coefficiente parziale γ_g ancoraggi
+- [x] `geo_anchor_check` [6.6.1] — verifica R_Ed ≤ R_ak/γ_g
+- [x] `geo_retaining_wall_resistance_factor` [Tab 6.5.1] — γ_n muri di sostegno R3
+- [ ] Micropali (6.6.1–6.6.2 formule complete)
 
 ## Cap. 7 — Progettazione sismica
 
@@ -149,7 +160,15 @@ Copertura attuale: **~300 / 373 items** (~80%)
 - [x] `column_confinement_requirement` [7.4.29–7.4.30] — confinamento pilastri
 - [x] `confinement_effectiveness_rectangular` [7.4.31] — efficacia confinamento
 - [x] `wall_confinement_requirement` [7.4.32–7.4.33] — confinamento pareti
-- [ ] Pareti accoppiate, analisi pushover
+- [x] `wall_sliding_shear_diagonal` [7.4.20] — contributo diagonali scorrimento parete
+- [x] `wall_sliding_shear_inclined` [7.4.21] — contributo armature inclinate
+- [x] `wall_sliding_shear_friction` [7.4.22] — contributo attrito
+- [x] `wall_sliding_shear_resistance` [7.4.19] — V_Rd,S totale
+- [x] `wall_sliding_check` [7.4.18] — verifica V_Ed ≤ V_Rd,S
+- [x] `coupling_beam_shear_capacity` [7.4.23] — taglio trave di accoppiamento
+- [x] `coupling_beam_shear_check` [7.4.23] — verifica taglio trave accoppiamento
+- [x] `coupling_beam_inclined_bars_shear` [7.4.24] — taglio con armature inclinate
+- [ ] Analisi pushover
 
 ### §7.5 — Acciaio in zona sismica
 

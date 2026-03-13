@@ -1177,3 +1177,157 @@ def geo_pile_check(N_Ed: float, R_c_d: float) -> tuple[bool, float]:
 
     ratio = N_Ed / R_c_d
     return ratio <= 1.0, float(ratio)
+# §6.5.3.1.1 / §6.6 — MURI DI SOSTEGNO E ANCORAGGI
+# ══════════════════════════════════════════════════════════════════════════
+
+# ============================================================================
+# Tabella Tab. 6.6.III — fattori di correlazione ancoraggi (ζ_as, ζ_at)
+# ============================================================================
+_ANCHOR_ZETA_PROFILES: dict[int, tuple[float, float]] = {
+    1: (1.80, 1.80),
+    2: (1.75, 1.70),
+    3: (1.70, 1.65),
+    4: (1.65, 1.60),
+}
+# n >= 5 => (1.60, 1.55)
+
+# ============================================================================
+# Tabella Tab. 6.5.1 — coefficienti R3 muri di sostegno
+# ============================================================================
+_RETAINING_WALL_FACTORS: dict[str, float] = {
+    "bearing": 1.4,
+    "sliding": 1.1,
+    "overturning": 1.15,
+    "passive": 1.4,
+}
+
+
+@ntc_ref(
+    article="6.6.2",
+    table="Tab.6.6.III",
+    latex=r"\zeta_{as},\;\zeta_{at}",
+)
+def geo_anchor_correlation_factors(n_profiles: int) -> tuple[float, float]:
+    """Fattori di correlazione ζ_as e ζ_at per ancoraggi (Tab. 6.6.III).
+
+    NTC18 §6.6.2 — Tab. 6.6.III.
+
+    Parameters
+    ----------
+    n_profiles : int
+        Numero di profili di indagine. Per n_profiles >= 5 si usano i valori
+        di n = 5.
+
+    Returns
+    -------
+    tuple[float, float]
+        (ζ_as, ζ_at).
+    """
+    if n_profiles < 1:
+        raise ValueError(
+            f"Il numero di profili deve essere >= 1: {n_profiles}"
+        )
+    if n_profiles >= 5:
+        return (1.60, 1.55)
+    return _ANCHOR_ZETA_PROFILES[n_profiles]
+
+
+
+
+@ntc_ref(
+    article="6.6.2",
+    table="Tab.6.6.1",
+    latex=r"\gamma_g",
+)
+def geo_anchor_partial_factor(anchor_type: str) -> float:
+    """Coefficiente parziale γ_g per la resistenza degli ancoraggi [-].
+
+    NTC18 §6.6.2 — Tab. 6.6.1.
+
+    Parameters
+    ----------
+    anchor_type : str
+        Tipo di ancoraggio: ``"temporary"`` (temporanei, γ_g = 1.1) o
+        ``"permanent"`` (permanenti, γ_g = 1.2).
+
+    Returns
+    -------
+    float
+        Coefficiente parziale γ_g [-].
+    """
+    factors = {"temporary": 1.1, "permanent": 1.2}
+    if anchor_type not in factors:
+        raise ValueError(
+            f"Tipo di ancoraggio non valido: {anchor_type!r}. "
+            f"Valori ammessi: {set(factors.keys())}"
+        )
+    return factors[anchor_type]
+
+
+@ntc_ref(
+    article="6.6.2",
+    formula="6.6.1",
+    latex=r"R_{Ed} \le R_d = \frac{R_{a,k}}{\gamma_g}",
+)
+def geo_anchor_check(
+    R_Ed: float,
+    R_ak: float,
+    gamma_g: float,
+) -> tuple[bool, float]:
+    """Verifica di un ancoraggio: R_Ed <= R_d = R_ak / γ_g.
+
+    NTC18 §6.6.2.
+
+    Parameters
+    ----------
+    R_Ed : float
+        Valore di progetto dell'azione sull'ancoraggio [kN].
+    R_ak : float
+        Resistenza caratteristica dell'ancoraggio [kN].
+    gamma_g : float
+        Coefficiente parziale sulla resistenza [-].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (verificato, rapporto R_Ed / R_d).
+    """
+    if R_ak <= 0:
+        raise ValueError(f"R_ak deve essere positivo: {R_ak}")
+    if gamma_g <= 0:
+        raise ValueError(f"gamma_g deve essere positivo: {gamma_g}")
+    R_d = R_ak / gamma_g
+    ratio = R_Ed / R_d
+    return ratio <= 1.0, ratio
+
+
+@ntc_ref(
+    article="6.5.3.1.1",
+    table="Tab.6.5.1",
+    latex=r"\gamma_n \;\text{(R3)}",
+)
+def geo_retaining_wall_resistance_factor(verification: str) -> float:
+    """Coefficiente parziale R3 per muri di sostegno [-].
+
+    NTC18 §6.5.3.1.1 — Tab. 6.5.1.
+
+    Parameters
+    ----------
+    verification : str
+        Tipo di verifica: ``"bearing"`` (capacita' portante della fondazione,
+        1.4), ``"sliding"`` (scorrimento, 1.1), ``"overturning"``
+        (ribaltamento, 1.15), ``"passive"`` (resistenza del terreno a valle,
+        1.4).
+
+    Returns
+    -------
+    float
+        Coefficiente parziale γ_n [-].
+    """
+    if verification not in _RETAINING_WALL_FACTORS:
+        raise ValueError(
+            f"Tipo di verifica non valido: {verification!r}. "
+            f"Valori ammessi: {set(_RETAINING_WALL_FACTORS.keys())}"
+        )
+    return _RETAINING_WALL_FACTORS[verification]
+
