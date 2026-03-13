@@ -44,6 +44,16 @@ from pyntc.checks.steel import (
     steel_ltb_reduction_factor,
     steel_ltb_resistance,
     steel_ltb_slenderness,
+    steel_fatigue_check,
+    steel_fatigue_normal_stress_check,
+    steel_fatigue_shear_stress_check,
+    steel_fatigue_damage,
+    steel_vertical_deflection,
+    steel_drift_limit,
+    pin_bearing_resistance_sle,
+    pin_bending_resistance_sle,
+    weld_fillet_directional_resistance,
+    weld_simplified_stress_check,
 )
 from pyntc.core.reference import get_ntc_ref
 
@@ -1297,3 +1307,161 @@ class TestSteelLTB:
             steel_ltb_slenderness(-1, 355, 200e6)
         with pytest.raises(ValueError):
             steel_ltb_slenderness(500e3, 355, 0)
+
+
+class TestSteelFatigue:
+    """NTC18 §4.2.4.2 — Fatica."""
+
+    def test_fatigue_check_pass(self):
+        # delta_s=80, delta_R=160, gamma_Mf=1.15 -> limit=139.13 -> ratio=0.575
+        ok, ratio = steel_fatigue_check(80.0, 160.0, 1.15)
+        assert ok is True
+        assert_allclose(ratio, 80.0 / (160.0 / 1.15), rtol=1e-6)
+
+    def test_fatigue_check_fail(self):
+        ok, ratio = steel_fatigue_check(150.0, 160.0, 1.15)
+        assert ok is False
+
+    def test_fatigue_check_ntc_ref(self):
+        ref = get_ntc_ref(steel_fatigue_check)
+        assert ref is not None
+        assert ref.formula == "4.254"
+
+    def test_fatigue_normal_stress_pass(self):
+        # delta_sigma_max=80, delta_sigma_D=100, gamma_MT=1.0 -> ratio=0.8
+        ok, ratio = steel_fatigue_normal_stress_check(80.0, 100.0, 1.0)
+        assert ok is True
+        assert_allclose(ratio, 0.8, rtol=1e-6)
+
+    def test_fatigue_normal_stress_fail(self):
+        ok, ratio = steel_fatigue_normal_stress_check(120.0, 100.0, 1.0)
+        assert ok is False
+
+    def test_fatigue_normal_stress_ntc_ref(self):
+        ref = get_ntc_ref(steel_fatigue_normal_stress_check)
+        assert ref.formula == "4.255"
+
+    def test_fatigue_shear_stress_pass(self):
+        ok, ratio = steel_fatigue_shear_stress_check(50.0, 80.0, 1.0)
+        assert ok is True
+        assert_allclose(ratio, 50.0 / 80.0, rtol=1e-6)
+
+    def test_fatigue_shear_stress_fail(self):
+        ok, ratio = steel_fatigue_shear_stress_check(90.0, 80.0, 1.0)
+        assert ok is False
+
+    def test_fatigue_shear_stress_ntc_ref(self):
+        ref = get_ntc_ref(steel_fatigue_shear_stress_check)
+        assert ref.formula == "4.256"
+
+    def test_fatigue_damage_pass(self):
+        # D = 0.3 + 0.4 = 0.7 <= 1.0
+        ok, D = steel_fatigue_damage([3000, 4000], [10000, 10000])
+        assert ok is True
+        assert_allclose(D, 0.7, rtol=1e-6)
+
+    def test_fatigue_damage_fail(self):
+        ok, D = steel_fatigue_damage([8000, 5000], [10000, 10000])
+        assert ok is False
+        assert_allclose(D, 1.3, rtol=1e-6)
+
+    def test_fatigue_damage_ntc_ref(self):
+        ref = get_ntc_ref(steel_fatigue_damage)
+        assert ref.formula == "4.257"
+
+
+class TestSteelSLEDeflection:
+    """NTC18 §4.2.4.3 — SLE deformabilita'."""
+
+    def test_vertical_deflection_basic(self):
+        result = steel_vertical_deflection(10.0, 5.0)
+        assert_allclose(result, 15.0, rtol=1e-6)
+
+    def test_vertical_deflection_ntc_ref(self):
+        ref = get_ntc_ref(steel_vertical_deflection)
+        assert ref.formula == "4.260"
+
+    def test_drift_limit_industrial_pass(self):
+        # delta=20, h=3000 -> delta/h=1/150 exactly -> ratio=1.0
+        ok, ratio = steel_drift_limit(20.0, 3000.0, "industrial")
+        assert ok is True
+        assert_allclose(ratio, 1.0, rtol=1e-6)
+
+    def test_drift_limit_standard_pass(self):
+        # delta=5, h=3000 -> delta/h=1/600 -> ratio=0.5
+        ok, ratio = steel_drift_limit(5.0, 3000.0, "standard")
+        assert ok is True
+        assert_allclose(ratio, 0.5, rtol=1e-6)
+
+    def test_drift_limit_multistorey_fail(self):
+        # delta=10, h=3000 -> delta/h=1/300 -> ratio=500/300=1.667
+        ok, ratio = steel_drift_limit(10.0, 3000.0, "multistorey")
+        assert ok is False
+
+    def test_drift_limit_ntc_ref(self):
+        ref = get_ntc_ref(steel_drift_limit)
+        assert ref.table == "4.2.XIII"
+
+
+class TestPinSLE:
+    """NTC18 §4.2.7.4 — Perni SLE."""
+
+    def test_pin_bearing_sle_basic(self):
+        # t=20, d=30, f_y=355, gM3=1.0 -> 0.6*20*30*355 = 127800
+        result = pin_bearing_resistance_sle(20.0, 30.0, 355.0, 1.0)
+        assert_allclose(result, 0.6 * 20.0 * 30.0 * 355.0, rtol=1e-6)
+
+    def test_pin_bearing_sle_ntc_ref(self):
+        ref = get_ntc_ref(pin_bearing_resistance_sle)
+        assert ref.formula == "4.278"
+
+    def test_pin_bending_sle_basic(self):
+        # W_el=1000, f_up=510, gM3=1.0 -> 0.8*1000*510 = 408000
+        result = pin_bending_resistance_sle(1000.0, 510.0, 1.0)
+        assert_allclose(result, 0.8 * 1000.0 * 510.0, rtol=1e-6)
+
+    def test_pin_bending_sle_ntc_ref(self):
+        ref = get_ntc_ref(pin_bending_resistance_sle)
+        assert ref.formula == "4.279"
+
+
+class TestWeldDirectional:
+    """NTC18 §4.2.8.4 — Cordoni d'angolo metodo direzionale."""
+
+    def test_weld_directional_pass(self):
+        # sigma_perp=60, tau_perp=0, tau_par=0
+        # sigma_eff=60; limit=0.9*355=319.5 -> ratio=60/319.5
+        ok, ratio = weld_fillet_directional_resistance(
+            a=5.0, f_k=355.0, beta1=0.9,
+            sigma_perp=60.0, tau_perp=0.0, tau_par=0.0
+        )
+        assert ok is True
+        assert_allclose(ratio, 60.0 / (0.9 * 355.0), rtol=1e-6)
+
+    def test_weld_directional_combined(self):
+        # sigma_eff = sqrt(100^2 + 80^2 + 60^2) = sqrt(10000+6400+3600) = sqrt(20000)
+        import math as m
+        ok, ratio = weld_fillet_directional_resistance(
+            a=6.0, f_k=355.0, beta1=0.9,
+            sigma_perp=100.0, tau_perp=80.0, tau_par=60.0
+        )
+        sigma_eff = m.sqrt(100**2 + 80**2 + 60**2)
+        assert_allclose(ratio, sigma_eff / (0.9 * 355.0), rtol=1e-6)
+
+    def test_weld_directional_ntc_ref(self):
+        ref = get_ntc_ref(weld_fillet_directional_resistance)
+        assert ref.formula == "4.283"
+
+    def test_weld_simplified_pass(self):
+        # |n1|+|t1| = 80+60 = 140; limit = 0.9*355 = 319.5 -> ratio = 140/319.5
+        ok, ratio = weld_simplified_stress_check(80.0, 60.0, 355.0, 0.9)
+        assert ok is True
+        assert_allclose(ratio, 140.0 / (0.9 * 355.0), rtol=1e-6)
+
+    def test_weld_simplified_fail(self):
+        ok, ratio = weld_simplified_stress_check(200.0, 200.0, 355.0, 0.9)
+        assert ok is False
+
+    def test_weld_simplified_ntc_ref(self):
+        ref = get_ntc_ref(weld_simplified_stress_check)
+        assert ref.formula == "4.285"

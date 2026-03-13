@@ -11,7 +11,7 @@ pip install norma-ntc
 ## Caratteristiche
 
 - **Tracciabilità normativa**: ogni funzione pubblica riporta il riferimento a articolo, tabella, formula e LaTeX tramite il decoratore `@ntc_ref`
-- **Test-driven**: 2198 test, copertura completa delle tabelle normative
+- **Test-driven**: 2226 test, copertura completa delle tabelle normative
 - **Pipeline chiara**: pyntc produce gli input al solutore (azioni) e verifica gli output (checks) — non è un solutore FEM
 - **Dipendenze minime**: solo NumPy (core), SciPy (opzionale)
 

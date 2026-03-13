@@ -119,6 +119,16 @@ from pyntc.checks.steel import (
     steel_ltb_reduction_factor,
     steel_ltb_resistance,
     steel_ltb_slenderness,
+    steel_fatigue_check,
+    steel_fatigue_normal_stress_check,
+    steel_fatigue_shear_stress_check,
+    steel_fatigue_damage,
+    steel_vertical_deflection,
+    steel_drift_limit,
+    pin_bearing_resistance_sle,
+    pin_bending_resistance_sle,
+    weld_fillet_directional_resistance,
+    weld_simplified_stress_check,
 )
 from pyntc.checks.masonry import (
     masonry_combined_eccentricity,

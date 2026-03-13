@@ -30,8 +30,8 @@ Copertura attuale: **~325 / 373 items** (~87%)
 
 ### §3.6 — Azioni eccezionali
 
-- [ ] **Formula 3.6.1** — Carico d'incendio di progetto q_f,d
-- [ ] **Formula 3.6.4** — Curva di incendio esterno (smoldering)
+- [x] **Formula 3.6.1** — `fire_design_load` gia' in `fire.py`
+- [x] **Formula 3.6.4** — `fire_external_curve` gia' in `fire.py`
 
 ## Cap. 4 — Verifiche materiali
 
@@ -76,6 +76,16 @@ Copertura attuale: **~325 / 373 items** (~87%)
 - [x] `steel_ltb_reduction_factor` [4.250] — fattore riduzione chi_LT
 - [x] `steel_ltb_resistance` [4.249] — M_b,Rd = chi_LT * W_y * f_yk / gamma_M1
 - [x] `steel_ltb_check` [4.248] — verifica M_Ed / M_b,Rd ≤ 1
+- [x] `steel_fatigue_check` [4.254] — verifica a fatica Δs ≤ ΔR/γMf
+- [x] `steel_fatigue_normal_stress_check` [4.255] — fatica tensioni normali
+- [x] `steel_fatigue_shear_stress_check` [4.256] — fatica tensioni tangenziali
+- [x] `steel_fatigue_damage` [4.257] — danno cumulato Miner D = Σ(ni/Ni)
+- [x] `steel_vertical_deflection` [4.260] — freccia totale SLE δtot = δ1 + δ2
+- [x] `steel_drift_limit` [Tab 4.2.XIII] — spostamento interpiano SLE
+- [x] `pin_bearing_resistance_sle` [4.278] — rifollamento perno SLE
+- [x] `pin_bending_resistance_sle` [4.279] — flessione perno SLE
+- [x] `weld_fillet_directional_resistance` [4.283-4.284] — cordone d'angolo direzionale
+- [x] `weld_simplified_stress_check` [4.285] — verifica semplificata cordone
 - [ ] Stabilita' avanzata: aste composte, piastre
 
 ### §4.3 — Strutture composte acciaio-cls
@@ -97,7 +107,7 @@ Copertura attuale: **~325 / 373 items** (~87%)
 - [x] `timber_compression_perp_check` [4.4.4] — compressione perpendicolare
 - [x] `timber_service_class_description` [Tab 4.4.II] — classi di servizio 1/2/3
 - [x] `timber_load_duration_class` [Tab 4.4.I] — classi di durata del carico
-- [ ] Formule residue (instabilita' avanzata, fatica)
+- [x] Formule residue (instabilita' avanzata, fatica) — completate
 
 ### §4.5 — Muratura
 

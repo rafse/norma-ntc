@@ -1766,3 +1766,350 @@ def steel_ltb_check(M_Ed: float, M_b_Rd: float) -> tuple[bool, float]:
     """
     ratio = M_Ed / M_b_Rd
     return (ratio <= 1.0, ratio)
+
+
+# §4.2.4.2 — FATICA ──────────────────────────────────────────────────────────
+
+
+@ntc_ref(
+    article="4.2.4.2",
+    formula="4.254",
+    latex=r"\Delta s \leq \frac{\Delta R}{\gamma_{Mf}}",
+)
+def steel_fatigue_check(
+    delta_s: float, delta_R: float, gamma_Mf: float = 1.15
+) -> tuple[bool, float]:
+    """Verifica a fatica — variazione di tensione [4.254].
+
+    NTC18 §4.2.4.2, Formula [4.254]:
+        delta_s <= delta_R / gamma_Mf
+
+    Parameters
+    ----------
+    delta_s : float
+        Variazione di tensione di progetto [N/mm^2].
+    delta_R : float
+        Resistenza a fatica caratteristica (categoria dettaglio) [N/mm^2].
+    gamma_Mf : float
+        Coefficiente parziale fatica (default 1.15).
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, ratio): True se verificata, rapporto delta_s/(delta_R/gamma_Mf).
+    """
+    limit = delta_R / gamma_Mf
+    ratio = delta_s / limit
+    return (ratio <= 1.0, ratio)
+
+
+@ntc_ref(
+    article="4.2.4.2",
+    formula="4.255",
+    latex=r"\Delta\sigma_{max,d} = \gamma_{MT} \cdot \Delta\sigma_{max} \leq \Delta\sigma_{D}",
+)
+def steel_fatigue_normal_stress_check(
+    delta_sigma_max: float, delta_sigma_D: float, gamma_MT: float = 1.0
+) -> tuple[bool, float]:
+    """Verifica a fatica — tensione normale massima [4.255].
+
+    NTC18 §4.2.4.2, Formula [4.255]:
+        delta_sigma_max,d = gamma_MT * delta_sigma_max <= delta_sigma_D
+
+    Parameters
+    ----------
+    delta_sigma_max : float
+        Variazione massima di tensione normale caratteristica [N/mm^2].
+    delta_sigma_D : float
+        Limite di resistenza a fatica per tensioni normali [N/mm^2].
+    gamma_MT : float
+        Coefficiente di danno a fatica (default 1.0).
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, ratio): True se verificata, rapporto delta_sigma_max,d/delta_sigma_D.
+    """
+    delta_sigma_d = gamma_MT * delta_sigma_max
+    ratio = delta_sigma_d / delta_sigma_D
+    return (ratio <= 1.0, ratio)
+
+
+@ntc_ref(
+    article="4.2.4.2",
+    formula="4.256",
+    latex=r"\Delta\tau_{max,d} = \gamma_{MT} \cdot \Delta\tau_{max} \leq \Delta\tau_{D}",
+)
+def steel_fatigue_shear_stress_check(
+    delta_tau_max: float, delta_tau_D: float, gamma_MT: float = 1.0
+) -> tuple[bool, float]:
+    """Verifica a fatica — tensione tangenziale massima [4.256].
+
+    NTC18 §4.2.4.2, Formula [4.256]:
+        delta_tau_max,d = gamma_MT * delta_tau_max <= delta_tau_D
+
+    Parameters
+    ----------
+    delta_tau_max : float
+        Variazione massima di tensione tangenziale caratteristica [N/mm^2].
+    delta_tau_D : float
+        Limite di resistenza a fatica per tensioni tangenziali [N/mm^2].
+    gamma_MT : float
+        Coefficiente di danno a fatica (default 1.0).
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, ratio): True se verificata, rapporto delta_tau_max,d/delta_tau_D.
+    """
+    delta_tau_d = gamma_MT * delta_tau_max
+    ratio = delta_tau_d / delta_tau_D
+    return (ratio <= 1.0, ratio)
+
+
+@ntc_ref(
+    article="4.2.4.2",
+    formula="4.257",
+    latex=r"D = \sum_{i} \frac{n_i}{N_i} \leq 1{,}0",
+)
+def steel_fatigue_damage(n_cycles: list, N_resistances: list) -> tuple[bool, float]:
+    """Danno cumulato a fatica — regola di Miner [4.257].
+
+    NTC18 §4.2.4.2, Formula [4.257]:
+        D = sum(n_i / N_i) <= 1.0
+
+    Parameters
+    ----------
+    n_cycles : list of float
+        Numero di cicli applicati per ogni livello di tensione.
+    N_resistances : list of float
+        Numero di cicli ammissibili per ogni livello di tensione.
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, D): True se verificata, danno cumulato totale D.
+    """
+    D = sum(n / N for n, N in zip(n_cycles, N_resistances))
+    return (D <= 1.0, D)
+
+
+# §4.2.4.3 — SLE DEFORMABILITA' ──────────────────────────────────────────────
+
+
+@ntc_ref(
+    article="4.2.4.3",
+    formula="4.260",
+    latex=r"\delta_{tot} = \delta_1 + \delta_2",
+)
+def steel_vertical_deflection(delta1: float, delta2: float) -> float:
+    """Freccia verticale totale SLE [4.260].
+
+    NTC18 §4.2.4.3, Formula [4.260]:
+        delta_tot = delta1 + delta2
+
+    Parameters
+    ----------
+    delta1 : float
+        Freccia da carichi permanenti [mm].
+    delta2 : float
+        Freccia da carichi variabili [mm].
+
+    Returns
+    -------
+    float
+        delta_tot: freccia totale [mm].
+    """
+    return delta1 + delta2
+
+
+@ntc_ref(
+    article="4.2.4.3",
+    table="4.2.XIII",
+    latex=r"\frac{\delta}{h} \leq \frac{1}{L_{lim}}",
+)
+def steel_drift_limit(
+    delta: float, h: float, building_type: str = "standard"
+) -> tuple[bool, float]:
+    """Verifica spostamento di interpiano SLE [Tab 4.2.XIII].
+
+    NTC18 §4.2.4.3, Tab. 4.2.XIII:
+        - Capannoni industriali monopiano: delta/h <= 1/150
+        - Edifici standard (altri casi): delta/h <= 1/300
+        - Edifici multipiano: delta/h <= 1/500
+
+    Parameters
+    ----------
+    delta : float
+        Spostamento di interpiano [mm].
+    h : float
+        Altezza di interpiano [mm].
+    building_type : str
+        Tipo di struttura: 'industrial' (1/150), 'standard' (1/300),
+        'multistorey' (1/500).
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, ratio): True se verificata, rapporto (delta/h)*L_lim.
+    """
+    limits = {
+        "industrial": 1.0 / 150.0,
+        "standard": 1.0 / 300.0,
+        "multistorey": 1.0 / 500.0,
+    }
+    limit = limits.get(building_type, 1.0 / 300.0)
+    ratio = (delta / h) / limit
+    return (ratio <= 1.0, ratio)
+
+
+# §4.2.7.4 — PERNI SLE ───────────────────────────────────────────────────────
+
+
+@ntc_ref(
+    article="4.2.7.4",
+    formula="4.278",
+    latex=r"F_{b,Rd,ser} = \frac{0{,}6 \cdot t \cdot d \cdot f_y}{\gamma_{M3,ser}}",
+)
+def pin_bearing_resistance_sle(
+    t: float, d: float, f_y: float, gamma_M3_ser: float = 1.0
+) -> float:
+    """Resistenza a rifollamento perno SLE [4.278].
+
+    NTC18 §4.2.7.4, Formula [4.278]:
+        F_b,Rd,ser = 0.6 * t * d * f_y / gamma_M3,ser
+
+    Parameters
+    ----------
+    t : float
+        Spessore della piastra [mm].
+    d : float
+        Diametro del perno [mm].
+    f_y : float
+        Tensione di snervamento [N/mm^2].
+    gamma_M3_ser : float
+        Coefficiente parziale SLE (default 1.0).
+
+    Returns
+    -------
+    float
+        F_b,Rd,ser: resistenza a rifollamento SLE [N].
+    """
+    return 0.6 * t * d * f_y / gamma_M3_ser
+
+
+@ntc_ref(
+    article="4.2.7.4",
+    formula="4.279",
+    latex=r"M_{b,Rd,ser} = \frac{0{,}8 \cdot W_{el} \cdot f_{up}}{\gamma_{M3,ser}}",
+)
+def pin_bending_resistance_sle(
+    W_el: float, f_up: float, gamma_M3_ser: float = 1.0
+) -> float:
+    """Resistenza a flessione perno SLE [4.279].
+
+    NTC18 §4.2.7.4, Formula [4.279]:
+        M_b,Rd,ser = 0.8 * W_el * f_up / gamma_M3,ser
+
+    Parameters
+    ----------
+    W_el : float
+        Modulo di resistenza elastico del perno [mm^3].
+    f_up : float
+        Resistenza a trazione del perno [N/mm^2].
+    gamma_M3_ser : float
+        Coefficiente parziale SLE (default 1.0).
+
+    Returns
+    -------
+    float
+        M_b,Rd,ser: resistenza flessionale SLE [N*mm].
+    """
+    return 0.8 * W_el * f_up / gamma_M3_ser
+
+
+# §4.2.8.4 — CORDONI D'ANGOLO — METODO DIREZIONALE ──────────────────────────
+
+
+@ntc_ref(
+    article="4.2.8.4",
+    formula="4.283",
+    latex=r"F_{w,Rd} = \frac{a \cdot f_k}{\sqrt{3} \cdot \beta_1 \cdot \gamma_{M2}}",
+)
+def weld_fillet_directional_resistance(
+    a: float,
+    f_k: float,
+    beta1: float,
+    sigma_perp: float = 0.0,
+    tau_perp: float = 0.0,
+    tau_par: float = 0.0,
+    gamma_M2: float = 1.25,
+) -> tuple[bool, float]:
+    """Verifica cordone d'angolo — metodo direzionale [4.283-4.284].
+
+    NTC18 §4.2.8.4, Formule [4.283] e [4.284]:
+        F_w,Rd = a * f_k / (sqrt(3) * beta1 * gamma_M2)
+        Verifica: sqrt(sigma_perp^2 + tau_perp^2 + tau_par^2) <= beta1 * f_k
+
+    Parameters
+    ----------
+    a : float
+        Altezza del cordone [mm].
+    f_k : float
+        Resistenza caratteristica del materiale base [N/mm^2].
+    beta1 : float
+        Fattore di correlazione (Tab. 4.2.XIII) [-].
+    sigma_perp : float
+        Tensione normale perpendicolare al piano di gola [N/mm^2].
+    tau_perp : float
+        Tensione tangenziale perp. all'asse del cordone [N/mm^2].
+    tau_par : float
+        Tensione tangenziale parallela all'asse del cordone [N/mm^2].
+    gamma_M2 : float
+        Coefficiente parziale (default 1.25).
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, ratio): True se verificata, rapporto tensione effettiva / limite.
+    """
+    import math
+    limit = beta1 * f_k
+    sigma_eff = math.sqrt(sigma_perp**2 + tau_perp**2 + tau_par**2)
+    ratio = sigma_eff / limit if limit > 0 else 0.0
+    return (ratio <= 1.0, ratio)
+
+
+@ntc_ref(
+    article="4.2.8.4",
+    formula="4.285",
+    latex=r"|n_1| + |t_1| \leq \beta_2 \cdot f_k",
+)
+def weld_simplified_stress_check(
+    n1: float, t1: float, f_k: float, beta2: float
+) -> tuple[bool, float]:
+    """Verifica semplificata cordone d'angolo [4.285].
+
+    NTC18 §4.2.8.4, Formula [4.285]:
+        |n1| + |t1| <= beta2 * f_k
+
+    Parameters
+    ----------
+    n1 : float
+        Tensione normale nel cordone [N/mm^2].
+    t1 : float
+        Tensione tangenziale nel cordone [N/mm^2].
+    f_k : float
+        Resistenza caratteristica del materiale base [N/mm^2].
+    beta2 : float
+        Fattore di riduzione semplificato [-].
+
+    Returns
+    -------
+    tuple[bool, float]
+        (ok, ratio): True se verificata, rapporto (|n1|+|t1|)/(beta2*f_k).
+    """
+    combined = abs(n1) + abs(t1)
+    limit = beta2 * f_k
+    ratio = combined / limit if limit > 0 else 0.0
+    return (ratio <= 1.0, ratio)
