@@ -51,8 +51,12 @@ ntc18_data/
 # Vault Obsidian (generato da script, non versionare)
 ntc18-vault/
 
+# Dati normativi locali
+norms/
+
 # Claude Code
 .claude/
+skills-lock.json
 
 # Secrets / env
 .env
@@ -64,8 +68,13 @@ docs/PRD-chatntc.md
 docs/risposta chatntc.md
 docs/risposta claude.md
 docs/valutazione SAAS ntc18.md
+PRD.md
+docs/orchestrators.md
 
 # File locali non versionati
+src/pyntc/checks/rc_beam.py
+src/pyntc/core/result.py
+tests/checks/test_rc_beam.py
 blog_draft.md
 diagramma_automatizzato.html
 diagramma_merged.svg
