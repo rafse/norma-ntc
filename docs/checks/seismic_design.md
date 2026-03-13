@@ -5,7 +5,9 @@ Include anche azioni su elementi non strutturali (§7.3) e opere geotecniche in 
 
 ## Riferimento normativo
 
-NTC18 §7.3–§7.4, §7.11, Formule [7.3.1]–[7.4.33], [7.11.6]–[7.11.12]
+NTC18 §7.3–§7.4, §7.11, Formule [7.3.1]–[7.4.33], [7.4.18]–[7.4.24], [7.11.6]–[7.11.12]
+
+Include scorrimento e resistenza pareti accoppiate [7.4.18–7.4.22], travi di accoppiamento [7.4.23–7.4.24].
 
 ## API
 

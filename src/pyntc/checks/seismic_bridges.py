@@ -476,7 +476,7 @@ def bridge_deck_capacity_shear(
     V_E_i : float
         Taglio in sommita' pila i dall'analisi [kN].
     gamma_bd : float
-        Fattore di amplificazione da [7.9.11] [-].
+        Fattore di amplificazione da Formula 7.9.11 (adimensionale).
     M_lprc_i : float
         Momento resistente effettivo alla base della pila i [kNm].
     M_Rd_base : float
@@ -484,13 +484,12 @@ def bridge_deck_capacity_shear(
         In generale coincide con M_lprc_i; puo' differire se si usa il
         momento di prima plasticizzazione.
     q : float
-        Fattore di comportamento [-].
+        Fattore di comportamento (adimensionale).
 
     Returns
     -------
     tuple[float, float]
-        - V_Ed: domanda di taglio per l'impalcato [kN]
-        - V_Ed_max: limite superiore V_E,i * q [kN]
+        (V_Ed, V_Ed_max): taglio di progetto e limite superiore [kN].
 
     Raises
     ------
