@@ -16,7 +16,7 @@
       
       
       
-        <link rel="next" href="actions/loads/">
+        <link rel="next" href="actions/safety/">
       
       
         
@@ -248,7 +248,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="actions/loads/" class="md-tabs__link">
+        <a href="actions/safety/" class="md-tabs__link">
           
   
   
@@ -533,6 +533,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="actions/safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sicurezza e vita nominale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -999,7 +1027,119 @@
   <span class="md-ellipsis">
     
   
-    Progettazione sismica
+    Sismica C.A. (§7.4)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/seismic_steel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sismica acciaio (§7.5)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/seismic_timber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sismica legno (§7.7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/seismic_bridges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sismica ponti (§7.9)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="checks/seismic_foundations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fondazioni sismiche (§7.9–§7.10)
   
 
     
@@ -1260,7 +1400,7 @@
 <h2 id="caratteristiche">Caratteristiche<a class="headerlink" href="#caratteristiche" title="Permanent link">&para;</a></h2>
 <ul>
 <li><strong>Tracciabilità normativa</strong>: ogni funzione pubblica riporta il riferimento a articolo, tabella, formula e LaTeX tramite il decoratore <code>@ntc_ref</code></li>
-<li><strong>Test-driven</strong>: 1186 test, copertura completa delle tabelle normative</li>
+<li><strong>Test-driven</strong>: 2226 test, copertura completa delle tabelle normative</li>
 <li><strong>Pipeline chiara</strong>: pyntc produce gli input al solutore (azioni) e verifica gli output (checks) — non è un solutore FEM</li>
 <li><strong>Dipendenze minime</strong>: solo NumPy (core), SciPy (opzionale)</li>
 </ul>
@@ -1276,6 +1416,11 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>actions.safety</code></td>
+<td>§2.4</td>
+<td>Vita nominale, coefficienti d'uso, periodo di riferimento</td>
+</tr>
 <tr>
 <td><code>actions.loads</code></td>
 <td>§3.1</td>
@@ -1348,8 +1493,28 @@
 </tr>
 <tr>
 <td><code>checks.seismic_design</code></td>
-<td>Cap. 7</td>
-<td>Progettazione sismica</td>
+<td>§7.4</td>
+<td>Progettazione sismica C.A.</td>
+</tr>
+<tr>
+<td><code>checks.seismic_steel</code></td>
+<td>§7.5</td>
+<td>Progettazione sismica acciaio</td>
+</tr>
+<tr>
+<td><code>checks.seismic_timber</code></td>
+<td>§7.7</td>
+<td>Progettazione sismica legno</td>
+</tr>
+<tr>
+<td><code>checks.seismic_bridges</code></td>
+<td>§7.8</td>
+<td>Progettazione sismica ponti</td>
+</tr>
+<tr>
+<td><code>checks.seismic_foundations</code></td>
+<td>§7.9–§7.10</td>
+<td>Fondazioni e isolamento sismico</td>
 </tr>
 <tr>
 <td><code>checks.existing_buildings</code></td>

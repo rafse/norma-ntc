@@ -250,7 +250,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../loads/" class="md-tabs__link">
+        <a href="../safety/" class="md-tabs__link">
           
   
   
@@ -449,6 +449,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../safety/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sicurezza e vita nominale
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -812,6 +840,56 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        thermal_expansion_coefficient
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="thermal_expansion_coefficient">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient--raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raises
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1151,7 +1229,119 @@
   <span class="md-ellipsis">
     
   
-    Progettazione sismica
+    Sismica C.A. (§7.4)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../checks/seismic_steel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sismica acciaio (§7.5)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../checks/seismic_timber/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sismica legno (§7.7)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../checks/seismic_bridges/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sismica ponti (§7.9)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../checks/seismic_foundations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fondazioni sismiche (§7.9–§7.10)
   
 
     
@@ -1524,6 +1714,56 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        thermal_expansion_coefficient
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="thermal_expansion_coefficient">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient--parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient--returns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Returns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pyntc.actions.temperature.thermal_expansion_coefficient--raises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Raises
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1552,7 +1792,8 @@
 <h1 id="temperatura-35">Temperatura — §3.5<a class="headerlink" href="#temperatura-35" title="Permanent link">&para;</a></h1>
 <p>Funzioni per le azioni termiche secondo NTC18 §3.5.</p>
 <h2 id="riferimento-normativo">Riferimento normativo<a class="headerlink" href="#riferimento-normativo" title="Permanent link">&para;</a></h2>
-<p>NTC18 §3.5, Tab. 3.5.I, Formule [3.5.1]–[3.5.6]</p>
+<p>NTC18 §3.5, Tab. 3.5.I/III, Formule [3.5.1]–[3.5.6]</p>
+<p>Include coefficienti di dilatazione termica per 8 materiali [Tab. 3.5.III].</p>
 <h2 id="api">API<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
 
 
@@ -1965,6 +2206,134 @@ combinazioni di carico.</p>
 <a id="__codelineno-0-189" name="__codelineno-0-189"></a>        <span class="p">)</span>
 <a id="__codelineno-0-190" name="__codelineno-0-190"></a>
 <a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="k">return</span> <span class="n">_UNIFORM_VARIATION</span><span class="p">[</span><span class="n">structure_type</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="pyntc.actions.temperature.thermal_expansion_coefficient" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">thermal_expansion_coefficient</span><span class="p">(</span><span class="n">material</span><span class="p">)</span></code>
+
+<a href="#pyntc.actions.temperature.thermal_expansion_coefficient" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Coefficiente di dilatazione termica alpha_T [10⁻⁶/°C].</p>
+<p>NTC18 §3.5.7, Tab. 3.5.III.
+Per materiali con valore a range (muratura, legno ortogonale),
+restituisce una tupla <code>(min, max)</code>.</p>
+<h5 id="pyntc.actions.temperature.thermal_expansion_coefficient--parameters">Parameters<a class="headerlink" href="#pyntc.actions.temperature.thermal_expansion_coefficient--parameters" title="Permanent link">&para;</a></h5>
+<p>material : str
+    Materiale:
+    - <code>"aluminum"</code>: alluminio (24)
+    - <code>"steel"</code>: acciaio da carpenteria (12)
+    - <code>"concrete"</code>: calcestruzzo strutturale (10)
+    - <code>"composite"</code>: strutture miste acciaio-calcestruzzo (12)
+    - <code>"lightweight_concrete"</code>: calcestruzzo alleggerito (7)
+    - <code>"masonry"</code>: muratura (6 ÷ 10) → tuple (6, 10)
+    - <code>"timber_parallel"</code>: legno parallelo alle fibre (5)
+    - <code>"timber_perpendicular"</code>: legno ortogonale alle fibre (30 ÷ 70) → tuple (30, 70)</p>
+<h5 id="pyntc.actions.temperature.thermal_expansion_coefficient--returns">Returns<a class="headerlink" href="#pyntc.actions.temperature.thermal_expansion_coefficient--returns" title="Permanent link">&para;</a></h5>
+<p>float or tuple[float, float]
+    Coefficiente alpha_T [10⁻⁶/°C].
+    Tupla <code>(min, max)</code> per materiali con range normativo.</p>
+<h5 id="pyntc.actions.temperature.thermal_expansion_coefficient--raises">Raises<a class="headerlink" href="#pyntc.actions.temperature.thermal_expansion_coefficient--raises" title="Permanent link">&para;</a></h5>
+<p>ValueError
+    Se <code>material</code> non e' valido.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/pyntc/actions/temperature.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-208">208</a></span>
+<span class="normal"><a href="#__codelineno-0-209">209</a></span>
+<span class="normal"><a href="#__codelineno-0-210">210</a></span>
+<span class="normal"><a href="#__codelineno-0-211">211</a></span>
+<span class="normal"><a href="#__codelineno-0-212">212</a></span>
+<span class="normal"><a href="#__codelineno-0-213">213</a></span>
+<span class="normal"><a href="#__codelineno-0-214">214</a></span>
+<span class="normal"><a href="#__codelineno-0-215">215</a></span>
+<span class="normal"><a href="#__codelineno-0-216">216</a></span>
+<span class="normal"><a href="#__codelineno-0-217">217</a></span>
+<span class="normal"><a href="#__codelineno-0-218">218</a></span>
+<span class="normal"><a href="#__codelineno-0-219">219</a></span>
+<span class="normal"><a href="#__codelineno-0-220">220</a></span>
+<span class="normal"><a href="#__codelineno-0-221">221</a></span>
+<span class="normal"><a href="#__codelineno-0-222">222</a></span>
+<span class="normal"><a href="#__codelineno-0-223">223</a></span>
+<span class="normal"><a href="#__codelineno-0-224">224</a></span>
+<span class="normal"><a href="#__codelineno-0-225">225</a></span>
+<span class="normal"><a href="#__codelineno-0-226">226</a></span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span>
+<span class="normal"><a href="#__codelineno-0-228">228</a></span>
+<span class="normal"><a href="#__codelineno-0-229">229</a></span>
+<span class="normal"><a href="#__codelineno-0-230">230</a></span>
+<span class="normal"><a href="#__codelineno-0-231">231</a></span>
+<span class="normal"><a href="#__codelineno-0-232">232</a></span>
+<span class="normal"><a href="#__codelineno-0-233">233</a></span>
+<span class="normal"><a href="#__codelineno-0-234">234</a></span>
+<span class="normal"><a href="#__codelineno-0-235">235</a></span>
+<span class="normal"><a href="#__codelineno-0-236">236</a></span>
+<span class="normal"><a href="#__codelineno-0-237">237</a></span>
+<span class="normal"><a href="#__codelineno-0-238">238</a></span>
+<span class="normal"><a href="#__codelineno-0-239">239</a></span>
+<span class="normal"><a href="#__codelineno-0-240">240</a></span>
+<span class="normal"><a href="#__codelineno-0-241">241</a></span>
+<span class="normal"><a href="#__codelineno-0-242">242</a></span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span>
+<span class="normal"><a href="#__codelineno-0-244">244</a></span>
+<span class="normal"><a href="#__codelineno-0-245">245</a></span>
+<span class="normal"><a href="#__codelineno-0-246">246</a></span>
+<span class="normal"><a href="#__codelineno-0-247">247</a></span>
+<span class="normal"><a href="#__codelineno-0-248">248</a></span>
+<span class="normal"><a href="#__codelineno-0-249">249</a></span>
+<span class="normal"><a href="#__codelineno-0-250">250</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-208" name="__codelineno-0-208"></a><span class="nd">@ntc_ref</span><span class="p">(</span><span class="n">article</span><span class="o">=</span><span class="s2">&quot;3.5.7&quot;</span><span class="p">,</span> <span class="n">table</span><span class="o">=</span><span class="s2">&quot;Tab.3.5.III&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-209" name="__codelineno-0-209"></a>         <span class="n">latex</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\alpha_T \;\text{[10^{-6}/°C]} — \text{Tab.\,3.5.III}&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-210" name="__codelineno-0-210"></a><span class="k">def</span><span class="w"> </span><span class="nf">thermal_expansion_coefficient</span><span class="p">(</span>
+<a id="__codelineno-0-211" name="__codelineno-0-211"></a>    <span class="n">material</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-0-212" name="__codelineno-0-212"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Coefficiente di dilatazione termica alpha_T [10⁻⁶/°C].</span>
+<a id="__codelineno-0-214" name="__codelineno-0-214"></a>
+<a id="__codelineno-0-215" name="__codelineno-0-215"></a><span class="sd">    NTC18 §3.5.7, Tab. 3.5.III.</span>
+<a id="__codelineno-0-216" name="__codelineno-0-216"></a><span class="sd">    Per materiali con valore a range (muratura, legno ortogonale),</span>
+<a id="__codelineno-0-217" name="__codelineno-0-217"></a><span class="sd">    restituisce una tupla ``(min, max)``.</span>
+<a id="__codelineno-0-218" name="__codelineno-0-218"></a>
+<a id="__codelineno-0-219" name="__codelineno-0-219"></a><span class="sd">    Parameters</span>
+<a id="__codelineno-0-220" name="__codelineno-0-220"></a><span class="sd">    ----------</span>
+<a id="__codelineno-0-221" name="__codelineno-0-221"></a><span class="sd">    material : str</span>
+<a id="__codelineno-0-222" name="__codelineno-0-222"></a><span class="sd">        Materiale:</span>
+<a id="__codelineno-0-223" name="__codelineno-0-223"></a><span class="sd">        - ``&quot;aluminum&quot;``: alluminio (24)</span>
+<a id="__codelineno-0-224" name="__codelineno-0-224"></a><span class="sd">        - ``&quot;steel&quot;``: acciaio da carpenteria (12)</span>
+<a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="sd">        - ``&quot;concrete&quot;``: calcestruzzo strutturale (10)</span>
+<a id="__codelineno-0-226" name="__codelineno-0-226"></a><span class="sd">        - ``&quot;composite&quot;``: strutture miste acciaio-calcestruzzo (12)</span>
+<a id="__codelineno-0-227" name="__codelineno-0-227"></a><span class="sd">        - ``&quot;lightweight_concrete&quot;``: calcestruzzo alleggerito (7)</span>
+<a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="sd">        - ``&quot;masonry&quot;``: muratura (6 ÷ 10) → tuple (6, 10)</span>
+<a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="sd">        - ``&quot;timber_parallel&quot;``: legno parallelo alle fibre (5)</span>
+<a id="__codelineno-0-230" name="__codelineno-0-230"></a><span class="sd">        - ``&quot;timber_perpendicular&quot;``: legno ortogonale alle fibre (30 ÷ 70) → tuple (30, 70)</span>
+<a id="__codelineno-0-231" name="__codelineno-0-231"></a>
+<a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">    Returns</span>
+<a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="sd">    -------</span>
+<a id="__codelineno-0-234" name="__codelineno-0-234"></a><span class="sd">    float or tuple[float, float]</span>
+<a id="__codelineno-0-235" name="__codelineno-0-235"></a><span class="sd">        Coefficiente alpha_T [10⁻⁶/°C].</span>
+<a id="__codelineno-0-236" name="__codelineno-0-236"></a><span class="sd">        Tupla ``(min, max)`` per materiali con range normativo.</span>
+<a id="__codelineno-0-237" name="__codelineno-0-237"></a>
+<a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="sd">    Raises</span>
+<a id="__codelineno-0-239" name="__codelineno-0-239"></a><span class="sd">    ------</span>
+<a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="sd">    ValueError</span>
+<a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="sd">        Se ``material`` non e&#39; valido.</span>
+<a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="k">if</span> <span class="n">material</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_THERMAL_EXPANSION</span><span class="p">:</span>
+<a id="__codelineno-0-244" name="__codelineno-0-244"></a>        <span class="n">valid</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_THERMAL_EXPANSION</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<a id="__codelineno-0-245" name="__codelineno-0-245"></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+<a id="__codelineno-0-246" name="__codelineno-0-246"></a>            <span class="sa">f</span><span class="s2">&quot;materiale &#39;</span><span class="si">{</span><span class="n">material</span><span class="si">}</span><span class="s2">&#39; non valido. &quot;</span>
+<a id="__codelineno-0-247" name="__codelineno-0-247"></a>            <span class="sa">f</span><span class="s2">&quot;Valori ammessi: </span><span class="si">{</span><span class="n">valid</span><span class="si">}</span><span class="s2">.&quot;</span>
+<a id="__codelineno-0-248" name="__codelineno-0-248"></a>        <span class="p">)</span>
+<a id="__codelineno-0-249" name="__codelineno-0-249"></a>
+<a id="__codelineno-0-250" name="__codelineno-0-250"></a>    <span class="k">return</span> <span class="n">_THERMAL_EXPANSION</span><span class="p">[</span><span class="n">material</span><span class="p">]</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

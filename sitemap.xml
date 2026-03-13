@@ -2,78 +2,102 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://rafse.github.io/norma-ntc/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
+    </url>
+    <url>
+         <loc>https://rafse.github.io/norma-ntc/orchestrators/</loc>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/traceability/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/bridges/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/combinations/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/fire/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/loads/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
+    </url>
+    <url>
+         <loc>https://rafse.github.io/norma-ntc/actions/safety/</loc>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/seismic/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/snow/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/temperature/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/actions/wind/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/composite/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/concrete/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/existing_buildings/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/geotechnical/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/masonry/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
+    </url>
+    <url>
+         <loc>https://rafse.github.io/norma-ntc/checks/seismic_bridges/</loc>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/seismic_design/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
+    </url>
+    <url>
+         <loc>https://rafse.github.io/norma-ntc/checks/seismic_foundations/</loc>
+         <lastmod>2026-03-13</lastmod>
+    </url>
+    <url>
+         <loc>https://rafse.github.io/norma-ntc/checks/seismic_steel/</loc>
+         <lastmod>2026-03-13</lastmod>
+    </url>
+    <url>
+         <loc>https://rafse.github.io/norma-ntc/checks/seismic_timber/</loc>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/steel/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/checks/timber/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
     <url>
          <loc>https://rafse.github.io/norma-ntc/examples/carichi_combinazioni/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-03-13</lastmod>
     </url>
 </urlset>
